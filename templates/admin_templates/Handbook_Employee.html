@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}View Handbook{% endblock %}
+
+{% block content %}
+{% include 'Side_Navbar.html' %}
+
+<div class="content-wrapper">
+
+  <!-- Page Header -->
+              <section class="content-header">
+                <div class="container-fluid">
+                  <div class="row mb-2">
+                    <div class="col-sm-6">
+
+                    </div>
+                  </div>
+                </div>
+              </section>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb bg-light px-3 py-2">
+                          <li class="breadcrumb-item"><a href="#" class="text-primary">Dashboard</a></li>
+                          <li class="breadcrumb-item active" aria-current="page">Employee Handbook</li>
+                        </ol>
+                      </nav>
+
+              <div class="container py-3">
+                <h4 class="mb-3">Employee Handbook</h4>
+
+            {% if latest_pdf %}
+            <div class="card mb-4 shadow-sm rounded">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+                  <h5 class="card-title mb-2 mb-md-0">📘 Latest Handbook</h5>
+                  <div class="btn-group">
+                    <!-- View button opens PDF in new tab -->
+                    <a href="{{ latest_pdf.file.url }}" target="_blank" class="btn btn-primary" onclick="markViewed()">
+                      View Handbook
+                    </a>
+                    <a href="{{ latest_pdf.file.url }}" download class="btn btn-outline-secondary">Download Handbook</a>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                  <div class="mb-2 mb-md-0">
+                    <strong>Status:</strong>
+                    {% if acknowledgement and acknowledgement.status == "Acknowledge" %}
+                      <span class="badge bg-success">Acknowledged</span>
+                    {% else %}
+                      <span class="badge bg-danger">Not Acknowledged</span>
+                    {% endif %}
+                  </div>
+
+                  {% if not acknowledgement or acknowledgement.status != "Acknowledge" %}
+                  <!-- Acknowledge button (initially hidden) -->
+                  <form method="POST" action="{% url 'acknowledge_handbook' latest_pdf.id %}" id="acknowledgeSection" style="display: none;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success">
+                      Acknowledge
+                    </button>
+                  </form>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <!-- JavaScript to show Acknowledge button -->
+            <script>
+              function markViewed() {
+                // Show the Acknowledge button after opening the PDF
+                document.getElementById('acknowledgeSection').style.display = 'inline-block';
+              }
+            </script>
+            {% else %}
+            <div class="alert alert-warning">No handbook uploaded yet.</div>
+            {% endif %}
+
+  </div>
+</div>
+
+
+{% endblock %}

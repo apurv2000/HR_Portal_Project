@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Learning Video{% endblock %}
+
+{% block content %}
+{% include 'Side_Navbar.html' %}
+<div class="content-wrapper">
+
+  <!-- Page Header -->
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-light px-3 py-2">
+              <li class="breadcrumb-item"><a href="#" class="text-primary">Dashboard</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Learning Video</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="content-header pt-0">
+      <div class="row">
+        <div class="col-12 m-auto">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title"><b>Learning Video</b></h3>
+            </div>
+            <div class="card-body container">
+
+              <!-- Project Management -->
+              <div class="row mb-4">
+                <div class="col-sm-12">
+                  <div class="card-header">
+                    <h3 class="card-title">Project Management</h3>
+                  </div>
+                  <div class="card-body">
+                    {% if is_admin %}
+                    <form class="upload-form" data-section="Project Management" enctype="multipart/form-data">
+                      {% csrf_token %}
+                      <input type="text" name="title" placeholder="Video Title" required>
+                      <input type="file" name="file" accept="video/*" required>
+                      <button type="submit" class="btn btn-sm btn-primary mt-1">Upload Video</button>
+                    </form>
+                    {% endif %}
+                    <div class="row project-management-videos">
+                      {% for video in project_videos %}
+                      <div class="col-sm-12 col-md-6 col-lg-4">
+                        <div class="card text-center font-weight-bold">
+                          <video controls class="card-img-top" style="border:1px solid;padding:10px;">
+                           <source src="{{ video.video.url }}" type="video/mp4">
+                          </video>
+                          <div class="card-body">{{ video.title }}</div>
+                        </div>
+                      </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Timesheet Management -->
+              <div class="row mb-4">
+                <div class="col-sm-12">
+                  <div class="card-header">
+                    <h3 class="card-title">Timesheet Management</h3>
+                  </div>
+                  <div class="card-body">
+                    {% if is_admin %}
+                    <form class="upload-form" data-section="Timesheet Management" enctype="multipart/form-data">
+                      {% csrf_token %}
+                      <input type="text" name="title" placeholder="Video Title" required>
+                      <input type="file" name="file" accept="video/*" required>
+                      <button type="submit" class="btn btn-sm btn-primary mt-1">Upload Video</button>
+                    </form>
+                    {% endif %}
+                    <div class="row timesheet-management-videos">
+                      {% for video in timesheet_videos %}
+                      <div class="col-sm-12 col-md-6 col-lg-4">
+                        <div class="card text-center font-weight-bold">
+                          <video controls class="card-img-top" style="border:1px solid;padding:10px;">
+                            <source src="{{ video.video.url }}" type="video/mp4">
+                          </video>
+                          <div class="card-body">{{ video.title }}</div>
+                        </div>
+                      </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Leave Management -->
+              <div class="row mb-4">
+                <div class="col-sm-12">
+                  <div class="card-header">
+                    <h3 class="card-title">Leave Management</h3>
+                  </div>
+                  <div class="card-body">
+                    {% if is_admin %}
+                    <form class="upload-form" data-section="Leave Management" enctype="multipart/form-data">
+                      {% csrf_token %}
+                      <input type="text" name="title" placeholder="Video Title" required>
+                      <input type="file" name="file" accept="video/*" required>
+                      <button type="submit" class="btn btn-sm btn-primary mt-1">Upload Video</button>
+                    </form>
+                    {% endif %}
+                    <div class="row leave-management-videos">
+                      {% for video in leave_videos %}
+                      <div class="col-sm-12 col-md-6 col-lg-4">
+                        <div class="card text-center font-weight-bold">
+                          <video controls class="card-img-top" style="border:1px solid;padding:10px;">
+                            <source src="{{ video.video.url }}" type="video/mp4">
+                          </video>
+                          <div class="card-body">{{ video.title }}</div>
+                        </div>
+                      </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div> <!-- End card-body -->
+          </div> <!-- End card -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+document.querySelectorAll('.upload-form').forEach(form => {
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const section = this.getAttribute('data-section');
+    const formData = new FormData(this);
+    formData.append('section', section);
+
+    fetch("{% url 'upload_learning_video' %}", {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: formData
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const container = document.querySelector(`.${section.toLowerCase().replace(/\s/g, '-')}-videos`);
+          const videoCard = `
+            <div class="col-sm-12 col-md-6 col-lg-4">
+              <div class="card text-center font-weight-bold">
+                <video controls class="card-img-top" style="border:1px solid;padding:10px;">
+                  <source src="${data.url}" type="video/mp4">
+                </video>
+                <div class="card-body">${data.title}</div>
+              </div>
+            </div>`;
+          container.insertAdjacentHTML('beforeend', videoCard);
+          this.reset();
+        } else {
+          alert('Upload failed. Please try again.');
+        }
+      });
+  });
+});
+</script>
+{% endblock %}

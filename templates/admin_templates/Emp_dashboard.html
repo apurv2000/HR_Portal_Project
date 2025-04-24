@@ -1,0 +1,130 @@
+{% extends '../base.html' %}  <!-- Extends the base template -->
+{% load static %}  <!-- Loads static files for images, CSS, etc. -->
+{% block title%} Admin  Panel {% endblock %} <!-- Sets the page title -->
+
+{% block content %}
+<div class="wrapper">
+
+
+  {% include 'Side_Navbar.html' %}
+
+  <!-- Content Wrapper. Contains page content -->
+   <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+        <h5 class="mt-4 mb-2"></h5>
+        <div class="row">
+          <div class="col-md-3 col-sm-6 col-12">
+            <div class="info-box bg-gradient-info">
+              <span class="info-box-icon"><i class="far fa-bookmark"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Total Employee</span>
+                <span class="info-box-number">{{total_employee}}</span>
+
+
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+          <div class="col-md-3 col-sm-6 col-12">
+            <div class="info-box bg-gradient-success">
+              <span class="info-box-icon"><i class="fas fa-umbrella-beach"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Remaining Leave</span>
+                 <span class="info-box-number">{{leave_totals.remaining_leave_sum}}</span>
+
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+          <div class="col-md-3 col-sm-6 col-12">
+            <div class="info-box bg-gradient-secondary">
+              <span class="info-box-icon"><i class="far fa-calendar-alt"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Total Leave</span>
+               <span class="info-box-number">{{leave_totals.total_leave_sum }}</span>
+
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+                <div class="col-md-3 col-sm-6 col-12">
+            <div class="info-box bg-gradient-dark">
+              <span class="info-box-icon"><i class="far fa-calendar-alt"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Availed Leave</span>
+                 <span class="info-box-number">{{leave_totals.availed_leave_sum}}</span>
+
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!--  col-->
+                  <div class="col-md-3 col-sm-6 col-12">
+            <div class="info-box bg-gradient-primary">
+              <span class="info-box-icon"><i  class="fas fa-project-diagram"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Project</span>
+                <span class="info-box-number">{{total_projects}}</span>
+
+
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!--  col-->
+          <div class="col-md-3 col-sm-6 col-12">
+            <div class="info-box bg-gradient-warning">
+              <span class="info-box-icon"><i class="fas fa-tasks"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Task</span>
+                <span class="info-box-number">{{total_tasks}}</span>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+        </div>
+        <!-- /.row -->
+      <!--Add Cards For Different functionality-->
+      {% include 'admin_templates/Statistics.html' %}
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here -->
+  </aside>
+  <!-- /.control-sidebar -->
+</div>
+<!-- ./wrapper -->
+
+{% endblock %}
