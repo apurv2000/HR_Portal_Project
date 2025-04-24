@@ -286,7 +286,10 @@ hr {
                             </div>
                         {% elif activity.activity_type == 'Project' %}
                             <div class="mb-2">
-                                <strong class="text-info">📁 Project Assigned:</strong> {{ activity.project_name }}
+                                <strong class="text-info">📁 Project Assigned:</strong>
+                                <a href="{% url 'Project:project_detail' activity.id %}" class="text-decoration-none text-primary">
+                                {{ activity.project_name}}
+                              </a>
                                 <div class="text-muted small">Assigned by : {{ activity.admin.name}}</div>
                             </div>
                         {% endif %}
@@ -346,7 +349,10 @@ hr {
                             </div>
                         {% elif activity.activity_type == 'Project' %}
                             <div class="mb-2">
-                                <strong class="text-info">📁 Project Assigned:</strong> {{ activity.project_name }}
+                                <strong class="text-info">📁 Project Assigned:</strong>
+                                 <a href="{% url 'Project:project_detail' activity.id %}" class="text-decoration-none text-primary">
+                                {{ activity.project_name}}
+                              </a>
                                 <div class="text-muted small">Assigned by : <span class="text-dark small">{{ activity.admin.name}}</span></div>
                             </div>
                         {% endif %}

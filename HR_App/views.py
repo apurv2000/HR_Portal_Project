@@ -85,6 +85,43 @@ def Manager(request):
         remaining_leave_sum=Sum('remaining_leave'),
         availed_leave_sum=Sum('availed_leave')
     )
+    # Annotate and fetch
+    latest_tasks = Task.objects.filter(
+        assigned_to__isnull=False,
+        status='Claimed Completed'
+    ).annotate(
+        activity_type=Value('Task', output_field=CharField())
+    )
+
+    latest_leaves = Leave.objects.filter(employee__isnull=False).annotate(
+        activity_type=Value('Leave', output_field=CharField())
+    )
+
+    latest_projects = Project.objects.filter(
+        team_members__isnull=False
+    ).annotate(
+        activity_type=Value('Project', output_field=CharField())
+    )
+  # Pending Show only his team member data in dashboard
+    # Attach normalized datetime (prefer updated_at or fallback)
+    for item in chain(latest_tasks, latest_leaves, latest_projects):
+        if hasattr(item, 'timestamp'):
+            item.activity_datetime = item.timestamp
+        elif hasattr(item, 'created_at'):
+            item.activity_datetime = item.created_at
+        elif hasattr(item, 'start_date'):
+            item.activity_datetime = datetime.combine(item.start_date, time.min)
+        elif hasattr(item, 'assigned_date'):
+            item.activity_datetime = item.assigned_date
+        else:
+            item.activity_datetime = datetime.min  # fallback
+
+    # Combine and get latest 10
+    combined_activities = sorted(
+        chain(latest_tasks[:5], latest_leaves[:5], latest_projects[:5]),
+        key=lambda x: x.activity_datetime,
+        reverse=True
+    )[:10]
 
     context = {
         'total_projects': project_qs.count(),
@@ -96,6 +133,7 @@ def Manager(request):
         'overdue_tasks': overdue_tasks,
         'status_percentages': status_percentages,
         'leave_totals': aggregated_leave,
+        'latest_activities': combined_activities,
 
     }
 
