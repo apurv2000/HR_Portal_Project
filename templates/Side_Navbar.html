@@ -50,7 +50,7 @@
       </li>
 
       <li class="nav-item dropdown">
-        <a class="nav-link" data-toggle="dropdown" href="{% url 'Chatbox:chat' %}">
+        <a class="nav-link" data-toggle="dropdown" href="{% url 'Chatbox:chat'  %}">
           <i class="far fa-comments"></i>
           <span class="badge badge-danger navbar-badge">3</span>
         </a>
@@ -264,6 +264,12 @@
           </li>
           <li class="nav-item">
               <a href="{% url 'Timesheet:timesheet_add' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Add Weekly Record</p>
+              </a>
+          </li>
+          <li class="nav-item">
+              <a href="{% url 'Timesheet:timesheet_daily' %}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Add Daily Record</p>
               </a>

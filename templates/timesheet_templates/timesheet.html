@@ -14,7 +14,8 @@
 
     <div class="container timesheet-container">
 
-      <p class="description-required">Description is mandatory for sending the timesheet.</p>
+
+      <p class="description-required">Description is mandatory for sending the timesheet.  <div id="general-error"  class="text-danger mb-2 font-weight-bold "></div></p>
 
       <form id="form" method="POST" enctype="multipart/form-data" action="{% url 'Timesheet:timesheet_add' %}">
         {% csrf_token %}
@@ -142,6 +143,7 @@
                 Last Week Timesheet
               </button>
             {% endif %}
+
 
         </div>
       </form>

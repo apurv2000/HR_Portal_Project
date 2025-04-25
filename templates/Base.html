@@ -411,6 +411,16 @@ document.getElementById('sundayCheckbox').addEventListener('change', function ()
 });
 </script>
 
+<!--For remove error message when user again start typing on that field-->
+<script>
+  document.querySelectorAll(".form-control").forEach(input => {
+  input.addEventListener("input", function () {
+    const name = this.name;
+    const errEl = document.querySelector(`[data-error-for="${name}"]`);
+    if (errEl) errEl.textContent = '';
+  });
+});
+</script>
 
 <!--Script for render errors and success message on Timesheet page-->
 <script>
@@ -431,26 +441,33 @@ document.getElementById("form").addEventListener("submit", function (e) {
   })
   .then(response => response.json())
   .then(data => {
-   console.log("Received JSON:", data);
-    if (data.status === "success" ) {
-      //  Show success alert
-      alert(data.message);
-      console.log("success");
-      // Optional: Reset form or reload
-      form.reset();
-      location.reload()
+  console.log("Received JSON:", data);
+  if (data.status === "success") {
+    alert(data.message);
+    form.reset();
+    location.reload();
+  } else {
+    console.log("error");
+
+    // Display general error if exists
+    if (data.errors.general) {
+      document.getElementById("general-error").textContent = data.errors.general;
     } else {
-      console.log("error");
-      // Display field-level error messages
-      for (const [dayKey, fields] of Object.entries(data.errors)) {
-        const dayIndex = dayKey.split('_')[1];
-        for (const [field, msg] of Object.entries(fields)) {
-          const errEl = document.querySelector(`[data-error-for="${field}_${dayIndex}"]`);
-          if (errEl) errEl.textContent = msg;
-        }
+      document.getElementById("general-error").textContent = '';  // Clear if no general error
+    }
+
+    // Display field-level error messages
+    for (const [dayKey, fields] of Object.entries(data.errors)) {
+      if (dayKey === "general") continue;  // Skip general error here
+      const dayIndex = dayKey.split('_')[1];
+      for (const [field, msg] of Object.entries(fields)) {
+        const errEl = document.querySelector(`[data-error-for="${field}_${dayIndex}"]`);
+        if (errEl) errEl.textContent = msg;
       }
     }
-  })
+  }
+})
+
   .catch(error => {
     console.error("Error submitting timesheet:", error);
   });

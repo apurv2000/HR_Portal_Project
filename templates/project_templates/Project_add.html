@@ -78,97 +78,95 @@
                 </div>
 
                 <!-- Row: Rate Status, Rate, Priority -->
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label for="rate_status" class="form-label">Rate Status</label>
-                            <select name="rate_status" class="form-select">
-                                <option>Non Billable</option>
-                                <option>Billable</option>
+                     <div class="row mb-3">
+                    <!-- Rate Status -->
+                    <div class="col-md-4">
+                        <label for="rate_status" class="form-label">Rate Status</label>
+                        <select name="rate_status" class="form-select form-control">
+                            <option>Non Billable</option>
+                            <option>Billable</option>
+                        </select>
+                    </div>
+
+                    <!-- Rate (with Currency Selector) -->
+                    <div class="col-md-4">
+                        <label class="form-label">Rate</label>
+                        <div class="input-group">
+                            <select class="form-select form-control" name="rate_currency" style="max-width: 80px;">
+                                <option>Rs</option>
+                                <option>USD</option>
                             </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Rate</label>
-                            <div class="input-group">
-                                <select class="form-select" name="rate_currency" style="max-width: 80px;">
-                                    <option>Rs</option>
-                                    <option>USD</option>
-                                </select>
-                                <input type="text" class="form-control" name="rate_amount" placeholder="Rate">
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="priority" class="form-label">Priority <span class="text-danger">*</span></label>
-                            <select name="priority" class="form-select">
-                                <option>Low</option>
-                                <option>Medium</option>
-                                <option>High</option>
-                            </select>
+                            <input type="text" class="form-control" name="rate_amount" placeholder="Rate">
                         </div>
                     </div>
 
-                    <!-- Row: Project Leader, Admin, Team Members -->
+                    <!-- Priority -->
+                    <div class="col-md-4">
+                        <label for="priority" class="form-label">Priority <span class="text-danger">*</span></label>
+                        <select name="priority" class="form-select form-control">
+                            <option>Low</option>
+                            <option>Medium</option>
+                            <option>High</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Row: Project Leader, Admin, Team Members -->
                 <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label for="leader" class="form-label fw-semibold">
-                                Project Leader <span class="text-danger">*</span>
-                            </label>
-                            <select id="leader" name="leader" class="form-select shadow-sm border-primary-subtle">
-                                <option selected disabled hidden>Select a Project Leader</option>
+                    <!-- Project Leader -->
+                    <div class="col-md-4">
+                        <label for="leader" class="form-label fw-semibold">
+                            Project Leader <span class="text-danger">*</span>
+                        </label>
+                        <select id="leader" name="leader" class="form-select form-control">
+                            <option selected disabled hidden>Select a Project Leader</option>
+                            {% for emp in employees %}
+                                {% if emp.role != 'Employee' %}
+                                    <option value="{{ emp.id }}">
+                                        {{ emp.name }}{% if emp.role %} ({{ emp.role }}){% endif %}{% if emp.department %} - {{ emp.department }}{% endif %}
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                    </div>
+
+                    <!-- Admin -->
+                    <div class="col-md-4">
+                        <label for="admin" class="form-label">Admin <span class="text-danger">*</span></label>
+                        <select name="admin" class="form-select form-control">
+                            <option selected disabled>Select Admin</option>
+                            {% for emp in admin_employees %}
+                                <option value="{{ emp.id }}">{{ emp.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Team Members -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Team Members <span class="text-danger">*</span></label>
+                        <div class="dropdown w-100">
+                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button"
+                                    id="teamMembersBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                                Select team members
+                            </button>
+                            <div class="dropdown-menu w-100 p-2" id="teamMembersDropdown" style="max-height: 250px; overflow-y: auto;">
                                 {% for emp in employees %}
-                                    {% if emp.role != 'Employee' %}
-                                        <option value="{{ emp.id }}">
-                                            {{ emp.name }}{% if emp.role %} ({{ emp.role }}){% endif %}{% if emp.department %} - {{ emp.department }}{% endif %}
-                                        </option>
+                                    {% if emp.role == 'Employee' %}
+                                        <div class="form-check">
+                                            <input class="form-check-input team-member-option" type="checkbox"
+                                                   value="{{ emp.id }}" id="emp_{{ emp.id }}" name="team_members"
+                                                   data-label="{{ emp.name }} ({{ emp.role }}){% if emp.department %} - {{ emp.department }}{% endif %}">
+                                            <label class="form-check-label" for="emp_{{ emp.id }}">
+                                                {{ emp.name }} ({{ emp.role }}){% if emp.department %} - {{ emp.department }}{% endif %}
+                                            </label>
+                                        </div>
                                     {% endif %}
                                 {% endfor %}
-                            </select>
-                            <small class="form-text text-muted mt-1">
-                                Please select a leader responsible for project execution.
-                            </small>
-                            <!-- Error message will be inserted here by jQuery -->
+                            </div>
                         </div>
-
-                        <div class="col-md-4">
-                            <label for="admin" class="form-label">Admin <span class="text-danger">*</span></label>
-                            <select name="admin" class="form-select">
-                                <option selected disabled>Select Admin</option>
-                                {% for emp in admin_employees %}
-                                    <option value="{{ emp.id }}">{{ emp.name }}</option>
-                                {% endfor %}
-                            </select>
-                            <!-- Error message will be inserted here by jQuery -->
-                        </div>
-                         <div class="col-md-4" id="teamMembersWrapper">
-                                    <label class="form-label fw-semibold">
-                                        Team Members <span class="text-danger">*</span>
-                                    </label>
-
-                                    <div class="dropdown w-100">
-                                        <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button"
-                                                id="teamMembersBtn" data-bs-toggle="dropdown" aria-expanded="false">
-                                            Select team members
-                                        </button>
-
-                                        <div class="dropdown-menu w-100 p-2" id="teamMembersDropdown" style="max-height: 250px; overflow-y: auto;">
-                                            {% for emp in employees %}
-                                                {% if emp.role == 'Employee' %}
-                                                    <div class="form-check">
-                                                        <input class="form-check-input team-member-option" type="checkbox"
-                                                               value="{{ emp.id }}" id="emp_{{ emp.id }}"
-                                                               name="team_members"
-                                                               data-label="{{ emp.name }} ({{ emp.role }}){% if emp.department %} - {{ emp.department }}{% endif %}">
-                                                        <label class="form-check-label" for="emp_{{ emp.id }}">
-                                                            {{ emp.name }} ({{ emp.role }}){% if emp.department %} - {{ emp.department }}{% endif %}
-                                                        </label>
-                                                    </div>
-                                                {% endif %}
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                </div>
-
                     </div>
-
+                </div>
 
 
                 <div class="mb-3">
@@ -177,7 +175,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="upload_file" class="form-label">Upload File</label>
+                    <label for="upload_file" class="form-label">Upload File <span class="text-danger small">(file size: Max 2MB)</span></label>
                     <input type="file" name="upload_file" class="form-control">
                 </div>
 

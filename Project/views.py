@@ -506,6 +506,15 @@ def add_project(request):
         if not team_members:
             errors['team_members'] ="Team Members is required"
 
+        # Validate file upload
+        if upload_file:
+            allowed_extensions = ['pdf', 'jpeg', 'jpg', 'png']
+            ext = upload_file.name.split('.')[-1].lower()
+            if ext not in allowed_extensions:
+                errors['upload_file'] = "Invalid file type. Allowed: PDF, JPEG, JPG, PNG."
+            elif upload_file.size > 2 * 1024 * 1024:  # 2MB size limit (2 * 1024 * 1024 bytes)
+                errors['upload_file'] = "File must be under 2MB."
+
         # Check if leader/admin exists
         if not leader_id:
             errors.setdefault("leader", []).append("Leader is required.")

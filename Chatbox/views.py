@@ -10,43 +10,51 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
 
-def chat_page(request, project_id):
+def chat_page(request):
     if not request.session.get('employee_id'):
         return redirect('Login_user_page')
 
-    try:
-        project = Project.objects.get(id=project_id)
-    except Project.DoesNotExist:
-        return HttpResponseNotFound("Project not found")
+    emp_id = request.session.get('employee_id')
+    employee = EmployeeBISP.objects.get(id=emp_id)
 
-    return render(request, 'Chatbox/chat_page.html', {
+    # Get the first project the employee is part of
+    project = Project.objects.filter(team_members=employee).union(
+        Project.objects.filter(leader=employee)
+    ).union(
+        Project.objects.filter(admin=employee)
+    ).first()
+
+    if not project:
+        return HttpResponseNotFound("No associated project found for this employee.")
+
+    return render(request, 'chatbox_templates/Chatbox.html', {
         'project': project
     })
+
 
 
 def send_message(request):
     if not request.session.get('employee_id'):
         return redirect('Login_user_page')
-    emp_id = request.session.get('employee_id')
-    if not emp_id:
-        return JsonResponse({'error': 'Unauthorized'}, status=401)
 
+    emp_id = request.session.get('employee_id')
     employee = EmployeeBISP.objects.get(id=emp_id)
 
     if request.method == 'POST':
         text = request.POST.get("message")
-        project_id = request.POST.get("project_id")
 
-        if not text or not project_id:
-            return JsonResponse({'error': 'Missing message or project'}, status=400)
+        if not text:
+            return JsonResponse({'error': 'Missing message text'}, status=400)
 
-        try:
-            project = Project.objects.get(id=project_id)
-        except Project.DoesNotExist:
-            return JsonResponse({'error': 'Project not found'}, status=404)
+        # Find the employee's first associated project
+        project = Project.objects.filter(team_members=employee).union(
+            Project.objects.filter(leader=employee)
+        ).union(
+            Project.objects.filter(admin=employee)
+        ).first()
 
-        if employee not in project.team_members.all() and employee != project.leader and employee != project.admin:
-            return JsonResponse({'error': 'Access denied'}, status=403)
+        if not project:
+            return JsonResponse({'error': 'No associated project found'}, status=404)
 
         Message.objects.create(user=employee, text=text, project=project)
         return JsonResponse({'status': 'success'})
@@ -57,24 +65,20 @@ def send_message(request):
 def get_messages(request):
     if not request.session.get('employee_id'):
         return redirect('Login_user_page')
-    emp_id = request.session.get('employee_id')
-    if not emp_id:
-        return JsonResponse({'error': 'Unauthorized'}, status=401)
 
+    emp_id = request.session.get('employee_id')
     employee = EmployeeBISP.objects.get(id=emp_id)
     last_id = int(request.GET.get("last_id", 0))
-    project_id = request.GET.get("project_id")
 
-    if not project_id:
-        return JsonResponse({'error': 'Missing project_id'}, status=400)
+    # Get the employee's associated project
+    project = Project.objects.filter(team_members=employee).union(
+        Project.objects.filter(leader=employee)
+    ).union(
+        Project.objects.filter(admin=employee)
+    ).first()
 
-    try:
-        project = Project.objects.get(id=project_id)
-    except Project.DoesNotExist:
-        return JsonResponse({'error': 'Project not found'}, status=404)
-
-    if employee not in project.team_members.all() and employee != project.leader and employee != project.admin:
-        return JsonResponse({'error': 'Access denied'}, status=403)
+    if not project:
+        return JsonResponse({'error': 'No associated project found'}, status=404)
 
     messages = Message.objects.filter(project=project, id__gt=last_id).order_by("id")
 
@@ -82,7 +86,7 @@ def get_messages(request):
         "messages": [
             {
                 "id": msg.id,
-                "user": msg.user.username,
+                "user": msg.user.name,
                 "content": msg.text,
                 "timestamp": msg.timestamp.strftime("%Y-%m-%d %H:%M:%S")
             }

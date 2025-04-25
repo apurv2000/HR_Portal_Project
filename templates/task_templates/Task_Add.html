@@ -37,21 +37,23 @@
 
 
             <div class="row mb-3">
-              <div class="col-md-6">
-                <label class="form-label">Task Title <span class="text-danger">*</span></label>
-                <input type="text" name="task_title" class="form-control">
-                <div class="text-danger" id="error-task_title"></div>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Project <span class="text-danger">*</span></label>
-                <select name="project" class="form-select">
-                  <option value="" selected disabled>Select Project</option>
-                  {% for project in projects %}
-                    <option value="{{ project.id }}">{{ project.project_name }}</option>
-                  {% endfor %}
-                </select>
-                <div class="text-danger" id="error-project"></div>
-              </div>
+                <div class="col-md-6">
+                    <label class="form-label">Task <span class="text-danger">*</span></label>
+                    <input type="text" name="task_title" class="form-control">
+                    <div class="text-danger" id="error-task_title"></div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Project <span class="text-danger">*</span></label>
+                    <select name="project" class="form-select form-control">
+                        <option value="" selected disabled>Select Project</option>
+                        {% for project in projects %}
+                            <option value="{{ project.id }}">{{ project.project_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="text-danger" id="error-project"></div>
+                </div>
+
             </div>
 
             <div class="row mb-3">
@@ -69,39 +71,44 @@
             </div>
 
             <div class="row mb-3">
-              <div class="col-md-6">
-                <label class="form-label">Status</label>
-                <select name="status" class="form-select">
-                  <option value="Pending">Pending</option>
-                  <option value="Inprogress">Inprogress</option>
-                  <option value="Claimed Completed">Claimed Completed</option>
-                  <option value="Completed">Completed</option>
-                </select>
-                <div class="text-danger" id="error-status"></div>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Priority</label>
-                <select name="priority" class="form-select">
-                  <option value="Low">Low</option>
-                  <option value="Medium">Medium</option>
-                  <option value="High">High</option>
-                </select>
-                <div class="text-danger" id="error-priority"></div>
-              </div>
+                <!-- Status Field -->
+                <div class="col-md-4 col-sm-12 mb-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select form-control">
+                        <option value="Pending">Pending</option>
+                        <option value="Inprogress">In Progress</option>
+                        <option value="Claimed Completed">Claimed Completed</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                    <div class="text-danger" id="error-status"></div>
+                </div>
+
+                <!-- Priority Field -->
+                <div class="col-md-4 col-sm-12 mb-3">
+                    <label class="form-label">Priority</label>
+                    <select name="priority" class="form-select form-control">
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                    <div class="text-danger" id="error-priority"></div>
+                </div>
+
+                <!-- Assigned To Field -->
+                <div class="col-md-4 col-sm-12 mb-3">
+                    <label class="form-label">Assigned To <span class="text-danger">*</span></label>
+                    <select name="assigned_to" class="form-select form-control">
+                        <option value="" selected disabled>Select Employee</option>
+                        {% for emp in employees %}
+                            {% if emp.role == 'Employee' %}
+                                <option value="{{ emp.id }}">{{ emp.name }}{% if emp.designation.title %} ({{ emp.designation.title }}){% endif %}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <div class="text-danger" id="error-assigned_to"></div>
+                </div>
             </div>
 
-            <div class="mb-3">
-              <label class="form-label">Assigned To <span class="text-danger">*</span></label>
-              <select name="assigned_to" class="form-select">
-                <option value="" selected disabled>Select Employee</option>
-                {% for emp in employees %}
-                {% if emp.role == 'Employee' %}
-                  <option value="{{ emp.id }}">{{ emp.name }}{% if emp.designation.title %} ({{ emp.designation.title }}){% endif %}</option>
-                {% endif %}
-                {% endfor %}
-              </select>
-              <div class="text-danger" id="error-assigned_to"></div>
-            </div>
 
             <div class="mb-3">
               <label class="form-label">Description <span class="text-danger">*</span></label>

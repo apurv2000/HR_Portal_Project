@@ -8,5 +8,6 @@ urlpatterns = [
 
     path('timesheet_add/', views.timesheet_add, name="timesheet_add"),
     path('timesheet_record/', views.timesheet_record, name="timesheet_record"),
+    path('timesheet_daily/', views.daily_timesheet, name="timesheet_daily"),
 
 ]

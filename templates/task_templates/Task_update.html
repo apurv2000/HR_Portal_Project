@@ -14,17 +14,17 @@
     </div>
   </section>
     <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb">
-                                    <li class="breadcrumb-item"><a href="{% url 'Project:task_list' %}" class="text-primary">Task</a></li>
-                                    <li class="breadcrumb-item active" aria-current="page">Edit Task</li>
-                                </ol>
+              <ol class="breadcrumb">
+                       <li class="breadcrumb-item"><a href="{% url 'Project:task_list' %}" class="text-primary">Task</a></li>
+                      <li class="breadcrumb-item active" aria-current="page">Edit Task</li>
+               </ol>
     </nav>
 
   <section class="content">
     <div class="container-fluid px-4">
       <div class="card shadow mt-3 w-100">
         <div class="card-header bg-primary text-white">
-          <!-- You can add a title here if needed -->
+           <h4 class="mb-0">Edit Task</h4>
         </div>
         <div class="card-body">
           <form id="taskForm" method="POST" action="{% url 'Project:update_task' task.id %}">
@@ -43,7 +43,7 @@
               </div>
               <div class="col-md-6">
                 <label class="form-label">Project <span class="text-danger">*</span></label>
-                <select name="project" class="form-select">
+                <select name="project" class="form-select form-control">
                   <option value="" selected disabled>Select Project</option>
                   {% for project in projects %}
                     <option value="{{ project.id }}" {% if task and task.project.id == project.id %}selected{% endif %}>
@@ -71,9 +71,9 @@
             </div>
 
             <div class="row mb-3">
-              <div class="col-md-6">
+              <div class="col-md-4 col-sm-12 mb-3">
                 <label class="form-label">Status</label>
-                <select name="status" class="form-select">
+                <select name="status" class="form-select form-control">
                   <option value="Pending" {% if task and task.status == 'Pending' %}selected{% endif %}>Pending</option>
                   <option value="Inprogress" {% if task and task.status == 'Inprogress' %}selected{% endif %}>Inprogress</option>
                   <option value="Claimed Completed" {% if task and task.status == 'Claimed Completed' %}selected{% endif %}>Claimed Completed</option>
@@ -81,20 +81,20 @@
                 </select>
 
               </div>
-              <div class="col-md-6">
+              <div class="col-md-4 col-sm-12 mb-3">
                 <label class="form-label">Priority</label>
-                <select name="priority" class="form-select">
+                <select name="priority" class="form-select form-control">
                   <option value="Low" {% if task and task.priority == 'Low' %}selected{% endif %}>Low</option>
                   <option value="Medium" {% if task and task.priority == 'Medium' %}selected{% endif %}>Medium</option>
                   <option value="High" {% if task and task.priority == 'High' %}selected{% endif %}>High</option>
                 </select>
 
               </div>
-            </div>
 
-            <div class="mb-3">
+
+            <div class="col-md-4 col-sm-12 mb-3">
               <label class="form-label">Assigned To <span class="text-danger">*</span></label>
-              <select name="assigned_to" class="form-select">
+              <select name="assigned_to" class="form-select form-control">
                 <option value="" selected disabled>Select Employee</option>
                 {% for emp in employees %}
                   {% if emp.role == 'Employee' %}
@@ -106,6 +106,7 @@
               </select>
 
             </div>
+              </div>
 
             <div class="mb-3">
               <label class="form-label">Description</label>

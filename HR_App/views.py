@@ -11,7 +11,7 @@ from django.core.files.storage import FileSystemStorage
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.db import transaction, models
-from django.db.models import Prefetch, Sum, Value, CharField
+from django.db.models import Prefetch, Sum, Value, CharField, F
 from django.shortcuts import render, redirect, get_object_or_404
 import json
 from django.http import JsonResponse, HttpResponse
@@ -85,40 +85,72 @@ def Manager(request):
         remaining_leave_sum=Sum('remaining_leave'),
         availed_leave_sum=Sum('availed_leave')
     )
-    # Annotate and fetch
+
+    # Get all team members under the current manager
+    team_member_ids = Project.objects.filter(leader=employee).values_list('team_members', flat=True).distinct()
+
+    # Filter pending leaves for only those team members
+    employee_leaves = Leave.objects.filter(
+        status='Pending',
+        employee__id__in=team_member_ids
+    ).order_by('-created_at')[:5]
+
+    # 1. Get projects where the logged-in manager is the leader
+    led_projects = Project.objects.filter(leader=employee)
+
+    # 2. Get employees who are team_members in those projects
+    team_employees = EmployeeBISP.objects.filter(project_team__in=led_projects).distinct()
+
+    # 3. Tasks claimed by these team members under manager's projects
     latest_tasks = Task.objects.filter(
-        assigned_to__isnull=False,
+        assigned_to__in=team_employees,
         status='Claimed Completed'
     ).annotate(
         activity_type=Value('Task', output_field=CharField())
     )
 
-    latest_leaves = Leave.objects.filter(employee__isnull=False).annotate(
+    # 4. Leaves applied by these team members
+    latest_leaves = Leave.objects.filter(
+        employee__in=team_employees
+    ).annotate(
         activity_type=Value('Leave', output_field=CharField())
     )
 
-    latest_projects = Project.objects.filter(
-        team_members__isnull=False
-    ).annotate(
+    # 5. Projects led by this manager
+    latest_projects = led_projects.annotate(
         activity_type=Value('Project', output_field=CharField())
     )
-  # Pending Show only his team member data in dashboard
+
+    latest_acknowledgements = HandbookAcknowledgement.objects.filter(
+        employee__in=team_employees,
+        status='Acknowledge'
+    ).annotate(
+        activity_type=Value('Handbook', output_field=CharField()),
+        activity_datetime=F('acknowledged_at')
+    ).select_related('employee', 'pdf')
+
     # Attach normalized datetime (prefer updated_at or fallback)
-    for item in chain(latest_tasks, latest_leaves, latest_projects):
-        if hasattr(item, 'timestamp'):
-            item.activity_datetime = item.timestamp
-        elif hasattr(item, 'created_at'):
-            item.activity_datetime = item.created_at
-        elif hasattr(item, 'start_date'):
-            item.activity_datetime = datetime.combine(item.start_date, time.min)
-        elif hasattr(item, 'assigned_date'):
-            item.activity_datetime = item.assigned_date
-        else:
-            item.activity_datetime = datetime.min  # fallback
+    for item in chain(latest_tasks, latest_leaves, latest_projects, latest_acknowledgements):
+        if not hasattr(item, 'activity_datetime') or not item.activity_datetime:
+            if hasattr(item, 'timestamp'):
+                item.activity_datetime = item.timestamp
+            elif hasattr(item, 'created_at'):
+                item.activity_datetime = item.created_at
+            elif hasattr(item, 'start_date'):
+                item.activity_datetime = datetime.combine(item.start_date, time.min)
+            elif hasattr(item, 'assigned_date'):
+                item.activity_datetime = item.assigned_date
+            else:
+                item.activity_datetime = datetime.min
 
     # Combine and get latest 10
     combined_activities = sorted(
-        chain(latest_tasks[:5], latest_leaves[:5], latest_projects[:5]),
+        chain(
+            latest_tasks[:5],
+            latest_leaves[:5],
+            latest_projects[:5],
+            latest_acknowledgements[:5]
+        ),
         key=lambda x: x.activity_datetime,
         reverse=True
     )[:10]
@@ -134,6 +166,8 @@ def Manager(request):
         'status_percentages': status_percentages,
         'leave_totals': aggregated_leave,
         'latest_activities': combined_activities,
+        'team_employees':team_employees,
+        'employee_leaves ':employee_leaves,
 
     }
 
@@ -158,6 +192,9 @@ def Hr(request):
 
     # Get related tasks from those projects
     task_qs = Task.objects.filter(assigned_to=employee)
+
+    # Get employees who are team members in those projects
+    team_employees = EmployeeBISP.objects.filter(project_team__in=project_qs).distinct()
 
     # Count tasks by status using simple logic
     status_counts = {
@@ -215,22 +252,35 @@ def Hr(request):
         activity_type=Value('Project', output_field=CharField())
     )
 
+    latest_acknowledgements = HandbookAcknowledgement.objects.filter(
+        status='Acknowledge'
+    ).annotate(
+        activity_type=Value('Handbook', output_field=CharField()),
+        activity_datetime=F('acknowledged_at')  # Use actual acknowledgement datetime
+    ).select_related('employee', 'pdf')
+
     # Attach normalized datetime (prefer updated_at or fallback)
-    for item in chain(latest_tasks, latest_leaves, latest_projects):
-        if hasattr(item, 'timestamp'):
-            item.activity_datetime = item.timestamp
-        elif hasattr(item, 'created_at'):
-            item.activity_datetime = item.created_at
-        elif hasattr(item, 'start_date'):
-            item.activity_datetime = datetime.combine(item.start_date, time.min)
-        elif hasattr(item, 'assigned_date'):
-            item.activity_datetime = item.assigned_date
-        else:
-            item.activity_datetime = datetime.min  # fallback
+    for item in chain(latest_tasks, latest_leaves, latest_projects, latest_acknowledgements):
+        if not hasattr(item, 'activity_datetime') or not item.activity_datetime:
+            if hasattr(item, 'timestamp'):
+                item.activity_datetime = item.timestamp
+            elif hasattr(item, 'created_at'):
+                item.activity_datetime = item.created_at
+            elif hasattr(item, 'start_date'):
+                item.activity_datetime = datetime.combine(item.start_date, time.min)
+            elif hasattr(item, 'assigned_date'):
+                item.activity_datetime = item.assigned_date
+            else:
+                item.activity_datetime = datetime.min
 
     # Combine and get latest 10
     combined_activities = sorted(
-        chain(latest_tasks[:5], latest_leaves[:5], latest_projects[:5]),
+        chain(
+            latest_tasks[:5],
+            latest_leaves[:5],
+            latest_projects[:5],
+            latest_acknowledgements[:5]
+        ),
         key=lambda x: x.activity_datetime,
         reverse=True
     )[:10]
@@ -247,6 +297,7 @@ def Hr(request):
         'leave_totals': aggregated_leave,
         'employee_leaves': employee_leaves,
         'latest_activities': combined_activities,
+        'team_employees':team_employees
 
     }
 
@@ -589,7 +640,6 @@ def update_leave_approve_dashboard(request, leave_id):
 
         # Save the updated leave record
         leave.save()
-
 
         # Redirect after the update
         return redirect('Hrpanel')
@@ -966,10 +1016,10 @@ def validate_profile_picture(profile_img):
         if ext not in allowed_extensions:
             return "Profile picture must be a .jpg or .png file."
 
-        # File size check (20 MB max)
-        max_size = 20 * 1024 * 1024  # 20 MB
+        # File size check (2 MB max)
+        max_size = 2 * 1024 * 1024  # 20 MB
         if profile_img.size > max_size:
-            return "Profile picture size must be less than 20 MB."
+            return "Profile picture size must be less than 2 MB."
 
     return None
 

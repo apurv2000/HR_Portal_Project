@@ -1,7 +1,111 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
+<!--For Team Member Modal-->
+<style>
+
+
+  #viewTeamBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    font-size: 22px;
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(145deg, #3b82f6, #2563eb);
+    border: none;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s ease, transform 0.2s;
+  }
+
+  #viewTeamBtn:hover {
+    background: linear-gradient(145deg, #2563eb, #1d4ed8);
+    transform: scale(1.05);
+  }
+
+  #viewTeamBtn:active {
+    transform: scale(0.95);
+  }
+
+  /* Modal enhancements for 2025 look */
+  .modal-content {
+    border-radius: 1rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    animation: fadeInUp 0.4s ease-in-out;
+  }
+
+  .modal-header {
+    border-bottom: none;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    background: #f0f2f5;
+    cursor: move;
+  }
+
+  .modal-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: #2c3e50;
+  }
+
+  .modal-body {
+    background-color: #fff;
+    padding: 1.5rem;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .list-group-item {
+    border: none;
+    padding: 0.75rem 1rem;
+    transition: background 0.3s;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .list-group-item:hover {
+    background-color: #f9fafb;
+  }
+
+  .list-group-item img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 0.75rem;
+    border: 2px solid #dee2e6;
+  }
+
+  .team-info small {
+    color: #6c757d;
+  }
+
+  .modal-footer {
+    background: #f9f9f9;
+    border-bottom-left-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+    border-top: none;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+<!--For Cards-->
 <style>
     .card {
         border-radius: 10px;
@@ -163,7 +267,9 @@ hr {
             </div>
         </div>
         {% endif %}
-        {% if request.session.role == 'Administrator' %}
+
+        <!--For Leave Request-->
+        {% if request.session.role == 'Administrator'  %}
           <!-- Employee's Leave Application -->
           <div class="col-md-4 mb-4 d-flex">
             <div class="card p-3 h-100 w-100">
@@ -241,6 +347,7 @@ hr {
             </div>
           </div>
         {% endif %}
+
 
             <!--For Role Employee only-->
           {% if request.session.role == 'Employee' %}
@@ -330,6 +437,14 @@ hr {
                                     {{ activity.status }}
                                 </span>
                             </div>
+                          {% elif activity.activity_type == 'Handbook' %}
+                      <div class="mb-2">
+                            <strong class="text-primary">📘 Handbook:</strong>
+                               {{ activity.employee.name }}
+                               <div class="text-muted small"> Acknowledged on :  <span class="text-dark small"> {{ activity.activity_datetime|date:"d M Y, h:i A" }} </span></div>
+
+                      </div>
+
                         {% elif activity.activity_type == 'Leave' %}
                             <div class="mb-2">
                                 <strong class="text-success">🌿 Leave:</strong> {{ activity.leave_type.name }}
@@ -361,9 +476,54 @@ hr {
                         <p class="text-muted">No recent activity found.</p>
                     {% endfor %}
                 </div>
+            </div>
+        </div>
+           {% endif %}
 
+          <!--For Administration and Manager for Team Members list-->
+         {% if request.session.role == 'Administrator' or request.session.role == 'Manager' %}
+            <!-- Team Member List -->
+        <div class="col-md-4 mb-4 d-flex">
+            <div class="card p-3 h-100 w-100">
 
+                    <div class="card-header">
+                    <h3 class="card-title">Team Members</h3>
 
+                    <div class="card-tools">
+                      <span class="badge badge-danger">{{ team_employees|length }} Total Members</span>
+                    </div>
+                  </div>
+                  <!-- /.card-header -->
+
+                  <div class="card-body p-0">
+
+                    <ul class="users-list clearfix">
+                        {% for member in team_employees %}
+                     <li class="text-center" style="width: 90px; display: inline-block;">
+                      <img src="{{ member.profile_picture.url }}" alt="{{ member.name }}"
+                           class="rounded-circle mb-2 shadow" style="width: 60px; height: 60px; object-fit: cover; border: 2px solid #007bff;">
+
+                      <a class="users-list-name text-dark fw-semibold d-block" href="#" style="text-decoration: none;">
+                        {{ member.name|truncatechars:14 }}
+                      </a>
+                    </li>
+
+                        {% endfor %}
+                    </ul>
+                    <!-- /.users-list -->
+
+                  </div>
+
+                  <!-- Horizontal Line -->
+<!--                    <hr class="mt-auto">-->
+
+<!--                    &lt;!&ndash; View all projects link fixed at the bottom &ndash;&gt;-->
+<!--                    <div class="text-center mt-2">-->
+<!--                        <a href="javascript:">View all </a>-->
+<!--                    </div>-->
+                  <!-- /.card-footer -->
+                </div>
+                <!--/.card -->
             </div>
         </div>
            {% endif %}
@@ -397,16 +557,70 @@ hr {
                             {% endfor %}
                         </tbody>
                     </table>
-
                     <!-- Horizontal Line -->
                     <hr class="mt-auto">
-
                     <!-- View all projects link fixed at the bottom -->
                     <div class="text-center mt-2">
                         <a href="{% url 'Project:project_list' %}">View all </a>
                     </div>
                 </div>
             </div>
+
+            <!--For Administration and Manager for Team Members list-->
+            {% if request.session.role == 'Administrator' or request.session.role == 'Manager' %}
+            <!-- Floating "View All Team" Button -->
+            <button id="viewTeamBtn" class="btn btn-primary rounded-circle shadow" title="View Team">
+              <i class="fas fa-users"></i>
+            </button>
+
+
+            <!-- Movable Modal -->
+            <div class="modal fade" id="teamModal" tabindex="-1" aria-labelledby="teamModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered modal-md">
+                <div class="modal-content">
+                  <div class="modal-header d-flex justify-content-between align-items-center w-100">
+                      <!-- Team Members Title -->
+                      <h5 class="modal-title" id="teamModalLabel">Team Members</h5>
+                      <!-- Total Members Badge with margin -->
+                      <span class="badge bg-primary ms-3">{{ team_employees|length }} Total Members</span>
+                    </div>
+
+                <div class="modal-body">
+                      {% if team_employees %}
+                      <div class="row g-3">
+                        {% for member in team_employees %}
+                        <div class="col-6 col-md-4 col-lg-3 d-flex">
+                          <div class="card w-100 shadow-sm border-0">
+                            <div class="card-body d-flex flex-column justify-content-center align-items-center p-3">
+                              <!-- Profile Picture -->
+                              <img src="{{ member.profile_picture.url }}" alt="{{ member.name }}"
+                                   class="rounded-circle mb-2 shadow"
+                                   style="width: 60px; height: 60px; object-fit: cover; border: 2px solid #007bff;">
+
+                              <!-- Name -->
+                              <h6 class="mb-1 text-center">{{ member.name }}</h6>
+
+                              <!-- Designation -->
+                              <small class="text-muted text-center">{{ member.designation.title }}</small>
+                            </div>
+                          </div>
+                        </div>
+                        {% endfor %}
+                      </div>
+                      {% else %}
+                      <p class="text-muted text-center">No team members found.</p>
+                      {% endif %}
+                    </div>
+
+
+                  <div class="modal-footer">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+            <!-- Team Member Modal end-->
 
             </div>
         </div>
@@ -425,6 +639,22 @@ hr {
     document.getElementById('status-input-' + leaveId).value = status;
     document.getElementById('status-form-' + leaveId).submit();
   }
+</script>
+
+<!--For Team Member Modal Button -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const teamModal = new bootstrap.Modal(document.getElementById("teamModal"));
+    const viewTeamBtn = document.getElementById("viewTeamBtn");
+
+    // Open modal on button click
+    viewTeamBtn.addEventListener("click", function () {
+      teamModal.show();
+    });
+
+    // Make the button draggable using jQuery UI
+    $("#viewTeamBtn").draggable();
+  });
 </script>
 
 {% endblock %}

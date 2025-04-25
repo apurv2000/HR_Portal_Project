@@ -246,12 +246,14 @@ class HandbookPDF(models.Model):
     file = models.FileField(upload_to='handbooks/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now=True)
 
 class HandbookAcknowledgement(models.Model):
     employee = models.ForeignKey(EmployeeBISP, on_delete=models.CASCADE)
     pdf = models.ForeignKey(HandbookPDF, on_delete=models.CASCADE)
 
     acknowledged_at = models.DateTimeField(null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now=True)
     status = models.CharField(
         max_length=20,
         choices=[('Not Acknowledge', 'Not Acknowledge'), ('Acknowledge', 'Acknowledge')],
