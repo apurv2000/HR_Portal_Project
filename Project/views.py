@@ -285,13 +285,13 @@ def Project_list(request):
     # Check if the employee is an administrator
     if employee.role == 'Administrator':
         # Admin can see all projects
-        projects = Project.objects.all()
+        projects = Project.objects.all().order_by('-created_at')
 
     elif employee.role == 'Manager':
         # Regular employees can only see projects they lead or are team members of
-        projects = Project.objects.filter(leader=employee) | Project.objects.filter(admin=employee)
+        projects = Project.objects.filter(leader=employee).order_by('-created_at') | Project.objects.filter(admin=employee).order_by('-created_at')
     else:
-        projects = Project.objects.filter(team_members =employee)
+        projects = Project.objects.filter(team_members =employee).order_by('-created_at')
 
 
     return render(request, 'project_templates/project_list.html', {'projects': projects.distinct()})
@@ -306,9 +306,9 @@ def Task_list(request):
 
     # Check if the user is an administrator based on the 'role' field
     if employee.role == 'Administrator':  # Assuming 'Administrator' is the role name in the field
-        tasks = Task.objects.all()  # Show all tasks if user is an admin
+        tasks = Task.objects.all().order_by('-created_at')  # Show all tasks if user is an admin
     else:
-        tasks = Task.objects.filter(assigned_to=employee)  # Show only tasks assigned to the logged-in user
+        tasks = Task.objects.filter(assigned_to=employee).order_by('-created_at')  # Show only tasks assigned to the logged-in user
 
     return render(request, 'task_templates/Task_list.html', {'tasks': tasks})
 

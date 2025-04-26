@@ -28,7 +28,7 @@
           <h4 class="mb-0">Daily Timesheet</h4>
         </div>
         <div class="card-body">
-          <form id="taskForm" method="POST">
+          <form id="taskForm" method="POST" >
             {% csrf_token %}
 
             <div class="alert alert-success alert-dismissible fade show d-none" id="form-success">
@@ -68,16 +68,16 @@
               </div>
 
               <div class="col-md-4">
-                <label class="form-label">Start Date <span class="text-danger">*</span></label>
-                <input type="date" name="start_date" class="form-control">
-                <div class="text-danger" id="error-start_date"></div>
+                <label class="form-label">Start Time <span class="text-danger">*</span></label>
+                <input type="time" name="start_time" class="form-control" value="11:00">
+                <div class="text-danger" id="error-start_time"></div>
               </div>
 
               <div class="col-md-4">
-                <label class="form-label">End Date <span class="text-danger">*</span></label>
-                <input type="date" name="end_date" class="form-control">
-                <div class="text-danger" id="error-end_date"></div>
-                <div class="text-danger" id="error-dates"></div>
+                <label class="form-label">End time <span class="text-danger" >*</span></label>
+                <input type="time" name="end_time" class="form-control"  value="20:00">
+                <div class="text-danger" id="error-end_time"></div>
+                <div class="text-danger" id="error-time"></div>
               </div>
             </div>
 
@@ -90,6 +90,8 @@
             <div class="mb-3">
                     <label class="form-label">Upload File <span class="text-danger small">(file size: Max 2MB)</span></label>
                     <input type="file" name="upload_file" class="form-control">
+                    <span class="text-danger small">Allowed formats: PDF, DOC, DOCX, JPG, JPEG, PNG.</span>
+                     <div class="text-danger" id="error-upload_file"></div>
             </div>
 
             <div class="text-end">
@@ -121,6 +123,18 @@
           taskSelect.appendChild(option.cloneNode(true));
         }
       });
+
+      // Clear error when project changes
+      const errorDiv = document.getElementById('error-project');
+      if (errorDiv) errorDiv.innerText = '';
+    });
+
+    // Clear task field error when user selects a task
+    taskSelect.addEventListener('change', function () {
+      const errorDiv = document.getElementById('error-task_title');
+      if (errorDiv) {
+        errorDiv.innerText = '';
+      }
     });
   });
 </script>
@@ -133,4 +147,89 @@
     // Set the value of the date input field to the current date
     document.getElementById('date').value = currentDate;
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('taskForm');
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        // Clear previous error messages
+        document.querySelectorAll('[id^="error-"]').forEach(function (el) {
+            el.innerText = '';
+        });
+
+        // Hide previous success message
+        const successAlert = document.getElementById('form-success');
+        successAlert.classList.add('d-none');
+        successAlert.innerText = '';
+
+        const formData = new FormData(form);
+
+        fetch("{% url 'Timesheet:timesheet_daily' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: formData
+        })
+        .then(response => response.json().then(data => ({status: response.status, body: data})))
+        .then(({status, body}) => {
+            if (status === 200 && body.success) {
+                // Show success message
+                successAlert.classList.remove('d-none');
+                successAlert.innerText = body.message;
+
+                // Hide it after 2 seconds
+                setTimeout(() => {
+                    successAlert.classList.add('d-none');
+                    successAlert.innerText = '';
+                }, 2000);
+
+                // Reset form fields
+                form.reset();
+
+                // Reset task dropdown
+                document.getElementById('task-select').innerHTML = '<option value="" selected disabled>Select Task</option>';
+
+                // Reset date field
+                document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            } else if (status === 400) {
+                // Show validation errors
+                const errors = body.errors;
+                for (const field in errors) {
+                    const errorDiv = document.getElementById(`error-${field}`);
+                    if (errorDiv) {
+                        errorDiv.innerText = errors[field];
+                    }
+                }
+            } else {
+                alert("An unexpected error occurred. Please try again.");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("Something went wrong while submitting. Please try again later.");
+        });
+    });
+
+    // Live remove error on input/select/textarea
+    const inputs = form.querySelectorAll('input, textarea, select');
+    inputs.forEach(function(input) {
+        const removeError = function() {
+            const fieldName = input.name || input.getAttribute('name');
+            const errorDiv = document.getElementById(`error-${fieldName}`);
+            if (errorDiv) {
+                errorDiv.innerText = '';
+            }
+        };
+
+        input.addEventListener('input', removeError);
+        input.addEventListener('change', removeError);
+    });
+});
+
+</script>
+
 {% endblock %}

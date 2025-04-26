@@ -740,7 +740,7 @@ def leave_detail_view(request):
     if not request.session.get('employee_id'):
         return redirect('Login_user_page')
     # Get all leave types
-    leave_types = LeaveType.objects.all()
+    leave_types = LeaveType.objects.all().order_by('-id')
     employee_leaves = Leave.objects.all()
 
 
@@ -748,7 +748,7 @@ def leave_detail_view(request):
     leaves_by_type = {}
 
     for leave_type in leave_types:
-        employee_leaves = Leave.objects.filter(leave_type=leave_type).select_related('employee')
+        employee_leaves = Leave.objects.filter(leave_type=leave_type).select_related('employee').order_by('-created_at')
         leaves_by_type[leave_type] = employee_leaves
 
         # Paginate the results
@@ -1405,21 +1405,28 @@ def Apply_leave(request):
             except LeaveType.DoesNotExist:
                 errors["leavetype"] = "Invalid leave type selected."
 
-
         from_date, till_date = None, None
+
         if not fromdate or not tilldate:
             errors["date"] = "Both start and end dates are required."
-
         else:
             try:
                 from_date = datetime.strptime(fromdate, "%Y-%m-%d").date()
                 till_date = datetime.strptime(tilldate, "%Y-%m-%d").date()
+                today = timezone.now().date()
+
 
                 if from_date > till_date:
                     errors["fromdate"] = "Start date cannot be after end date."
 
-                if from_date < timezone.now().date():
-                    errors["limit"] = f"Start date never become before {timezone.now().date().strftime('%d-%m-%Y'):}"
+                if till_date < today and from_date < today:
+                    errors["date"] = f"end date cannot be before today ({today.strftime('%d-%m-%Y')})."
+
+                if from_date < today:
+                    errors["fromdate"] = f"Start date cannot be before today ({today.strftime('%d-%m-%Y')})."
+
+
+
             except ValueError:
                 errors["date"] = "Invalid date format. Use YYYY-MM-DD."
 

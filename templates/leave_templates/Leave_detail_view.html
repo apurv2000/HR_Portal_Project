@@ -31,7 +31,7 @@
 
   <!-- Main Content Container -->
   <div class="container mt-5">
-    <div class="bg-white shadow rounded p-4">
+    <div class="bg-white shadow rounded p-4"  style="overflow-x: auto; max-width: 100%;">
       <h4 class="mb-4">Leave Record</h4>
       <table class="table table-bordered">
         <thead class="table-dark">
@@ -81,47 +81,47 @@
           </tr>
          <tr>
                 <td colspan="6" class="p-0 border-0">
-                    <div class="custom-collapse" id="leaveDetails{{ forloop.counter }}" style="display: none;">
-                        <div class="bg-light p-3">
-                            <table id="example1" class="table table-bordered table-striped">
-                                <thead class="table-secondary">
-                                    <tr>
-                                        <th>Employee</th>
-                                        <th>Leave Days</th>
-                                        <th>Reason</th>
-                                        <th>Comp Off</th>
-                                        <th>Weekend Leave</th>
-                                        <th>Holiday Leave</th>
-                                        <th>Half Day</th>
-                                        <th>Status</th>
-                                        <th>Uploaded On</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for leave in employee_leaves %}
-
-                                        <tr>
-                                            <td>{{ leave.employee.name  }}</td>
-                                            <td>{{ leave.start_date|date:"M d, Y" }} - {{ leave.end_date|date:"M d, Y" }}</td>
-                                            <td>{{ leave.reason }}</td>
-                                            <td>{{  leave.comp_off|yesno:"Yes,No" }}</td>
-                                            <td>{{ leave.leave_type.count_weekends_as_leave}}</td>
-                                            <td>{{ leave.leave_type.count_holidays_as_leave  }}</td>
-                                            <td>{{  leave.is_half_day|yesno:"Yes,No"  }}</td>
-                                            <td>{{leave.status }}</td>
-                                            <td>{{ leave.created_at|date:"M d, Y, P" }}</td>
-                                        </tr>
-
-                                    {% empty %}
-                                        <tr>
-                                            <td colspan="9" class="text-center">No employee leave data for this type.</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                        <div class="custom-collapse" id="leaveDetails{{ forloop.counter }}" style="display: none;">
+                            <div class="bg-light p-3"  style="overflow-x: auto; max-width: 100%;">
+                                <div class="table-responsive"> <!-- Add this div -->
+                                    <table id="example1" class="table table-bordered table-striped">
+                                        <thead class="table-secondary">
+                                            <tr>
+                                                <th>Employee</th>
+                                                <th>Leave Days</th>
+                                                <th>Reason</th>
+                                                <th>Comp Off</th>
+                                                <th>Weekend Leave</th>
+                                                <th>Holiday Leave</th>
+                                                <th>Half Day</th>
+                                                <th>Status</th>
+                                                <th>Uploaded On</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for leave in employee_leaves %}
+                                                <tr>
+                                                    <td>{{ leave.employee.name }}</td>
+                                                    <td>{{ leave.start_date|date:"M d, Y" }} - {{ leave.end_date|date:"M d, Y" }}</td>
+                                                    <td>{{ leave.reason }}</td>
+                                                    <td>{{ leave.comp_off|yesno:"Yes,No" }}</td>
+                                                    <td>{{ leave.leave_type.count_weekends_as_leave }}</td>
+                                                    <td>{{ leave.leave_type.count_holidays_as_leave }}</td>
+                                                    <td>{{ leave.is_half_day|yesno:"Yes,No" }}</td>
+                                                    <td>{{ leave.status }}</td>
+                                                    <td>{{ leave.created_at|date:"M d, Y, P" }}</td>
+                                                </tr>
+                                            {% empty %}
+                                                <tr>
+                                                    <td colspan="9" class="text-center">No employee leave data for this type.</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div> <!-- Close table-responsive -->
+                            </div>
                         </div>
-                    </div>
-                </td>
+                    </td>
             </tr>
 
           {% endfor %}

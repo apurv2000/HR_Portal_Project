@@ -1,14 +1,17 @@
+import os
+
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from datetime import datetime, timedelta
-from .models import TaskRecord
+from .models import TaskRecord, ImagetaskRecord
 from HR_App.models import EmployeeBISP
 from Project.models import Task,Project
 from datetime import date
 from django.views.decorators.csrf import csrf_exempt
 
-
+# Allowed file extensions
+ALLOWED_EXTENSIONS = ['.pdf', '.docx', '.doc', '.jpg', '.jpeg', '.png']
 def timesheet_record(request):
     today = date.today()
     monday = today - timedelta(days=today.weekday())
@@ -28,7 +31,7 @@ def get_week_dates(last_week=False):
     monday = today - timedelta(days=today.weekday())
     if last_week:
         monday -= timedelta(days=7)
-    return [monday + timedelta(days=i) for i in range(6)]  # Mon to Sun
+    return [monday + timedelta(days=i) for i in range(6)]  # Mon to Sat
 
 
 def timesheet_add(request):
@@ -66,6 +69,18 @@ def timesheet_add(request):
                     day_errors["end"] = "End time is required."
                 if not desc:
                     day_errors["description"] = "Description is required."
+
+                # File size check
+                    # File size check
+                if file:
+                        # File size validation
+                     if file.size > 2 * 1024 * 1024:
+                          errors['upload_file'] = "File size must not exceed 2MB."
+
+                      # File format validation
+                     ext = os.path.splitext(file.name)[1].lower()
+                     if ext not in ALLOWED_EXTENSIONS:
+                            errors['upload_file'] = "Invalid file format."
 
                 # Time check
                 if start and end:
@@ -136,13 +151,132 @@ def timesheet_add(request):
         'tasks': tasks
     })
 
+
 def daily_timesheet(request):
     if not request.session.get('employee_id'):
         return redirect('Login_user_page')
 
     emp_id = request.session['employee_id']
     employee = EmployeeBISP.objects.get(id=emp_id)
-
     projects = Project.objects.filter(team_members=employee)
     tasks = Task.objects.filter(assigned_to=employee)
-    return render(request,'timesheet_templates/timesheet_daily.html',{'projects':projects,'tasks': tasks})
+
+    if request.method == 'POST':
+        project_id = request.POST.get('project')
+        task_id = request.POST.get('task')
+        date_val = request.POST.get('date')
+        start_time = request.POST.get('start_time')
+        end_time = request.POST.get('end_time')
+        description = request.POST.get('description')
+        upload_file = request.FILES.get('upload_file')
+
+        errors = {}
+
+        if not project_id:
+            errors['project'] = "Project is required."
+        if not task_id:
+            errors['task_title'] = "Task is required."
+        if not start_time:
+            errors['start_time'] = "Start date is required."
+        if not end_time:
+            errors['end_time'] = "End date is required."
+        if not description:
+            errors['description'] = "Description is required."
+            # Time check
+            if start_time and end_time:
+                try:
+                    start_time = datetime.strptime(start_time, "%H:%M")
+                    end_time = datetime.strptime(end_time, "%H:%M")
+                    if start_time >= end_time:
+                        errors["start"] = "Start time must be before end time."
+                        errors["end"] = "End time must be after start time."
+                except ValueError:
+                    errors["start"] = "Invalid start time format."
+                    errors["end"] = "Invalid end time format."
+
+        # File size check
+        if upload_file:
+            # File size validation
+            if upload_file.size > 2 * 1024 * 1024:
+                errors['upload_file'] = "File size must not exceed 2MB."
+
+            # File format validation
+            ext = os.path.splitext(upload_file.name)[1].lower()
+            if ext not in ALLOWED_EXTENSIONS:
+                errors['upload_file'] = "Invalid file format."
+
+        if errors:
+                return JsonResponse({'success': False, 'errors': errors},status=400)
+
+        # Save the timesheet entry
+        task = Task.objects.get(id=task_id)
+        TaskRecord.objects.create(
+            task =task,
+            date=date_val or date.today(),
+            start_time=start_time,
+            end_time=end_time,
+            record_name=description,
+            attachment=upload_file
+        )
+
+        return JsonResponse({'success': True, 'message': 'Timesheet submitted successfully.'})
+
+    return render(request, 'timesheet_templates/timesheet_daily.html', {
+        'projects': projects,
+        'tasks': tasks,
+    })
+
+
+def image_timesheet(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+
+    emp_id = request.session['employee_id']
+    employee = EmployeeBISP.objects.get(id=emp_id)
+
+    if request.method == 'POST':
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            errors = {}
+
+
+            start_date = request.POST.get('start_date')
+            end_date = request.POST.get('end_date')
+            upload_file = request.FILES.get('upload_file')
+
+            # Validate upload file
+            if upload_file:
+                if upload_file.size > 2 * 1024 * 1024:  # 2MB limit
+                    errors['upload_file'] = "File size must not exceed 2MB."
+                else:
+                    extension = os.path.splitext(upload_file.name)[1].lower()
+                    if extension not in ALLOWED_EXTENSIONS:
+                        errors['upload_file'] = "Invalid file format."
+            else:
+                errors['upload_file'] = "Please upload a file."
+
+            if errors:
+                return JsonResponse({'success': False, 'errors': errors}, status=400)
+
+            # Save the record
+            ImagetaskRecord.objects.create(
+                start_date=start_date,
+                end_date=end_date,
+                file=upload_file,
+                employee=employee,
+            )
+
+            return JsonResponse({
+                'success': True,
+                'message': 'Timesheet submitted successfully!',
+                'data': {
+                    'start_date': start_date,
+                    'end_date': end_date,
+                }
+            })
+
+        else:
+            # If not an AJAX request
+            return JsonResponse({'success': False, 'message': 'Invalid request. AJAX required.'}, status=400)
+
+    # For GET request (load page)
+    return render(request, 'timesheet_templates/timesheet_image.html')

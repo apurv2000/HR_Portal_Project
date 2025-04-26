@@ -178,11 +178,13 @@
             <div class="col-md-4">
               <label for="ProfileImage">Profile Image <span class="text-danger small">(Image size: Max 2MB)</span></label>
               <input type="file" class="form-control" id="ProfileImage" name="image">
+                <span class="text-danger small">Allowed formats: PNG and JPG .</span>
 
             </div>
             <div class="col-md-4">
                {% if employee.profile_picture %}
                 <img src="{{ employee.profile_picture.url }}" class="img-thumbnail mt-2" width="100">
+
               {% endif %}
             </div>
           </div>
@@ -193,13 +195,16 @@
           {% endif %}
           <!--Action Button-->
           <div class="row mt-4 justify-content-center">
-            <div class="col-4 d-flex justify-content-center">
-              <button type="submit" class="btn btn-primary w-50 mx-2">
-                {% if employee %} Update {% else %} Register {% endif %}
-              </button>
-              <a href="javascript:history.back()" class="btn btn-secondary w-50 mx-2">Back</a>
+            <div class="col-md-6 col-12 d-flex flex-wrap justify-content-center gap-3">
+                <button type="submit" class="btn btn-primary flex-grow-1">
+                    {% if employee %} Update {% else %} Register {% endif %}
+                </button>
+                <a href="javascript:history.back()" class="btn btn-secondary flex-grow-1">
+                    Back
+                </a>
             </div>
-          </div>
+        </div>
+
         </form>
       <!--Form End-->
       </div>

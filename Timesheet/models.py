@@ -12,3 +12,9 @@ class TaskRecord(models.Model):
 
     def __str__(self):
         return f"{self.task.task_title} - {self.date}"
+
+class ImagetaskRecord(models.Model):
+    file = models.FileField(upload_to='timesheet_files/', blank=True, null=True)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    employee=  models.ForeignKey("HR_App.EmployeeBISP", on_delete=models.SET_NULL, null=True, related_name='employee_task')
