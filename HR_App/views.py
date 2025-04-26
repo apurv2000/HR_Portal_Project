@@ -434,7 +434,14 @@ def Employee(request):
 def Profile(request):
     if not request.session.get('employee_id'):
         return redirect('Login_user_page')
-    return render(request,'admin_templates/profile.html')
+
+    employee_id = request.session.get('employee_id')
+    try:
+        employee = EmployeeBISP.objects.get(id=employee_id)
+    except EmployeeBISP.DoesNotExist:
+        employee = None
+
+    return render(request,'admin_templates/profile.html',{'employee':employee})
 
 
 def Forget_pwd(request):
@@ -531,7 +538,7 @@ def update_leave_approve(request, leave_id):
     try:
         employeeC = EmployeeBISP.objects.get(id=employee_id)
     except EmployeeBISP.DoesNotExist:
-        employee=None
+        employeeC=None
 
     leave = get_object_or_404(Leave, id=leave_id)
     employee = leave.employee  # Get the employee related to this leave
@@ -2061,3 +2068,4 @@ def upload_learning_video(request):
                 'video_url': new_video.video.url
             })
     return JsonResponse({'success': False, 'message': 'Upload failed'})
+

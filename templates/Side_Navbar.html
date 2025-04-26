@@ -160,7 +160,7 @@
           " alt="User Image">
         </div>
         <div class="info">
-          <a href="#" class="d-block">{{request.session.employee_name}}</a>
+          <a href="{% url 'Profile' %}" class="d-block">{{request.session.employee_name}}</a>
           <a href="#" class="d-block">{{request.session.designation.title}}</a>
         </div>
       </div>
