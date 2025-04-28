@@ -161,7 +161,7 @@
         </div>
         <div class="info">
           <a href="{% url 'Profile' %}" class="d-block">{{request.session.employee_name}}</a>
-          <a href="#" class="d-block">{{request.session.designation.title}}</a>
+          <a href="{% url 'Profile' %}" class="d-block">{{request.session.designation.title}}</a>
         </div>
       </div>
 
