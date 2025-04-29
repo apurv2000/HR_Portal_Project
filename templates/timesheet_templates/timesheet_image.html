@@ -58,6 +58,15 @@
 
             <div class="text-end">
               <button type="submit" class="btn btn-primary">Send</button>
+                    {% if request.GET.last_week == "1" %}
+              <button type="button" class="btn btn-primary btn-top" onclick="location.href='.'">
+                This Week Timesheet
+              </button>
+            {% else %}
+              <button type="button" class="btn btn-primary btn-top" onclick="location.href='?last_week=1'">
+                Last Week Timesheet
+              </button>
+            {% endif %}
             </div>
           </form>
         </div>
@@ -72,18 +81,28 @@
     const startDateInput = document.getElementById("start_date");
     const endDateInput = document.getElementById("end_date");
 
+    if (!startDateInput || !endDateInput) return;
+
     const today = new Date();
-    const weekday = today.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
+    const params = new URLSearchParams(window.location.search);
+    const isLastWeek = params.get("last_week") === "1";
 
-    // Calculate Monday (start of week)
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - ((weekday + 6) % 7)); // Handle Sunday correctly
+    let baseDate = new Date(today);
+    if (isLastWeek) {
+      baseDate.setDate(baseDate.getDate() - 7);  // Shift to one week back
+    }
 
-    // Calculate Sunday (end of week)
+    const day = baseDate.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
+
+    // Calculate Monday of the selected week
+    const monday = new Date(baseDate);
+    monday.setDate(baseDate.getDate() - ((day + 6) % 7));
+
+    // Calculate Sunday of that week
     const sunday = new Date(monday);
     sunday.setDate(monday.getDate() + 6);
 
-    // Format as yyyy-mm-dd
+    // Format date to yyyy-mm-dd
     const formatDate = (date) => date.toISOString().split('T')[0];
 
     startDateInput.value = formatDate(monday);
@@ -92,6 +111,7 @@
 </script>
 
 
+<!--For form submition-->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('taskForm');
