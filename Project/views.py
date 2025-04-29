@@ -131,6 +131,15 @@ def update_project(request, id):
         if not team_members:
             errors['team_members'] = "Team Members are required."
 
+        if not rate_amount:
+            rate_amount = 0
+        try:
+            rate_amount = int(rate_amount)
+            if rate_amount < 0:
+                errors['rate_amount'] = "Rate amount cannot be negative."
+        except ValueError:
+            errors['rate_amount'] = "Rate amount must be an integer."
+
         # Check if leader/admin exists
         if not leader_id:
             errors.setdefault("leader", []).append("Leader is required.")
@@ -458,7 +467,7 @@ def add_project(request):
         end_date = request.POST.get('end_date')
         rate_status = request.POST.get('rate_status', '').strip()
         rate_currency = request.POST.get('rate_currency', '').strip()
-        rate_amount = request.POST.get('rate_amount') or 0
+        rate_amount = request.POST.get('rate_amount', '').strip()
         priority = request.POST.get('priority', '').strip()
         leader_id = request.POST.get('leader')
         admin_id = request.POST.get('admin')
@@ -505,6 +514,15 @@ def add_project(request):
 
         if not team_members:
             errors['team_members'] ="Team Members is required"
+
+        if not rate_amount:
+            rate_amount = 0
+        try:
+            rate_amount = int(rate_amount)
+            if rate_amount < 0:
+                errors['rate_amount'] = "Rate amount cannot be negative."
+        except ValueError:
+            errors['rate_amount'] = "Rate amount must be an integer."
 
         # Validate file upload
         if upload_file:

@@ -563,8 +563,16 @@ $(document).ready(function () {
                                 "<small class='text-danger error-message d-block mt-1'>" + message + "</small>"
                             );
                             return;
+
                         }
 
+                        // Special case for rate_amount inside input-group
+                        if (key === "rate_amount") {
+                            field.closest(".col-md-4").append(
+                                "<small class='text-danger error-message d-block mt-1'>" + message + "</small>"
+                            );
+                            return;
+                        }
                         if (field.length) {
                             let helpText = field.closest(".col-md-4").find("small.form-text");
 

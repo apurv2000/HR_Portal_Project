@@ -40,7 +40,7 @@
              <div class="text-center">
                 <img
                   class="profile-user-img img-fluid img-circle"
-                  src="{{ request.session.ProfileImage }}"
+                  src="{{ employee.profile_picture.url }}"
                   alt="User profile picture"
                   style="cursor: pointer;"
                   data-bs-toggle="modal"
@@ -53,7 +53,7 @@
                     <div class="modal-content bg-transparent border-0">
                       <div class="modal-body text-center">
                         <img
-                          src="{{ request.session.ProfileImage }}"
+                          src="{{  employee.profile_picture.url}}"
                           alt="Profile Large"
                           class="img-fluid rounded"
                         >

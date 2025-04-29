@@ -10,6 +10,7 @@ urlpatterns = [
       path('logout/', views.Logout, name='Logout'),
       path('Login/user/', views.Login_user, name='Login_user'),
       path('profile/', views.Profile, name='Profile'),
+      path('profile/team/<int:id>', views.Team_profile, name='Profile_team'),
       path('forget_pwd/',views.Forget_pwd,name='Forget_pwd'),
       path('forget_password/method/',views.Forget_passord,name='Forget_password'),
       path('contact/',views.Contact,name='contact'),

@@ -443,6 +443,18 @@ def Profile(request):
 
     return render(request,'admin_templates/profile.html',{'employee':employee})
 
+#Profile of team member for administrator and manager
+def Team_profile(request,id):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+
+    try:
+        employee = EmployeeBISP.objects.get(id=id)
+    except EmployeeBISP.DoesNotExist:
+        employee = None
+
+    return render(request, 'admin_templates/profile.html', {'employee': employee})
+
 
 def Forget_pwd(request):
     if not request.session.get('employee_id'):
