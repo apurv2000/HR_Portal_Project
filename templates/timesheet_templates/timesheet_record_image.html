@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'Side_Navbar.html' %}
+
+<div class="content-wrapper">
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+            <h1 class="h4 text-primary">Timesheet Record</h1>
+        </div>
+        <div class="col-sm-6 text-end">
+        </div>
+      </div>
+    </div>
+  </section>
+
+<div class="container mt-5">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">Timesheet Record</h4>
+    </div>
+    <div class="card-body">
+
+        <table id="example1" class="table table-bordered table-striped">
+
+                <thead>
+                  <tr>
+                     <th>Employee</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Timesheet Screenshot</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for record in records %}
+                    <tr>
+                       <td>{{ record.employee.name}}</td>
+                      <td>{{ record.start_date }}</td>
+                      <td>{{ record.end_date }}</td>
+                    <td>
+                      {% if record.file %}
+
+                        <a href="{{ record.file.url }}" target="_blank"  class="btn btn-success btn-sm">
+                          Open Timesheet
+                        </a>
+                      {% else %}
+                        No Attachment
+                      {% endif %}
+                    </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+          </table>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}

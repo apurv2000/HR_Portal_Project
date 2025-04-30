@@ -24,6 +24,7 @@ from django.contrib import messages
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from Project.models import Project,Task
+from Timesheet.models import TaskRecord,ImagetaskRecord
 from .models import EmployeeBISP, Leave, LeaveType, Designation, Department, HandbookPDF, \
     HandbookAcknowledgement, EmpLeaveType, EmployeeBISPHistory, LeaveTypeHistory, \
     LearningVideo  # Import your Employee model
@@ -435,13 +436,69 @@ def Profile(request):
     if not request.session.get('employee_id'):
         return redirect('Login_user_page')
 
+    today = date.today()
+    monday_this_week = today - timedelta(days=today.weekday())  # Monday of current week
+    monday_last_week = monday_this_week - timedelta(days=7)  # Monday of last week
+    sunday_this_week = monday_this_week + timedelta(days=6)  # Sunday of current week
+
+    # Week date list (optional for template display)
+    dates = [monday_last_week + timedelta(days=i) for i in range(14)]
+
+    # Get current employee
     employee_id = request.session.get('employee_id')
+    employee = EmployeeBISP.objects.get(id=employee_id)
+
+    # Filter TaskRecords where the task is assigned to current employee
+    records = TaskRecord.objects.filter(
+        task__assigned_to=employee,
+        date__range=(monday_last_week, sunday_this_week)
+    ).order_by('-date', '-start_time')
+
+    # Calculate hours
+    for record in records:
+        if record.start_time and record.end_time:
+            start_dt = datetime.combine(record.date, record.start_time)
+            end_dt = datetime.combine(record.date, record.end_time)
+            duration = end_dt - start_dt
+            record.hours = round(duration.total_seconds() / 3600, 2)
+        else:
+            record.hours = 0
+
+        # Check if the employee is an administrator
+    if employee.role == 'Administrator':
+        # Admin can see all projects
+        projects = Project.objects.all().order_by('-created_at')
+
+    elif employee.role == 'Manager':
+        # Regular employees can only see projects they lead or are team members of
+        projects = Project.objects.filter(leader=employee).order_by('-created_at') | Project.objects.filter(
+            admin=employee).order_by('-created_at')
+    else:
+        projects = Project.objects.filter(team_members=employee).order_by('-created_at')
+
+    if employee.role == 'Administrator':  # Assuming 'Administrator' is the role name in the field
+        tasks = Task.objects.all().order_by('-created_at')  # Show all tasks if user is an admin
+    else:
+        tasks = Task.objects.filter(assigned_to=employee).order_by(
+            '-created_at')  # Show only tasks assigned to the logged-in user
+
+    try:
+        # Get the employee record based on the logged-in user's email
+        current_employee = EmployeeBISP.objects.prefetch_related(
+            Prefetch(
+                'leave_set',
+                queryset=Leave.objects.all().order_by('-created_at')  # Order newest first
+            )
+        ).get(email=employee.email)
+    except EmployeeBISP.DoesNotExist:
+        messages.error(request, "Employee record not found.")
+
     try:
         employee = EmployeeBISP.objects.get(id=employee_id)
     except EmployeeBISP.DoesNotExist:
         employee = None
 
-    return render(request,'admin_templates/profile.html',{'employee':employee})
+    return render(request,'admin_templates/profile.html',{'employee':employee,'records': records,'projects': projects.distinct(),'tasks': tasks,'employees': [current_employee]})
 
 #Profile of team member for administrator and manager
 def Team_profile(request,id):

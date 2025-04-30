@@ -27,6 +27,7 @@
 
                 <thead>
                   <tr>
+                     <th>Employee</th>
                     <th>Project</th>
                     <th>Task</th>
                     <th>Date</th>
@@ -40,13 +41,14 @@
                 <tbody>
                   {% for record in records %}
                     <tr>
+                       <td>{{ record.task.assigned_to.name}}</td>
                       <td>{{ record.task.project.project_name }}</td>
                       <td>{{ record.task.task_title }}</td>
                       <td>{{ record.date }}</td>
                       <td>{{ record.start_time }}</td>
                       <td>{{ record.end_time }}</td>
                       <td>{{ record.hours }}</td>
-                      <td>{{ record.record_name|truncatewords:3 }}<a href="#" data-bs-toggle="modal" data-bs-target="#DescModal{{ record.id }}" class="text-decoration-none text-primary">..more</a>
+                         <td>{{ record.record_name|truncatewords:3 }}<a href="#" data-bs-toggle="modal" data-bs-target="#DescModal{{ record.id }}" class="text-decoration-none text-primary">..more</a>
                      </td>
                         <!-- Modal for Full Description -->
                           <div class="modal fade" id="DescModal{{ record.id  }}" tabindex="-1" aria-labelledby="descModalLabel{{ record.id  }}" aria-hidden="true">
@@ -69,12 +71,10 @@
                       {% else %}
                       <td>No Attachment</td>
                       {% endif %}
-
                     </tr>
                   {% endfor %}
                 </tbody>
-              </table>
-
+          </table>
     </div>
   </div>
 </div>

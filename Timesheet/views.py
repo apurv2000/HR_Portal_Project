@@ -13,20 +13,87 @@ from django.views.decorators.csrf import csrf_exempt
 # Allowed file extensions
 ALLOWED_EXTENSIONS = ['.pdf', '.docx', '.doc', '.jpg', '.jpeg', '.png']
 def timesheet_record(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
     today = date.today()
-    monday = today - timedelta(days=today.weekday())
-    dates = [monday + timedelta(days=i) for i in range(7)]
+    monday_this_week = today - timedelta(days=today.weekday())  # Monday of current week
+    monday_last_week = monday_this_week - timedelta(days=7)  # Monday of last week
+    sunday_this_week = monday_this_week + timedelta(days=6)  # Sunday of current week
 
-    records = TaskRecord.objects.filter(date__range=(monday, monday + timedelta(days=6)))
+    # Week date list (optional for template display)
+    dates = [monday_last_week + timedelta(days=i) for i in range(14)]
 
+    # Get current employee
+    emp_id = request.session['employee_id']
+    employee = EmployeeBISP.objects.get(id=emp_id)
 
-    return render(request,'timesheet_templates/timesheet_record.html', {
+    # Filter TaskRecords where the task is assigned to current employee
+    records = TaskRecord.objects.filter(
+        task__assigned_to=employee,
+        date__range=(monday_last_week, sunday_this_week)
+    ).order_by('-date', '-start_time')
+
+    # Calculate hours
+    for record in records:
+        if record.start_time and record.end_time:
+            start_dt = datetime.combine(record.date, record.start_time)
+            end_dt = datetime.combine(record.date, record.end_time)
+            duration = end_dt - start_dt
+            record.hours = round(duration.total_seconds() / 3600, 2)
+        else:
+            record.hours = 0
+
+    return render(request, 'timesheet_templates/timesheet_record.html', {
         'dates': dates,
         'records': records,
     })
+#Function for show all employee timesheet record
+def timesheet_record_all(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
 
+    today = date.today()
+    monday_this_week = today - timedelta(days=today.weekday())  # Monday of current week
+    monday_last_week = monday_this_week - timedelta(days=7)     # Monday of last week
+    sunday_this_week = monday_this_week + timedelta(days=6)     # Sunday of current week
+
+    # Week date list (optional for template display)
+    dates = [monday_last_week + timedelta(days=i) for i in range(14)]
+
+    # Filter TaskRecords for both current and previous week
+    records = TaskRecord.objects.filter(
+        date__range=(monday_last_week, sunday_this_week)
+    ).order_by('-date')
+
+    # Calculate hours
+    for record in records:
+        if record.start_time and record.end_time:
+            start_dt = datetime.combine(record.date, record.start_time)
+            end_dt = datetime.combine(record.date, record.end_time)
+            duration = end_dt - start_dt
+            record.hours = round(duration.total_seconds() / 3600, 2)
+        else:
+            record.hours = 0
+
+    return render(request, 'timesheet_templates/timesheet_record_all.html', {
+        'dates': dates,
+        'records': records,
+    })
+def timesheet_record_image(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+
+
+    # Filter TaskRecords for both current and previous week
+    records =ImagetaskRecord.objects.all().order_by('-start_date','-id')
+
+
+    return render(request, 'timesheet_templates/timesheet_record_image.html', {
+        'records': records,
+    })
 
 def get_week_dates(last_week=False):
+
     today = date.today()
     monday = today - timedelta(days=today.weekday())
     if last_week:
