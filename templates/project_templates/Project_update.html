@@ -113,7 +113,7 @@
                                 <select name="leader" class="form-select form-control">
                                   <option disabled selected>Select a Project Leader</option>
                                   {% for emp in employees %}
-                                    {% if emp.role != 'Employee' %}
+                                    {% if emp.role != 'Employee' and emp.status == 'active' %}
                                       <option value="{{ emp.id }}" {% if emp.id == project.leader_id %}selected{% endif %}>
                                         {{ emp.name }}{% if emp.role %} ({{ emp.role }}){% endif %}{% if emp.department %} - {{ emp.department }}{% endif %}
                                       </option>
@@ -127,8 +127,10 @@
                                 <select name="admin" class="form-select form-control">
                                   <option disabled selected>Select Admin</option>
                                   {% for emp in admin_employees %}
+                                    {% if emp.status == 'active' %}
                                     <option value="{{ emp.id }}" {% if emp.id == project.admin_id %}selected{% endif %}>{{ emp.name }}</option>
-                                  {% endfor %}
+                                  {% endif %}
+                                    {% endfor %}
                                 </select>
                               </div>
 
@@ -141,7 +143,7 @@
                                 </button>
                                 <div class="dropdown-menu w-100 p-2" id="teamMembersDropdown" style="max-height: 250px; overflow-y: auto;">
                                   {% for emp in employees %}
-                                    {% if emp.role == 'Employee' %}
+                                    {% if emp.role == 'Employee' and emp.status == 'active'  %}
                                       <div class="form-check">
                                         <input class="form-check-input team-member-option" type="checkbox"
                                                value="{{ emp.id }}" id="emp_{{ emp.id }}"

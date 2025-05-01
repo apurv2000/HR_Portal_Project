@@ -11,7 +11,7 @@ from django.core.files.storage import FileSystemStorage
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.db import transaction, models
-from django.db.models import Prefetch, Sum, Value, CharField, F
+from django.db.models import Prefetch, Sum, Value, CharField, F, Q
 from django.shortcuts import render, redirect, get_object_or_404
 import json
 from django.http import JsonResponse, HttpResponse
@@ -27,7 +27,8 @@ from Project.models import Project,Task
 from Timesheet.models import TaskRecord,ImagetaskRecord
 from .models import EmployeeBISP, Leave, LeaveType, Designation, Department, HandbookPDF, \
     HandbookAcknowledgement, EmpLeaveType, EmployeeBISPHistory, LeaveTypeHistory, \
-    LearningVideo  # Import your Employee model
+    LearningVideo, EmployeePersonalDetails, EmployeeEmergencyContact, EmployeeBankDetails, \
+    EmployeeEducation, EmployeeExperience  # Import your Employee model
 from openpyxl import Workbook
 from datetime import date, timedelta
 
@@ -41,14 +42,20 @@ def Manager(request):
     if not employee_id:
         return redirect("Login_user_page")
 
-    employee = EmployeeBISP.objects.get(id=employee_id)
+    employee = get_object_or_404(EmployeeBISP, id=employee_id, status='active')
 
     # Get all projects where the employee is admin or leader
-    project_qs = Project.objects.filter(admin=employee) | Project.objects.filter(leader=employee)
+    project_qs = Project.objects.filter(admin=employee,status='active') | Project.objects.filter(leader=employee,status='active')
 
     # Get related tasks from those projects
-    task_qs = Task.objects.filter(assigned_to=employee)
+    task_qs = Task.objects.filter(assigned_to=employee,project__status='active')
 
+    # Latest Handbook Message
+    latest_pdf = HandbookPDF.objects.order_by('-uploaded_at').first()
+    acknowledgement = None
+    if latest_pdf:
+        acknowledgement = HandbookAcknowledgement.objects.filter(employee=employee,
+                                                                 pdf=latest_pdf).first()
 
     # Count tasks by status using simple logic
     status_counts = {
@@ -97,12 +104,13 @@ def Manager(request):
     ).order_by('-created_at')[:5]
 
     # 1. Get projects where the logged-in manager is the leader
-    led_projects = Project.objects.filter(leader=employee)
+    led_projects = Project.objects.filter(leader=employee,status='active') | Project.objects.filter(admin=employee,status='active')
 
     # 2. Get employees who are team_members in those projects
-    team_employees = EmployeeBISP.objects.filter(project_team__in=led_projects).distinct()
+    team_employees = EmployeeBISP.objects.filter(project_team__in=led_projects,status='active').distinct()
 
     # 3. Tasks claimed by these team members under manager's projects
+
     latest_tasks = Task.objects.filter(
         assigned_to__in=team_employees,
         status='Claimed Completed'
@@ -110,17 +118,35 @@ def Manager(request):
         activity_type=Value('Task', output_field=CharField())
     )
 
+    self_tasks = Task.objects.filter(
+        assigned_to=employee,
+        status__in=['Completed', 'Pending']
+    ).annotate(
+        activity_type=Value('TaskSelf', output_field=CharField())
+    )
+
     # 4. Leaves applied by these team members
     latest_leaves = Leave.objects.filter(
-        employee__in=team_employees
+        Q(employee__in=team_employees) | Q(employee=employee)
     ).annotate(
         activity_type=Value('Leave', output_field=CharField())
     )
 
     # 5. Projects led by this manager
-    latest_projects = led_projects.annotate(
+    latest_projects = led_projects.filter(
+    status='Active'  # or exclude(status='Inactive') if there are multiple active statuses
+    ).annotate(
         activity_type=Value('Project', output_field=CharField())
     )
+
+
+    latest_projectCom = Project.objects.filter(
+        Q(leader=employee) | Q(admin=employee),
+        status='Inactive'  # or exclude(status='Inactive') if there are multiple active statuses
+    ).annotate(
+        activity_type=Value('ProjectCom', output_field=CharField())
+    )
+
 
     latest_acknowledgements = HandbookAcknowledgement.objects.filter(
         employee__in=team_employees,
@@ -130,8 +156,9 @@ def Manager(request):
         activity_datetime=F('acknowledged_at')
     ).select_related('employee', 'pdf')
 
+
     # Attach normalized datetime (prefer updated_at or fallback)
-    for item in chain(latest_tasks, latest_leaves, latest_projects, latest_acknowledgements):
+    for item in chain(latest_tasks, latest_leaves, latest_projects, latest_acknowledgements,latest_projectCom,self_tasks):
         if not hasattr(item, 'activity_datetime') or not item.activity_datetime:
             if hasattr(item, 'timestamp'):
                 item.activity_datetime = item.timestamp
@@ -147,10 +174,12 @@ def Manager(request):
     # Combine and get latest 10
     combined_activities = sorted(
         chain(
-            latest_tasks[:5],
-            latest_leaves[:5],
-            latest_projects[:5],
-            latest_acknowledgements[:5]
+            latest_tasks,
+            latest_leaves,
+            latest_projects,
+            latest_acknowledgements,
+            latest_projectCom,
+            self_tasks,
         ),
         key=lambda x: x.activity_datetime,
         reverse=True
@@ -161,7 +190,7 @@ def Manager(request):
         'total_tasks': task_qs.count(),
         'projects': project_qs,
         'tasks': task_qs,
-        'total_employee':EmployeeBISP.objects.count(),
+        'total_employee':EmployeeBISP.objects.filter(status='active').count(),
         'status_counts': status_counts,
         'overdue_tasks': overdue_tasks,
         'status_percentages': status_percentages,
@@ -169,6 +198,8 @@ def Manager(request):
         'latest_activities': combined_activities,
         'team_employees':team_employees,
         'employee_leaves ':employee_leaves,
+        'latest_pdf': latest_pdf,
+        'acknowledgement': acknowledgement,
 
     }
 
@@ -183,19 +214,23 @@ def Hr(request):
     employee_id = request.session.get('employee_id')
     if not employee_id:
         return redirect("Login_user_page")
-    employee = EmployeeBISP.objects.get(id=employee_id)
+    employee = get_object_or_404(EmployeeBISP, id=employee_id, status='active')
 
     # Get all projects where the employee is admin or leader
-    project_qs = Project.objects.filter(admin=employee) | Project.objects.filter(leader=employee)
+    active_projects = Project.objects.filter(team_members__status='active',status='active')
+    leader_projects = Project.objects.filter(leader__status='active',status='active')
+    admin_projects = Project.objects.filter(admin__status='active',status='active')
+
+    project_qs = (active_projects | leader_projects | admin_projects).distinct()
 
     #All Employee leave
     employee_leaves = Leave.objects.filter(status='Pending').order_by('-created_at')[:5]
 
     # Get related tasks from those projects
-    task_qs = Task.objects.filter(assigned_to=employee)
+    task_qs = Task.objects.filter(project__status='active')
 
     # Get employees who are team members in those projects
-    team_employees = EmployeeBISP.objects.filter(project_team__in=project_qs).distinct()
+    team_employees = EmployeeBISP.objects.filter(project_team__in=project_qs,status='active').distinct()
 
     # Count tasks by status using simple logic
     status_counts = {
@@ -235,7 +270,16 @@ def Hr(request):
         availed_leave_sum=Sum('availed_leave')
     )
 
+    # Latest Handbook Message
+    latest_pdf = HandbookPDF.objects.order_by('-uploaded_at').first()
+    acknowledgement = None
+    if latest_pdf:
+        acknowledgement = HandbookAcknowledgement.objects.filter(employee=employee,
+                                                                 pdf=latest_pdf).first()
+
+
     # Annotate and fetch
+    # Latest tasks
     latest_tasks = Task.objects.filter(
         assigned_to__isnull=False,
         status='Claimed Completed'
@@ -243,16 +287,27 @@ def Hr(request):
         activity_type=Value('Task', output_field=CharField())
     )
 
+    # Latest leaves
     latest_leaves = Leave.objects.filter(employee__isnull=False).annotate(
         activity_type=Value('Leave', output_field=CharField())
     )
 
+    # Latest projects (active)
     latest_projects = Project.objects.filter(
-        team_members__isnull=False
+        team_members__isnull=False,
+        status='Active'
     ).annotate(
         activity_type=Value('Project', output_field=CharField())
     )
 
+    # Latest projects (inactive, for a specific employee)
+    latest_projectCom = Project.objects.filter(
+        status='Inactive'  # or exclude(status='Inactive') if there are multiple active statuses
+    ).annotate(
+        activity_type=Value('ProjectCom', output_field=CharField())
+    )
+
+    # Latest acknowledgements (acknowledged)
     latest_acknowledgements = HandbookAcknowledgement.objects.filter(
         status='Acknowledge'
     ).annotate(
@@ -260,8 +315,9 @@ def Hr(request):
         activity_datetime=F('acknowledged_at')  # Use actual acknowledgement datetime
     ).select_related('employee', 'pdf')
 
-    # Attach normalized datetime (prefer updated_at or fallback)
-    for item in chain(latest_tasks, latest_leaves, latest_projects, latest_acknowledgements):
+
+    # Normalize the datetime for other activities
+    for item in chain(latest_tasks, latest_leaves, latest_projects, latest_acknowledgements, latest_projectCom):
         if not hasattr(item, 'activity_datetime') or not item.activity_datetime:
             if hasattr(item, 'timestamp'):
                 item.activity_datetime = item.timestamp
@@ -274,31 +330,33 @@ def Hr(request):
             else:
                 item.activity_datetime = datetime.min
 
-    # Combine and get latest 10
+    # Combine all activities and get the latest 10
     combined_activities = sorted(
         chain(
-            latest_tasks[:5],
-            latest_leaves[:5],
-            latest_projects[:5],
-            latest_acknowledgements[:5]
+            latest_tasks,
+            latest_leaves,
+            latest_projects,
+            latest_acknowledgements,
+            latest_projectCom,
         ),
         key=lambda x: x.activity_datetime,
         reverse=True
     )[:10]
-
     context = {
         'total_projects': project_qs.count(),
         'total_tasks': task_qs.count(),
         'projects': project_qs,
         'tasks': task_qs,
-        'total_employee': EmployeeBISP.objects.count(),
+        'total_employee': EmployeeBISP.objects.filter(status='active').count(),
         'status_counts': status_counts,
         'overdue_tasks': overdue_tasks,
         'status_percentages': status_percentages,
         'leave_totals': aggregated_leave,
         'employee_leaves': employee_leaves,
         'latest_activities': combined_activities,
-        'team_employees':team_employees
+        'team_employees':team_employees,
+        'latest_pdf': latest_pdf,
+        'acknowledgement': acknowledgement,
 
     }
 
@@ -313,13 +371,13 @@ def Employee(request):
     if not employee_id:
         return redirect("Login_user_page")
 
-    employee = EmployeeBISP.objects.get(id=employee_id)
+    employee = get_object_or_404(EmployeeBISP, id=employee_id, status='active')
 
     # Get all projects where the employee is admin or leader
-    project_qs = Project.objects.filter(team_members = employee)
+    project_qs = Project.objects.filter(team_members = employee,status='active')
 
     # Get related tasks from those projects
-    task_qs = Task.objects.filter(assigned_to=employee)
+    task_qs = Task.objects.filter(assigned_to=employee,project__status='active')
     total_tasks = task_qs.count()
     status_labels = ['Pending', 'Inprogress', 'Claimed Completed', 'Completed', 'On Hold']
     status_counts = {label: task_qs.filter(status=label).count() for label in status_labels}
@@ -343,6 +401,13 @@ def Employee(request):
     #     key=lambda x: getattr(x, 'created_at', getattr(x, 'start_date', getattr(x, 'assigned_date', None))),
     #     reverse=True
     # )
+
+    # Latest Handbook Message
+    latest_pdf = HandbookPDF.objects.order_by('-uploaded_at').first()
+    acknowledgement = None
+    if latest_pdf:
+        acknowledgement = HandbookAcknowledgement.objects.filter(employee=employee,
+                                                                 pdf=latest_pdf).first()
 
     # Calculate percentage for each status
     status_percentages = {}
@@ -390,13 +455,28 @@ def Employee(request):
     )
 
     latest_projects = Project.objects.filter(
-        team_members=employee
+        team_members=employee,
+        status = 'Active'
     ).annotate(
         activity_type=Value('Project', output_field=CharField())
     )
+    latest_projectCom = Project.objects.filter(
+        team_members=employee,
+        status='Inactive'  # or exclude(status='Inactive') if there are multiple active statuses
+    ).annotate(
+        activity_type=Value('ProjectCom', output_field=CharField())
+    )
+    # Get all handbooks not yet acknowledged by the current employee
+    # Latest handbooks (newly uploaded)
+    latest_acknowledgements = HandbookPDF.objects.filter(
+        uploaded_at__gt=F('timestamp')  # Ensure that the handbook is newly uploaded
+    ).annotate(
+        activity_type=Value('HandbookEmp', output_field=CharField()),
+        activity_datetime=F('uploaded_at')  # Set the activity_datetime to uploaded_at
+    ).order_by('-uploaded_at')  # Order by the most recent uploaded handbooks first
 
     # Attach normalized datetime (prefer updated_at or fallback)
-    for item in chain(latest_tasks, latest_leaves, latest_projects):
+    for item in chain(latest_tasks, latest_leaves, latest_projects,latest_acknowledgements,latest_projectCom):
         if hasattr(item, 'timestamp'):
             item.activity_datetime = item.timestamp
         elif hasattr(item, 'created_at'):
@@ -410,7 +490,7 @@ def Employee(request):
 
     # Combine and get latest 10
     combined_activities = sorted(
-        chain(latest_tasks[:5], latest_leaves[:5], latest_projects[:5]),
+        chain(latest_tasks, latest_leaves, latest_projects, latest_acknowledgements,latest_projectCom),
         key=lambda x: x.activity_datetime,
         reverse=True
     )[:10]
@@ -420,12 +500,14 @@ def Employee(request):
         'total_tasks': task_qs.count(),
         'projects': project_qs,
         'tasks': task_qs,
-        'total_employee': EmployeeBISP.objects.count(),
+        'total_employee': EmployeeBISP.objects.filter(status='active').count(),
         'status_counts': status_counts,
         'overdue_tasks': overdue_tasks,
         'status_percentages': status_percentages,
         'leave_totals': aggregated_leave,
         'latest_activities': combined_activities,
+        'latest_pdf': latest_pdf,
+        'acknowledgement': acknowledgement,
 
     }
 
@@ -744,7 +826,7 @@ def handbook_report(request):
     if not request.session.get('employee_id'):
         return redirect('Login_user_page')
     latest_pdf = HandbookPDF.objects.filter(is_active=True).order_by('-uploaded_at').first()
-    employees = EmployeeBISP.objects.all()
+    employees = EmployeeBISP.objects.filter(status='active')
 
     if latest_pdf:
         ack_ids = HandbookAcknowledgement.objects.filter(pdf=latest_pdf).values_list('employee_id', flat=True)
@@ -1293,7 +1375,7 @@ def Login_user(request):
     if errors:
         return JsonResponse(errors, status=400)
 
-    user = EmployeeBISP.objects.filter(email=email).first()
+    user = EmployeeBISP.objects.filter(email=email,status='active').first()
     if not user:
         return JsonResponse({"email_error": "No account found with this email."}, status=401)
 
@@ -2138,3 +2220,192 @@ def upload_learning_video(request):
             })
     return JsonResponse({'success': False, 'message': 'Upload failed'})
 
+#Profile Form Submition
+def update_about_me(request, employee_id):
+    if request.method == 'POST':
+        employee = get_object_or_404(EmployeeBISP, id=employee_id)
+
+        phone_number = request.POST.get('phone_number', '').strip()
+        email = request.POST.get('email', '').strip()
+        dob = request.POST.get('dob', '').strip()
+        current_address = request.POST.get('current_address', '').strip()
+        gender = request.POST.get('gender', '').strip()
+        reporting_manager = request.POST.get('reporting_manager', '').strip()
+
+        errors = []
+
+        if not phone_number:
+            errors.append("Phone number is required.")
+        if not email:
+            errors.append("Email is required.")
+        else:
+            try:
+                validate_email(email)
+            except ValidationError:
+                errors.append("Invalid email address.")
+        if not dob:
+            errors.append("Date of birth is required.")
+
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            return redirect('employee_profile', employee_id=employee.id)
+
+        employee.phone_number = phone_number
+        employee.email = email
+        employee.dob = dob
+        employee.current_address = current_address
+        employee.gender = gender
+        employee.reporting_manager = reporting_manager
+        employee.save()
+        messages.success(request, "About Me updated successfully.")
+        return redirect('employee_profile', employee_id=employee.id)
+
+
+def update_personal_info(request, employee_id):
+    if request.method == 'POST':
+        employee = get_object_or_404(EmployeeBISP, id=employee_id)
+
+        passport = request.POST.get('passport', '').strip()
+        passport_number = request.POST.get('passport_number', '').strip()
+        tell_number = request.POST.get('phone_number', '').strip()
+        nationality = request.POST.get('nationality', '').strip()
+        religion = request.POST.get('religion', '').strip()
+        marital_status = request.POST.get('marital_status', '').strip()
+
+        errors = []
+        if not tell_number:
+            errors.append("Phone number is required.")
+
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            return redirect('employee_profile', employee_id=employee.id)
+
+        # Update EmployeePersonalDetails
+        personal_details, created = EmployeePersonalDetails.objects.get_or_create(employee=employee)
+        personal_details.passport = passport
+        personal_details.passport_number = passport_number
+        personal_details.Tell_number = tell_number
+        personal_details.religion = religion
+        personal_details.marital_status = marital_status
+        personal_details.save()
+
+        messages.success(request, "Personal Info updated successfully.")
+        return redirect('employee_profile', employee_id=employee.id)
+
+def update_emergency_contact(request, employee_id):
+    if request.method == 'POST':
+        employee = get_object_or_404(EmployeeBISP, id=employee_id)
+
+        primary_name = request.POST.get('primary_contact_name', '').strip()
+        primary_phone = request.POST.get('primary_contact_phone', '').strip()
+
+        errors = []
+        if not primary_name or not primary_phone:
+            errors.append("Primary contact name and phone are required.")
+
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            return redirect('employee_profile', employee_id=employee.id)
+
+        # Update or create emergency contacts
+        EmployeeEmergencyContact.objects.update_or_create(
+            employee=employee, priority=1,
+            defaults={
+                'name': primary_name,
+                'phone_number': primary_phone,
+                'relationship': request.POST.get('primary_contact_relationship')
+            }
+        )
+
+        # Secondary contact
+        EmployeeEmergencyContact.objects.update_or_create(
+            employee=employee, priority=2,
+            defaults={
+                'name': request.POST.get('secondary_contact_name'),
+                'phone_number': request.POST.get('secondary_contact_phone'),
+                'relationship': request.POST.get('secondary_contact_relationship')
+            }
+        )
+
+        messages.success(request, "Emergency Contact updated successfully.")
+        return redirect('employee_profile', employee_id=employee.id)
+
+def update_bank_info(request, employee_id):
+    if request.method == 'POST':
+        employee = get_object_or_404(EmployeeBISP, id=employee_id)
+
+        account_no = request.POST.get('account_no', '').strip()
+        pan_no = request.POST.get('pan_no', '').strip()
+
+        errors = []
+        if not account_no:
+            errors.append("Account number is required.")
+        if not pan_no:
+            errors.append("PAN number is required.")
+
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            return redirect('employee_profile', employee_id=employee.id)
+
+        # Update or create bank details
+        bank_details, created = EmployeeBankDetails.objects.get_or_create(employee=employee)
+        bank_details.bank_name = request.POST.get('bank_name')
+        bank_details.bank_account_no = account_no
+        bank_details.ifsc_code = request.POST.get('ifsc_code')
+        bank_details.pan_no = pan_no
+        bank_details.save()
+
+        messages.success(request, "Bank Information updated successfully.")
+        return redirect('employee_profile', employee_id=employee.id)
+
+def update_education(request, employee_id):
+    if request.method == 'POST':
+        employee = get_object_or_404(EmployeeBISP, id=employee_id)
+
+        college = request.POST.get('college', '').strip()
+        branch = request.POST.get('branch', '').strip()
+
+        if not college or not branch:
+            messages.error(request, "College and Branch are required.")
+            return redirect('employee_profile', employee_id=employee.id)
+
+        # Update or create education details
+        education, created = EmployeeEducation.objects.update_or_create(
+            employee=employee, institution_name=college,
+            defaults={
+                'branch': branch,
+                'start_date': request.POST.get('start_date'),
+                'end_date': request.POST.get('end_date')
+            }
+        )
+
+        messages.success(request, "Education updated successfully.")
+        return redirect('employee_profile', employee_id=employee.id)
+
+def update_experience(request, employee_id):
+    if request.method == 'POST':
+        employee = get_object_or_404(EmployeeBISP, id=employee_id)
+
+        company = request.POST.get('company', '').strip()
+        position = request.POST.get('position', '').strip()
+
+        if not company or not position:
+            messages.error(request, "Company and Position are required.")
+            return redirect('employee_profile', employee_id=employee.id)
+
+        # Update or create experience details
+        experience, created = EmployeeExperience.objects.update_or_create(
+            employee=employee, company_name=company,
+            defaults={
+                'position': position,
+                'start_date': request.POST.get('start_date'),
+                'end_date': request.POST.get('end_date')
+            }
+        )
+
+        messages.success(request, "Experience updated successfully.")
+        return redirect('employee_profile', employee_id=employee.id)

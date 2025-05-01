@@ -294,13 +294,13 @@ def Project_list(request):
     # Check if the employee is an administrator
     if employee.role == 'Administrator':
         # Admin can see all projects
-        projects = Project.objects.all().order_by('-created_at')
+        projects = Project.objects.filter(status='active').order_by('-created_at')
 
     elif employee.role == 'Manager':
         # Regular employees can only see projects they lead or are team members of
-        projects = Project.objects.filter(leader=employee).order_by('-created_at') | Project.objects.filter(admin=employee).order_by('-created_at')
+        projects = Project.objects.filter(leader=employee,status='active').order_by('-created_at') | Project.objects.filter(admin=employee,status='active').order_by('-created_at')
     else:
-        projects = Project.objects.filter(team_members =employee).order_by('-created_at')
+        projects = Project.objects.filter(team_members =employee,status='active').order_by('-created_at')
 
 
     return render(request, 'project_templates/project_list.html', {'projects': projects.distinct()})
@@ -315,9 +315,9 @@ def Task_list(request):
 
     # Check if the user is an administrator based on the 'role' field
     if employee.role == 'Administrator':  # Assuming 'Administrator' is the role name in the field
-        tasks = Task.objects.all().order_by('-created_at')  # Show all tasks if user is an admin
+        tasks = Task.objects.filter(project__status='active').order_by('-created_at')  # Show all tasks if user is an admin
     else:
-        tasks = Task.objects.filter(assigned_to=employee).order_by('-created_at')  # Show only tasks assigned to the logged-in user
+        tasks = Task.objects.filter(assigned_to=employee,project__status='active').order_by('-created_at')  # Show only tasks assigned to the logged-in user
 
     return render(request, 'task_templates/Task_list.html', {'tasks': tasks})
 
@@ -593,3 +593,10 @@ def project_detail(request, pk):
         'task':task
     }
     return render(request, 'project_templates/project_detail.html', context)
+
+#For showing project as completed
+def mark_project_completed(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    if request.method == 'POST':
+        project.soft_delete()
+    return redirect('Project:project_list')

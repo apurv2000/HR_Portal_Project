@@ -44,5 +44,12 @@ urlpatterns = [
       path('leave/status/dashboard/<int:leave_id>/', views.update_leave_approve_dashboard,name='update_leave_status_dashboard'),
       path('add-department/', views.add_department, name='add_department'),
       path('add-designation/', views.add_designation, name='add_designation'),
+      path('employee/<int:employee_id>/update/about-me/', views.update_about_me, name='update_about_me'),
+      path('employee/<int:employee_id>/update/personal/', views.update_personal_info, name='update_personal_info'),
+      path('employee/<int:employee_id>/update/emergency/', views.update_emergency_contact, name='update_emergency_contact'),
+      path('employee/<int:employee_id>/update/bank/', views.update_bank_info, name='update_bank_info'),
+      path('employee/<int:employee_id>/update/education/', views.update_education, name='update_education'),
+      path('employee/<int:employee_id>/update/experience/', views.update_experience, name='update_experience'),
+
 
 ]

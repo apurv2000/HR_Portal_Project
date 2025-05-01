@@ -46,9 +46,11 @@
                 <select name="project" class="form-select form-control">
                   <option value="" selected disabled>Select Project</option>
                   {% for project in projects %}
+                   {% if project.status == 'active'%}
                     <option value="{{ project.id }}" {% if task and task.project.id == project.id %}selected{% endif %}>
                       {{ project.project_name }}
                     </option>
+                  {% endif %}
                   {% endfor %}
                 </select>
 
@@ -97,7 +99,7 @@
               <select name="assigned_to" class="form-select form-control">
                 <option value="" selected disabled>Select Employee</option>
                 {% for emp in employees %}
-                  {% if emp.role == 'Employee' %}
+                  {% if emp.role != 'Administrator' and  emp.status == 'active' %}
                     <option value="{{ emp.id }}" {% if task and task.assigned_to.id == emp.id %}selected{% endif %}>
                       {{ emp.name }}{% if emp.designation.title %} ({{ emp.designation.title }}){% endif %}
                     </option>

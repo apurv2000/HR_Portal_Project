@@ -12,6 +12,8 @@ urlpatterns = [
     path('<int:pk>/', views.project_detail, name='project_detail'),
     path('Update/page/<int:id>/', views.Project_update_page, name='project_update_page'),
     path('Update/<int:id>/', views.update_project, name='Update_Project'),
+    path('project/<int:project_id>/complete/', views.mark_project_completed, name='mark_completed'),
+
 
     #For Task
     path('task_list/', views.Task_list, name='task_list'),

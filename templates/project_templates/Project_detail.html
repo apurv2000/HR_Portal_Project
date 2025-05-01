@@ -15,12 +15,33 @@
       </div>
     </div>
   </section>
-    <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'Project:project_list' %}" class="text-primary">Project</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Project detail</li>
-                </ol>
-    </nav>
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb d-flex justify-content-between align-items-center">
+    <div class="d-flex">
+      <li class="breadcrumb-item">
+        <a href="{% url 'Project:project_list' %}" class="text-primary">Project</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">Project detail</li>
+    </div>
+
+    {% if request.session.employee_name == project.admin.name%}
+    {% if project.status != 'Inactive' %}
+    <li class="ml-auto">
+      <form method="post" action="{% url 'Project:mark_completed' project.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-success">
+          <i class="fas fa-check-circle mr-1"></i> Mark as Completed
+        </button>
+      </form>
+    </li>
+    {% else %}
+      <span class="badge badge-success">Completed</span>
+    {% endif %}
+    {% endif %}
+  </ol>
+</nav>
+
+
 
   <div class="container mt-4">
 
@@ -153,12 +174,15 @@
 
             <h6 class="font-weight-bold text-muted mb-2">Team Members</h6>
             {% for member in project.team_members.all %}
+            {% if member.status == 'active' %}
             <div class="d-flex align-items-center mb-2">
               <img src="{{ member.profile_picture.url }}" alt="{{ member.name }}" class="user-avatar">
               <span>{{ member.name }}</span>
             </div>
+              {% endif %}
             {% empty %}
             <p class="text-muted">No team members assigned.</p>
+
             {% endfor %}
 
             <div class="mt-4 text-muted">Project files</div>

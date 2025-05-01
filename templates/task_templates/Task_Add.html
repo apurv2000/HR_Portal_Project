@@ -48,7 +48,9 @@
                     <select name="project" class="form-select form-control">
                         <option value="" selected disabled>Select Project</option>
                         {% for project in projects %}
+                        {% if project.status == 'active'%}
                             <option value="{{ project.id }}">{{ project.project_name }}</option>
+                        {% endif %}
                         {% endfor %}
                     </select>
                     <div class="text-danger" id="error-project"></div>
@@ -100,7 +102,7 @@
                     <select name="assigned_to" class="form-select form-control">
                         <option value="" selected disabled>Select Employee</option>
                         {% for emp in employees %}
-                            {% if emp.role == 'Employee' %}
+                         {% if emp.role != 'Administrator' and  emp.status == 'active' %}
                                 <option value="{{ emp.id }}">{{ emp.name }}{% if emp.designation.title %} ({{ emp.designation.title }}){% endif %}</option>
                             {% endif %}
                         {% endfor %}

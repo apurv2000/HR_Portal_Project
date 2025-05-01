@@ -57,9 +57,11 @@
                 <td>
                   <div class="d-flex flex-wrap gap-1">
                     {% for member in project.team_members.all %}
+                    {% if member.status == 'active' %}
                     <img src="{{ member.profile_picture.url }}" alt="{{ member.name }}" title="{{ member.name }}"
                          class="rounded-circle border border-secondary"
                          style="width: 35px; height: 35px; object-fit: cover;">
+                    {% endif %}
                     {% endfor %}
                   </div>
                 </td>

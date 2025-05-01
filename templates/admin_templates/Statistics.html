@@ -374,6 +374,24 @@ hr {
                                     {{ activity.status }}
                                 </span>
                             </div>
+                        {% elif activity.activity_type == 'ProjectCom' %}
+                            <div class="mb-2">
+                                <strong class="text-info">📁 Project Assigned:</strong>
+                                <a href="{% url 'Project:project_detail' activity.id %}" class="text-decoration-none text-primary">
+                                {{ activity.project_name}}
+                              </a>
+                                <div class="text-muted small">Assigned by : {{ activity.admin.name}}</div>
+                                <div class="badge bg-warning">Completed</div>
+                            </div>
+
+                      {% elif activity.activity_type == 'Handbook' %}
+                      <div class="mb-2">
+                            <a href="{% url 'handbookemployee' %}"><strong class="text-primary">📘 Handbook:</strong></a>
+                               {{ activity.employee.name }}
+                               <div class="badge bg-danger"> Not Acknowledged </div>
+
+                      </div>
+
                         {% elif activity.activity_type == 'Leave' %}
                             <div class="mb-2">
                                 <strong class="text-success">🌿 Leave:</strong> {{ activity.leave_type.name }}
@@ -399,6 +417,7 @@ hr {
                               </a>
                                 <div class="text-muted small">Assigned by : {{ activity.admin.name}}</div>
                             </div>
+
                         {% endif %}
                         <hr>
                     {% empty %}
@@ -437,6 +456,32 @@ hr {
                                     {{ activity.status }}
                                 </span>
                             </div>
+                     {% elif  activity.activity_type == 'TaskSelf' %}
+                            <div class="mb-2">
+                                <strong class="text-primary">📝 Task:</strong>
+                                <a href="{% url 'Project:task_detail' activity.id %}" class="text-decoration-none">{{ activity.task_title }}</a>
+                                <div class="text-muted small">Project:  <span class="text-dark small">{{ activity.project.project_name }} | {{ activity.created_at|date:"M d, Y H:i" }}</span></div>
+                                <div class="text-muted small">Assigned to :  <span class="text-dark small">{{ activity.assigned_to.name }} </span></div>
+
+                                <span class="badge
+                                    {% if activity.status == 'Pending' %}bg-warning
+                                    {% elif activity.status == 'Inprogress' %}bg-info
+                                    {% elif activity.status == 'Claimed Completed' %}bg-primary
+                                    {% elif activity.status == 'Completed' %}bg-success
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ activity.status }}
+                                </span>
+                            </div>
+                        {% elif activity.activity_type == 'ProjectCom' %}
+                            <div class="mb-2">
+                                <strong class="text-info">📁 Project Assigned:</strong>
+                                <a href="{% url 'Project:project_detail' activity.id %}" class="text-decoration-none text-primary">
+                                {{ activity.project_name}}
+                              </a>
+                                <div class="text-muted small">Assigned by : {{ activity.admin.name}}</div>
+                                <div class="badge bg-warning">Completed</div>
+                            </div>
+
                           {% elif activity.activity_type == 'Handbook' %}
                       <div class="mb-2">
                             <strong class="text-primary">📘 Handbook:</strong>
@@ -499,6 +544,7 @@ hr {
 
                     <ul class="users-list clearfix">
                         {% for member in team_employees %}
+                        {% if request.session.employee_name != member.name %}
                      <li class="text-center" style="width: 90px; display: inline-block;">
                       <a href="{% url 'Profile_team' member.id %}"><img src="{{ member.profile_picture.url }}" alt="{{ member.name }}"
                            class="rounded-circle mb-2 shadow" style="width: 60px; height: 60px; object-fit: cover; border: 2px solid #007bff;"></a>
@@ -507,7 +553,7 @@ hr {
                         {{ member.name|truncatechars:14 }}
                       </a>
                     </li>
-
+                       {% endif %}
                         {% endfor %}
                     </ul>
                     <!-- /.users-list -->

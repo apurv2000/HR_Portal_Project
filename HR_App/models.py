@@ -91,6 +91,57 @@ class EmployeeBISPHistory(models.Model):
     def __str__(self):
         return f"History for {self.employee.name} - Version {self.version}"
 
+class EmployeePersonalDetails(models.Model):
+    employee = models.OneToOneField(EmployeeBISP, on_delete=models.CASCADE, related_name='personal_details')
+    passport = models.CharField(max_length=50, blank=True, null=True)
+    passport_number = models.CharField(max_length=50, blank=True, null=True)
+    Tell_number = models.CharField(max_length=20, blank=True, null=True)
+    religion = models.CharField(max_length=100, blank=True, null=True)
+    marital_status = models.CharField(max_length=50, choices=[
+        ('single', 'Single'),
+        ('married', 'Married'),
+        ('divorced', 'Divorced'),
+    ], blank=True, null=True)
+
+class EmployeeEmergencyContact(models.Model):
+    employee = models.ForeignKey(EmployeeBISP, on_delete=models.CASCADE, related_name='emergency_contacts')
+    name = models.CharField(max_length=100)
+    relationship = models.CharField(max_length=50)
+    phone_number = models.CharField(max_length=20)
+    priority = models.IntegerField(choices=[(1, 'Primary'), (2, 'Secondary')])
+
+    class Meta:
+        unique_together = ('employee', 'priority')
+
+class EmployeeBankDetails(models.Model):
+    employee = models.OneToOneField(EmployeeBISP, on_delete=models.CASCADE, related_name='bank_details')
+    bank_name = models.CharField(max_length=100)
+    bank_account_no = models.CharField(max_length=50)
+    ifsc_code = models.CharField(max_length=20)
+    pan_no = models.CharField(max_length=20)
+
+
+class EmployeeEducation(models.Model):
+    employee = models.ForeignKey(EmployeeBISP, on_delete=models.CASCADE, related_name='educations')
+    institution_name = models.CharField(max_length=200)
+    branch = models.CharField(max_length=100)
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+class EmployeeExperience(models.Model):
+    employee = models.ForeignKey(EmployeeBISP, on_delete=models.CASCADE, related_name='experiences')
+    company_name = models.CharField(max_length=200)
+    position = models.CharField(max_length=100)
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+class EmployeeDocument(models.Model):
+    employee = models.ForeignKey(EmployeeBISP, on_delete=models.CASCADE, related_name='documents')
+    name = models.CharField(max_length=100)
+    file = models.FileField(upload_to='documents/')
+    uploaded_at = models.DateField(auto_now_add=True)
+
+
 
 class LeaveType(models.Model):
     name = models.CharField(max_length=100, unique=True)

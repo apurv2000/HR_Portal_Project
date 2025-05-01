@@ -163,7 +163,7 @@
               </div><!-- /.card-header -->
               <div class="card-body">
                 <div class="tab-content">
-        <div class="active tab-pane" id="activity" style="max-height: 600px; overflow-y: auto;">
+                <div class="active tab-pane" id="activity" style="max-height: 600px; overflow-y: auto;">
                     <div class="row">
 
                         <!-- Personal Information Card -->
@@ -171,7 +171,7 @@
                             <div class="card card-primary h-100">
                                 <div class="card-header d-flex justify-content-between">
                                     <h3 class="card-title">Personal Information</h3>
-                                    <button class="btn btn-sm btn-primary ml-auto" data-toggle="modal" data-target="#editModal">
+                                    <button class="btn btn-sm btn-primary ml-auto" data-toggle="modal" data-target="#PersonaleditModal">
                                         <i class="fas fa-edit"></i> Edit
                                     </button>
                                 </div>
@@ -282,7 +282,7 @@
                             <div class="card card-success h-100">
                                 <div class="card-header d-flex justify-content-between">
                                     <h3 class="card-title">Bank information</h3>
-                                    <button class="btn btn-sm btn-success ml-auto" data-toggle="modal" data-target="#editAdditionalInfoModal">
+                                    <button class="btn btn-sm btn-success ml-auto" data-toggle="modal" data-target="#editBankModal">
                                         <i class="fas fa-edit"></i> Edit
                                     </button>
                                 </div>
@@ -316,7 +316,7 @@
                             <div class="card card-warning h-100">
                                 <div class="card-header d-flex justify-content-between">
                                     <h3 class="card-title">Education Informations</h3>
-                                    <button class="btn btn-sm btn-warning ml-auto" data-toggle="modal" data-target="#editAdditionalInfoModal">
+                                    <button class="btn btn-sm btn-warning ml-auto" data-toggle="modal" data-target="#editEducationModal">
                                         <i class="fas fa-edit"></i> Edit
                                     </button>
                                 </div>
@@ -347,7 +347,7 @@
                             <div class="card card-danger h-100">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <h3 class="card-title mb-0">Experience</h3>
-                                    <button class="btn btn-sm btn-danger ml-auto" data-toggle="modal" data-target="#editAdditionalInfoModal">
+                                    <button class="btn btn-sm btn-danger ml-auto" data-toggle="modal" data-target="#editExperienceModal">
                                         <i class="fas fa-edit"></i> Edit
                                     </button>
                                 </div>
@@ -837,7 +837,7 @@
                   </div>
                   <div class="modal-body">
                       <!-- Edit Form -->
-                      <form id="editForm">
+                      <form id="editForm" method="POST" action="{% url 'update_about_me' employee.id %}">
                           <!-- Phone -->
                           <div class="form-group">
                               <label for="phone_number">Phone</label>
@@ -881,6 +881,213 @@
               </div>
           </div>
       </div>
+
+            <!--Modal for personal details -->
+            <div class="modal fade" id="PersonaleditModal" tabindex="-1" role="dialog" aria-labelledby="editPersonalInfoLabel" aria-hidden="true">
+              <div class="modal-dialog modal-lg" role="document">
+                <form method="POST" action="{% url 'update_personal_info' employee.id %}">
+                  {% csrf_token %}
+                  <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                      <h5 class="modal-title" id="editPersonalInfoLabel">Edit Personal Information</h5>
+                      <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="form-row">
+                        <div class="form-group col-md-6">
+                          <label>Passport</label>
+                          <input type="text" class="form-control" name="passport" value="{{ employee.passport }}">
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label>Passport No.</label>
+                          <input type="text" class="form-control" name="passport_no" value="12345643212323452352524">
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group col-md-6">
+                          <label>Phone</label>
+                          <input type="text" class="form-control" name="phone_number" value="{{ employee.phone_number }}">
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label>Nationality</label>
+                          <input type="text" class="form-control" name="nationality" value="{{ employee.nationality }}">
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group col-md-6">
+                          <label>Religion</label>
+                          <input type="text" class="form-control" name="religion" value="{{ employee.religion }}">
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label>Marital Status</label>
+                          <input type="text" class="form-control" name="marital_status" value="{{ employee.marital_status }}">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="submit" class="btn btn-primary">Save Changes</button>
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <!--Modal for Emergency Contact-->
+            <div class="modal fade" id="editAdditionalInfoModal" tabindex="-1" role="dialog" aria-labelledby="editEmergencyContactLabel" aria-hidden="true">
+              <div class="modal-dialog modal-lg" role="document">
+                <form method="POST" action="{% url 'update_about_me' employee.id %}">
+                  {% csrf_token %}
+                  <div class="modal-content">
+                    <div class="modal-header bg-secondary text-white">
+                      <h5 class="modal-title" id="editEmergencyContactLabel">Edit Emergency Contact</h5>
+                      <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                      <h6>Primary Contact</h6>
+                      <div class="form-row">
+                        <div class="form-group col-md-4">
+                          <label>Name</label>
+                          <input type="text" class="form-control" name="primary_contact_name" value="{{ employee.primary_contact_name }}">
+                        </div>
+                        <div class="form-group col-md-4">
+                          <label>Relationship</label>
+                          <input type="text" class="form-control" name="primary_contact_relationship" value="{{ employee.primary_contact_relationship }}">
+                        </div>
+                        <div class="form-group col-md-4">
+                          <label>Phone</label>
+                          <input type="text" class="form-control" name="primary_contact_phone" value="{{ employee.primary_contact_phone }}">
+                        </div>
+                      </div>
+                      <h6>Secondary Contact</h6>
+                      <div class="form-row">
+                        <div class="form-group col-md-4">
+                          <label>Name</label>
+                          <input type="text" class="form-control" name="secondary_contact_name" value="{{ employee.secondary_contact_name }}">
+                        </div>
+                        <div class="form-group col-md-4">
+                          <label>Relationship</label>
+                          <input type="text" class="form-control" name="secondary_contact_relationship" value="{{ employee.secondary_contact_relationship }}">
+                        </div>
+                        <div class="form-group col-md-4">
+                          <label>Phone</label>
+                          <input type="text" class="form-control" name="secondary_contact_phone" value="{{ employee.secondary_contact_phone }}">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="submit" class="btn btn-secondary">Save</button>
+                      <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+
+            <!--Modal for bank information-->
+            <div class="modal fade" id="editBankModal" tabindex="-1" role="dialog" aria-labelledby="editBankInfoLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <form method="POST" action="{% url 'update_about_me' employee.id %}">
+                  {% csrf_token %}
+                  <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                      <h5 class="modal-title">Edit Bank Information</h5>
+                      <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="form-group">
+                        <label>Bank Name</label>
+                        <input type="text" class="form-control" name="bank_name" value="{{ employee.department }}">
+                      </div>
+                      <div class="form-group">
+                        <label>Account Number</label>
+                        <input type="text" class="form-control" name="account_no" value="{{ employee.position }}">
+                      </div>
+                      <div class="form-group">
+                        <label>IFSC Code</label>
+                        <input type="text" class="form-control" name="ifsc_code" value="{{ employee.position }}">
+                      </div>
+                      <div class="form-group">
+                        <label>PAN Number</label>
+                        <input type="text" class="form-control" name="pan_no" value="{{ employee.position }}">
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="submit" class="btn btn-success">Save</button>
+                      <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+
+            <!--Modal for education-->
+            <div class="modal fade" id="editEducationModal" tabindex="-1" role="dialog" aria-labelledby="editEducationLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <form method="POST" action="#">
+                  {% csrf_token %}
+                  <div class="modal-content">
+                    <div class="modal-header bg-warning">
+                      <h5 class="modal-title">Edit Education</h5>
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="form-group">
+                        <label>College Name</label>
+                        <input type="text" class="form-control" name="college" value="Laxmi Narain College Of Technology, Bhopal">
+                      </div>
+                      <div class="form-group">
+                        <label>Branch</label>
+                        <input type="text" class="form-control" name="branch" value="IT">
+                      </div>
+                      <div class="form-group">
+                        <label>Duration</label>
+                        <input type="text" class="form-control" name="duration" value="June 14, 2020 - June 10, 2024">
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="submit" class="btn btn-warning">Update</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+
+            <!--Modal for Experience-->
+            <div class="modal fade" id="editExperienceModal" tabindex="-1" role="dialog" aria-labelledby="editExperienceLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <form method="POST" action="#">
+                  {% csrf_token %}
+                  <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                      <h5 class="modal-title">Edit Experience</h5>
+                      <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="form-group">
+                        <label>Company</label>
+                        <input type="text" class="form-control" name="company" value="BISP">
+                      </div>
+                      <div class="form-group">
+                        <label>Position</label>
+                        <input type="text" class="form-control" name="position" value="SD">
+                      </div>
+                      <div class="form-group">
+                        <label>From - To</label>
+                        <input type="text" class="form-control" name="duration" value="12/12/2000 - 21/21/2002">
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="submit" class="btn btn-danger">Update</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+
 
 <!--Script for download table-->
 <script>

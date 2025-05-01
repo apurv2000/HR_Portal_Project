@@ -7,6 +7,24 @@
 
   {% include 'Side_Navbar.html' %}
 
+{% if latest_pdf and  acknowledgement.status != "Acknowledge" %}
+
+<!-- Bootstrap Toast - Top Right Notification -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+  <div id="acknowledgeToast" class="toast show align-items-center bg-light border border-warning shadow-sm" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="10000">
+    <div class="d-flex">
+      <div class="toast-body text-dark">
+
+        <strong><a href="{% url 'handbookemployee' %}">📘 Handbook:</a></strong> Please acknowledge the latest Employee Handbook.
+      </div>
+      <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
+
+{% endif %}
+
+
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -126,5 +144,11 @@
   <!-- /.control-sidebar -->
 </div>
 <!-- ./wrapper -->
-
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const toastEl = document.getElementById('acknowledgeToast');
+    const toast = new bootstrap.Toast(toastEl, { delay: 8000 });
+    toast.show();
+  });
+</script>
 {% endblock %}
