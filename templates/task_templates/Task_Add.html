@@ -101,11 +101,11 @@
                     <label class="form-label">Assigned To <span class="text-danger">*</span></label>
                     <select name="assigned_to" class="form-select form-control">
                         <option value="" selected disabled>Select Employee</option>
-                        {% for emp in employees %}
-                         {% if emp.role != 'Administrator' and  emp.status == 'active' %}
-                                <option value="{{ emp.id }}">{{ emp.name }}{% if emp.designation.title %} ({{ emp.designation.title }}){% endif %}</option>
-                            {% endif %}
-                        {% endfor %}
+<!--                        {% for emp in employees %}-->
+<!--                         {% if emp.role != 'Administrator' and  emp.status == 'active' %}-->
+<!--                                <option value="{{ emp.id }}">{{ emp.name }}{% if emp.designation.title %} ({{ emp.designation.title }}){% endif %}</option>-->
+<!--                            {% endif %}-->
+<!--                        {% endfor %}-->
                     </select>
                     <div class="text-danger" id="error-assigned_to"></div>
                 </div>
@@ -188,6 +188,42 @@ document.addEventListener('DOMContentLoaded', function() {
       console.error('Error:', error);
     });
   });
+});
+</script>
+
+<!--Script  for show assigned employee according to project in add task module-->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const projectSelect = document.querySelector('select[name="project"]');
+    const assignedToSelect = document.querySelector('select[name="assigned_to"]');
+
+    projectSelect.addEventListener('change', function () {
+        const projectId = this.value;
+        assignedToSelect.innerHTML = '<option selected disabled>Loading...</option>';
+
+        const url = "{% url 'Project:get_project_employees' 0 %}".replace('0', projectId);
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                assignedToSelect.innerHTML = '<option value="" selected disabled>Select Employee</option>';
+
+                if (data.status === 'success') {
+                    data.employees.forEach(emp => {
+                        const opt = document.createElement('option');
+                        opt.value = emp.id;
+                        opt.textContent = emp.designation ? `${emp.name} (${emp.designation})` : emp.name;
+                        assignedToSelect.appendChild(opt);
+                    });
+                } else {
+                    assignedToSelect.innerHTML = '<option disabled>No team members found</option>';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                assignedToSelect.innerHTML = '<option disabled>Error loading employees</option>';
+            });
+    });
 });
 </script>
 

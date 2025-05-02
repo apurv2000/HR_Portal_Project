@@ -58,23 +58,18 @@
                      placeholder="Retype password" >
             </div>
 
-         <div class="col-md-4">
-              <label>Gender  <span class="text-danger">*</span></label>
-              <div class="d-flex">
-                  <input type="radio" name="gender" value="male" class="me-1"
-                         {% if employee.gender == "male" %}checked{% endif %}> Male
-                  <input type="radio" name="gender" value="female" class="ms-3 me-1"
-                         {% if employee.gender == "female" %}checked{% endif %}> Female
-              </div>
-           <small id="gender-error" class="text-danger"></small> <!-- This div will display gender errors -->
-          </div>
+<!--         <div class="col-md-4">-->
+<!--              <label>Gender  <span class="text-danger">*</span></label>-->
+<!--              <div class="d-flex">-->
+<!--                  <input type="radio" name="gender" value="male" class="me-1"-->
+<!--                         {% if employee.gender == "male" %}checked{% endif %}> Male-->
+<!--                  <input type="radio" name="gender" value="female" class="ms-3 me-1"-->
+<!--                         {% if employee.gender == "female" %}checked{% endif %}> Female-->
+<!--              </div>-->
+<!--           <small id="gender-error" class="text-danger"></small> &lt;!&ndash; This div will display gender errors &ndash;&gt;-->
+<!--          </div>-->
 
 
-<!--            <div class="col-md-4">-->
-<!--              <label for="dob">Date of Birth <span class="text-danger">*</span></label>-->
-<!--              <input type="date" class="form-control" id="dob" name="DOB"-->
-<!--                     value="{{ employee.dob}}" >-->
-<!--            </div>-->
 
               <div class="col-md-4">
               <label for="currentAddress">Address with Pincode  <span class="text-danger">*</span></label>
@@ -150,19 +145,6 @@
 <!--            </div>-->
 
 
-
-<!--            <div class="col-md-4">-->
-<!--              <label for="aadhar">Aadhar Number</label>-->
-<!--              <input type="number" class="form-control" id="aadhar" name="Aadhar"-->
-<!--                     value="{{ employee.aadhar_card }}" placeholder="Enter Aadhar number">-->
-<!--            </div>-->
-
-<!--            <div class="col-md-4">-->
-<!--              <label for="phone">Phone Number <span class="text-danger">*</span></label>-->
-<!--              <input type="number" class="form-control" id="phone" name="Phone"-->
-<!--                     value="{{ employee.phone_number|default:'' }}" placeholder="Enter phone number" >-->
-<!--            </div>-->
-
             <div class="col-md-4">
               <label for="doj">Date of Joining <span class="text-danger">*</span></label>
               <input type="date" class="form-control" id="doj" name="DOJ"
@@ -174,19 +156,22 @@
               <input type="text" class="form-control" id="workLocation" name="workloc"
                      value="{{ employee.work_location|default:'' }}" placeholder="Enter work location">
             </div>
-
-            <div class="col-md-4">
-              <label for="ProfileImage">Profile Image <span class="text-danger small">(Image size: Max 2MB)</span></label>
-              <input type="file" class="form-control" id="ProfileImage" name="image">
-                <span class="text-danger small">Allowed formats: PNG and JPG .</span>
-
+              <div class="col-md-4">
+              <label for="reportedTo">Reported To </label>
+              <select class="form-control" id="reportedTo" name="Reported_To">
+                <option value="">Select Reporting Manager</option>
+                {% for emp in employees %}
+                  {% if emp.role == 'Manager' %}
+                    <option value="{{ emp.id }}" {% if emp.id == employee.reported_to.id %}selected{% endif %}>
+                      {{ emp.name }} ({{ emp.role }})
+                    </option>
+                  {% endif %}
+                {% endfor %}
+              </select>
             </div>
-            <div class="col-md-4">
-               {% if employee.profile_picture %}
-                <img src="{{ employee.profile_picture.url }}" class="img-thumbnail mt-2" width="100">
 
-              {% endif %}
-            </div>
+
+
           </div>
 
           <!--For Validation-->

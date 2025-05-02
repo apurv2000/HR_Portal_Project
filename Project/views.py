@@ -600,3 +600,22 @@ def mark_project_completed(request, project_id):
     if request.method == 'POST':
         project.soft_delete()
     return redirect('Project:project_list')
+
+#In Adding new Task show assigned employee according to employee
+def get_project_employees(request, project_id):
+    if request.method == "GET":
+        try:
+            project = Project.objects.get(id=project_id)
+            team_members = project.team_members.filter(status='active').exclude(role='Administrator')  # adjust field names if needed
+
+            employees_data = [
+                {
+                    'id': emp.id,
+                    'name': emp.name,
+                    'designation': emp.designation.title if emp.designation else ''
+                }
+                for emp in team_members
+            ]
+            return JsonResponse({'status': 'success', 'employees': employees_data})
+        except Project.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Project not found'})

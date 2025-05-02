@@ -40,8 +40,6 @@ class EmployeeBISP(models.Model):
     )
     phone_number = models.CharField(validators=[phone_regex], max_length=20,null=True)
 
-
-
     email = models.EmailField(max_length=50)
     password=models.CharField(max_length=200)
     aadhar_card=models.CharField(max_length=200,null=True)
@@ -51,6 +49,7 @@ class EmployeeBISP(models.Model):
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True)
     role = models.CharField(max_length=50, choices=ROLE_CHOICES, default='Employee')
     profile_picture = models.ImageField(upload_to="profile_pics/", blank=True, null=True)
+    reported_to = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='subordinates')
 
     # Additional fields for versioning and soft deletion
     version = models.IntegerField(default=1)  # Start from version 1
@@ -84,6 +83,7 @@ class EmployeeBISPHistory(models.Model):
     designation = models.ForeignKey(Designation, on_delete=models.SET_NULL, null=True)
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True)
     role = models.CharField(max_length=50, choices=EmployeeBISP.ROLE_CHOICES, default='Employee')
+    reported_to = models.ForeignKey(EmployeeBISP, on_delete=models.SET_NULL, null=True, blank=True, related_name='history_reported_to')
     profile_picture = models.ImageField(upload_to="profile_pics/", blank=True, null=True)
     version = models.IntegerField(default=1)
     timestamp = models.DateTimeField(auto_now=True)
@@ -127,6 +127,7 @@ class EmployeeEducation(models.Model):
     branch = models.CharField(max_length=100)
     start_date = models.DateField()
     end_date = models.DateField()
+    priority = models.IntegerField(choices=[(1, 'Primary'), (2, 'Secondary')],null=True)
 
 class EmployeeExperience(models.Model):
     employee = models.ForeignKey(EmployeeBISP, on_delete=models.CASCADE, related_name='experiences')
@@ -134,6 +135,7 @@ class EmployeeExperience(models.Model):
     position = models.CharField(max_length=100)
     start_date = models.DateField()
     end_date = models.DateField()
+    priority = models.IntegerField(choices=[(1, 'Primary'), (2, 'Secondary')],null=True)
 
 class EmployeeDocument(models.Model):
     employee = models.ForeignKey(EmployeeBISP, on_delete=models.CASCADE, related_name='documents')

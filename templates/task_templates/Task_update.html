@@ -96,17 +96,9 @@
 
             <div class="col-md-4 col-sm-12 mb-3">
               <label class="form-label">Assigned To <span class="text-danger">*</span></label>
-              <select name="assigned_to" class="form-select form-control">
-                <option value="" selected disabled>Select Employee</option>
-                {% for emp in employees %}
-                  {% if emp.role != 'Administrator' and  emp.status == 'active' %}
-                    <option value="{{ emp.id }}" {% if task and task.assigned_to.id == emp.id %}selected{% endif %}>
-                      {{ emp.name }}{% if emp.designation.title %} ({{ emp.designation.title }}){% endif %}
-                    </option>
-                  {% endif %}
-                {% endfor %}
-              </select>
-
+            <select name="assigned_to" id="assignedTo" class="form-select form-control">
+              <option value="" selected disabled>Loading...</option>
+            </select>
             </div>
               </div>
 
@@ -169,5 +161,62 @@ $(document).ready(function () {
 });
 </script>
 
+
+<!--Script for render assigned employee according to selected project-->
+{% if task and task.assigned_to %}
+<script>const selectedAssignedTo = "{{ task.assigned_to.id }}";</script>
+{% else %}
+<script>const selectedAssignedTo = null;</script>
+{% endif %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const projectSelect = document.querySelector("select[name='project']");
+    const assignedToSelect = document.querySelector("select[name='assigned_to']");
+
+    function loadEmployees(projectId, selectedEmpId = null) {
+        if (!projectId) return;
+
+        const url = "{% url 'Project:get_project_employees' 0 %}".replace('0', projectId);
+
+        assignedToSelect.innerHTML = '<option selected disabled>Loading...</option>';
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                assignedToSelect.innerHTML = '<option value="" disabled>Select Employee</option>';
+                if (data.status === 'success') {
+                    data.employees.forEach(emp => {
+                        const option = document.createElement("option");
+                        option.value = emp.id;
+                        option.textContent = emp.designation ? `${emp.name} (${emp.designation})` : emp.name;
+                        if (String(emp.id) === String(selectedEmpId)) {
+                            option.selected = true;
+                        }
+                        assignedToSelect.appendChild(option);
+                    });
+                } else {
+                    assignedToSelect.innerHTML = '<option disabled>No employees found</option>';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                assignedToSelect.innerHTML = '<option disabled>Error loading employees</option>';
+            });
+    }
+
+    // Trigger on project change
+    projectSelect.addEventListener("change", function () {
+        const projectId = this.value;
+        loadEmployees(projectId);
+    });
+
+    // Load initially on edit form load
+    const initialProjectId = projectSelect.value;
+    if (initialProjectId) {
+        loadEmployees(initialProjectId, selectedAssignedTo);
+    }
+});
+</script>
 
 {% endblock %}

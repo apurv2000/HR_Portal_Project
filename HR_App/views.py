@@ -28,7 +28,7 @@ from Timesheet.models import TaskRecord,ImagetaskRecord
 from .models import EmployeeBISP, Leave, LeaveType, Designation, Department, HandbookPDF, \
     HandbookAcknowledgement, EmpLeaveType, EmployeeBISPHistory, LeaveTypeHistory, \
     LearningVideo, EmployeePersonalDetails, EmployeeEmergencyContact, EmployeeBankDetails, \
-    EmployeeEducation, EmployeeExperience  # Import your Employee model
+    EmployeeEducation, EmployeeExperience, EmployeeDocument  # Import your Employee model
 from openpyxl import Workbook
 from datetime import date, timedelta
 
@@ -580,19 +580,153 @@ def Profile(request):
     except EmployeeBISP.DoesNotExist:
         employee = None
 
-    return render(request,'admin_templates/profile.html',{'employee':employee,'records': records,'projects': projects.distinct(),'tasks': tasks,'employees': [current_employee]})
+    try:
+        personalDetails=EmployeePersonalDetails.objects.filter(employee=employee).first()
+    except EmployeePersonalDetails.DoesNotExist:
+        personalDetails=None
+
+    try:
+        primary_contact = EmployeeEmergencyContact.objects.filter(employee=employee, priority=1).first()
+    except EmployeeEmergencyContact.DoesNotExist:
+        primary_contact=None
+
+    try:
+        secondary_contact = EmployeeEmergencyContact.objects.filter(employee=employee, priority=2).first()
+    except EmployeeEmergencyContact.DoesNotExist:
+        secondary_contact = None
+
+    try:
+        bank_details = EmployeeBankDetails.objects.filter(employee=employee).first()
+    except EmployeeBankDetails.DoesNotExist:
+        bank_details= None
+
+    try:
+        Edu =  EmployeeEducation.objects.filter(employee=employee).first()
+    except EmployeeEducation.DoesNotExist:
+       Edu= None
+
+    try:
+        PriExperience =EmployeeExperience.objects.filter(employee=employee,priority=1).first()
+    except EmployeeExperience.DoesNotExist:
+        PriExperience= None
+
+    try:
+        SecExperience =EmployeeExperience.objects.filter(employee=employee,priority=2).first()
+    except EmployeeExperience.DoesNotExist:
+        SecExperience= None
+
+    try:
+        Document =EmployeeDocument.objects.filter(employee=employee)
+    except EmployeeDocument.DoesNotExist:
+        Document= None
+
+    return render(request,'admin_templates/profile.html',{'employee':employee,'records': records,'projects': projects.distinct(),'tasks': tasks,'employees': [current_employee],'personalDetails':personalDetails,'primary_contact': primary_contact,'secondary_contact':secondary_contact,'bank_details':bank_details,'Edu':Edu,'PriExperience':PriExperience,'SecExperience':SecExperience,'Document':Document})
 
 #Profile of team member for administrator and manager
 def Team_profile(request,id):
     if not request.session.get('employee_id'):
         return redirect('Login_user_page')
 
+
+    today = date.today()
+    monday_this_week = today - timedelta(days=today.weekday())  # Monday of current week
+    monday_last_week = monday_this_week - timedelta(days=7)  # Monday of last week
+    sunday_this_week = monday_this_week + timedelta(days=6)  # Sunday of current week
+
+
     try:
         employee = EmployeeBISP.objects.get(id=id)
     except EmployeeBISP.DoesNotExist:
         employee = None
 
-    return render(request, 'admin_templates/profile.html', {'employee': employee})
+        # Filter TaskRecords where the task is assigned to current employee
+    records = TaskRecord.objects.filter(
+        task__assigned_to=employee,
+        date__range=(monday_last_week, sunday_this_week)
+    ).order_by('-date', '-start_time')
+
+    # Calculate hours
+    for record in records:
+        if record.start_time and record.end_time:
+            start_dt = datetime.combine(record.date, record.start_time)
+            end_dt = datetime.combine(record.date, record.end_time)
+            duration = end_dt - start_dt
+            record.hours = round(duration.total_seconds() / 3600, 2)
+        else:
+            record.hours = 0
+
+        # Check if the employee is an administrator
+    if employee.role == 'Administrator':
+        # Admin can see all projects
+        projects = Project.objects.all().order_by('-created_at')
+
+    elif employee.role == 'Manager':
+        # Regular employees can only see projects they lead or are team members of
+        projects = Project.objects.filter(leader=employee).order_by('-created_at') | Project.objects.filter(
+            admin=employee).order_by('-created_at')
+    else:
+        projects = Project.objects.filter(team_members=employee).order_by('-created_at')
+
+    if employee.role == 'Administrator':  # Assuming 'Administrator' is the role name in the field
+        tasks = Task.objects.all().order_by('-created_at')  # Show all tasks if user is an admin
+    else:
+        tasks = Task.objects.filter(assigned_to=employee).order_by(
+            '-created_at')  # Show only tasks assigned to the logged-in user
+
+    try:
+        # Get the employee record based on the logged-in user's email
+        current_employee = EmployeeBISP.objects.prefetch_related(
+            Prefetch(
+                'leave_set',
+                queryset=Leave.objects.all().order_by('-created_at')  # Order newest first
+            )
+        ).get(email=employee.email)
+    except EmployeeBISP.DoesNotExist:
+        messages.error(request, "Employee record not found.")
+
+
+    try:
+        personalDetails = EmployeePersonalDetails.objects.filter(employee=employee).first()
+    except EmployeePersonalDetails.DoesNotExist:
+        personalDetails = None
+
+    try:
+        primary_contact = EmployeeEmergencyContact.objects.filter(employee=employee, priority=1).first()
+    except EmployeeEmergencyContact.DoesNotExist:
+        primary_contact = None
+
+    try:
+        secondary_contact = EmployeeEmergencyContact.objects.filter(employee=employee, priority=2).first()
+    except EmployeeEmergencyContact.DoesNotExist:
+        secondary_contact = None
+
+    try:
+        bank_details = EmployeeBankDetails.objects.filter(employee=employee).first()
+    except EmployeeBankDetails.DoesNotExist:
+        bank_details = None
+
+    try:
+        Edu = EmployeeEducation.objects.filter(employee=employee).first()
+    except EmployeeEducation.DoesNotExist:
+        Edu = None
+
+    try:
+        PriExperience = EmployeeExperience.objects.filter(employee=employee, priority=1).first()
+    except EmployeeExperience.DoesNotExist:
+        PriExperience = None
+
+    try:
+        SecExperience = EmployeeExperience.objects.filter(employee=employee, priority=2).first()
+    except EmployeeExperience.DoesNotExist:
+        SecExperience = None
+
+    try:
+        Document = EmployeeDocument.objects.filter(employee=employee)
+    except EmployeeDocument.DoesNotExist:
+        Document = None
+
+
+    return render(request, 'admin_templates/profile.html', {'employee':employee,'records': records,'projects': projects.distinct(),'tasks': tasks,'employees': [current_employee],'personalDetails':personalDetails,'primary_contact': primary_contact,'secondary_contact':secondary_contact,'bank_details':bank_details,'Edu':Edu,'PriExperience':PriExperience,'SecExperience':SecExperience,'Document':Document})
 
 
 def Forget_pwd(request):
@@ -612,9 +746,11 @@ def Register(request):
 
     departments = Department.objects.all()
     designations = Designation.objects.select_related('department').all()
+
     return render(request,'admin_templates/register.html',{
             'departments': departments,
             'designations': designations,
+            'employees':EmployeeBISP.objects.filter(status='active')
         })
 
 def Login_page(request):
@@ -972,7 +1108,9 @@ def update_emp_page(request,id):
     departments = Department.objects.all()
     designations = Designation.objects.select_related('department').all()
     return render(request,'admin_templates/register.html', {'employee': employee,'departments': departments,
-            'designations': designations,})
+            'designations': designations,
+     'employees': EmployeeBISP.objects.filter(status='active')
+})
 
 #For Update Employee with ID
 def update_employee(request, id):
@@ -1002,6 +1140,7 @@ def update_employee(request, id):
             profile_picture=employee.profile_picture,
             version=employee.version,
             timestamp=employee.timestamp,
+            reported_to=employee.reported_to
 
         )
 
@@ -1012,26 +1151,28 @@ def update_employee(request, id):
         email = request.POST.get('Email', '').strip()
         password = request.POST.get('PWD', '').strip()
         confirm_password = request.POST.get('RPWD', '').strip()
-        dob = request.POST.get('DOB', '').strip()
         nationality = request.POST.get('Nationality', '').strip()
         designation = request.POST.get('Designation', '').strip()
-        per_address = request.POST.get('Per_Address', '').strip()
         cur_address = request.POST.get('Cur_Address', '').strip()
-        aadhar = request.POST.get('Aadhar', '').strip()
-        phone = request.POST.get('Phone', '').strip()
         doj = request.POST.get('DOJ', '').strip()
         workloc = request.POST.get('workloc', '').strip()
-        gender = request.POST.get('gender', '').strip()
-        profile_img = request.FILES.get("image")
         department = request.POST.get("Department", '').strip()
         role = request.POST.get("role", '').strip()
+
+        reported_to_id = request.POST.get("Reported_To", '').strip()
+        reported_to = None
+        if reported_to_id:
+            try:
+                reported_to = EmployeeBISP.objects.get(id=reported_to_id)
+            except EmployeeBISP.DoesNotExist:
+                errors["Reported_To"] = "Invalid manager selected."
 
 
         # Validate required fields
         required_fields = {
             "Full_Name": name, "PWD": password, "RPWD": confirm_password,
              "Role": role,
-             "workloc": workloc, "gender": gender
+             "workloc": workloc,
         }
 
         for field, value in required_fields.items():
@@ -1117,10 +1258,6 @@ def update_employee(request, id):
                 errors["Designation"] =f"{department} has no designation titled '{designation}'."
 
 
-        # Validate profile image format
-        error_message = validate_profile_picture(profile_img)
-        if error_message:
-            errors["image"] = error_message
 
         # If there are validation errors, return the error response
         if errors:
@@ -1129,23 +1266,14 @@ def update_employee(request, id):
         # If no errors, update the employee data
         employee.name = name
         employee.email = email
-        employee.dob = dob
         employee.nationality = nationality
         employee.designation = designation_obj
         employee.department = department_obj
-        employee.permanent_address = per_address
         employee.current_address = cur_address
-        employee.aadhar_card = aadhar
-        employee.phone_number = phone
         employee.date_of_join = doj
         employee.work_location = workloc
-        employee.gender = gender
         employee.role = role
-
-        # Handle profile image upload if provided
-        if profile_img:
-            employee.profile_picture = profile_img
-
+        employee.reported_to=reported_to
         # Save the updated employee data
         employee.save()  # This will increment the version and update the timestamp
 
@@ -1192,27 +1320,31 @@ def register_user(request):
         email = request.POST.get('Email', '').strip()
         password = request.POST.get('PWD', '').strip()
         confirm_password = request.POST.get('RPWD', '').strip()
-        dob = request.POST.get('DOB', '').strip()
         nationality = request.POST.get('Nationality', '').strip()
         designation = request.POST.get('Designation', '').strip()
-        per_address = request.POST.get('Per_Address', '').strip()
         cur_address = request.POST.get('Cur_Address', '').strip()
-        aadhar = request.POST.get('Aadhar', '').strip()
-        phone = request.POST.get('Phone', '').strip()
         doj = request.POST.get('DOJ', '').strip()
         workloc = request.POST.get('workloc', '').strip()
-        gender = request.POST.get('gender', '').strip()
-        profile_img = request.FILES.get("image")
         department = request.POST.get("Department", '').strip()
         role = request.POST.get("role", '').strip()
 
+
+
         errors = {}
+
+        reported_to_id = request.POST.get("Reported_To", '').strip()
+        reported_to = None
+        if reported_to_id:
+            try:
+                reported_to = EmployeeBISP.objects.get(id=reported_to_id)
+            except EmployeeBISP.DoesNotExist:
+                errors["Reported_To"] = "Invalid manager selected."
 
         # Validate required fields
         required_fields = {
             "Full_Name": name, "PWD": password, "RPWD": confirm_password,
              "Role": role,"Cur_Address": cur_address,
-             "workloc": workloc, "gender": gender
+             "workloc": workloc,
         }
         # "Per_Address": per_address,"Cur_Address": cur_address Add in Profile
 
@@ -1235,11 +1367,17 @@ def register_user(request):
             try:
                 email = email.lower()
                 validate_email(email)
+
                 # Check email domain
                 allowed_domains = ['gmail.com', 'yahoo.com']
                 domain = email.split('@')[-1]
                 if domain not in allowed_domains:
                     errors.setdefault("Email", []).append("Only Gmail and Yahoo email addresses are allowed.")
+
+                # Check if email is already in use
+                if User.objects.filter(email=email).exists():  # Assuming User is the model you're using
+                    errors.setdefault("Email", []).append("This email address is already in use.")
+
             except ValidationError:
                 errors.setdefault("Email", []).append("Invalid email format.")
 
@@ -1307,10 +1445,10 @@ def register_user(request):
             except Exception:
                 errors["Designation"] = f"Designation '{designation}' does not exist in department '{department}'."
 
-        # Validate profile picture format and size
-        error_message = validate_profile_picture(profile_img)
-        if error_message:
-            errors["image"] = error_message
+        # # Validate profile picture format and size
+        # error_message = validate_profile_picture(profile_img)
+        # if error_message:
+        #     errors["image"] = error_message
 
         # Return errors if any
         if errors:
@@ -1324,19 +1462,14 @@ def register_user(request):
             name=name,
             email=email,
             password=hashed_password,
-            dob=dob,
-            gender=gender,
             nationality=nationality,
-            permanent_address=per_address,
             current_address=cur_address,
-            phone_number=phone,
-            aadhar_card=aadhar,
             designation=designation_obj,
             date_of_join=doj,
             work_location=workloc,
             department=department_obj,
-            profile_picture=profile_img,
-            role=role
+            role=role,
+            reported_to=reported_to
         )
         employee.save()
 
@@ -1762,10 +1895,14 @@ def add_leave_type(request):
 
         if not leave_name:
             errors['leave_name'] = "Leave name is required."
+        elif LeaveType.objects.filter(name=leave_name).exists():
+            errors['leave_name'] = "Leave name is already exists."
+
         if not code:
             errors['code'] = "Code is required."
         elif LeaveType.objects.filter(code=code).exists():
             errors['code'] = "A leave type with this code already exists."
+
         if not leave_type:
             errors['leave_type'] = "Leave type is required."
 
@@ -2220,47 +2357,73 @@ def upload_learning_video(request):
             })
     return JsonResponse({'success': False, 'message': 'Upload failed'})
 
-#Profile Form Submition
+
 def update_about_me(request, employee_id):
+    print("Done")
     if request.method == 'POST':
+
+
         employee = get_object_or_404(EmployeeBISP, id=employee_id)
 
         phone_number = request.POST.get('phone_number', '').strip()
-        email = request.POST.get('email', '').strip()
         dob = request.POST.get('dob', '').strip()
         current_address = request.POST.get('current_address', '').strip()
         gender = request.POST.get('gender', '').strip()
         reporting_manager = request.POST.get('reporting_manager', '').strip()
+        profile_img = request.FILES.get("image")
 
-        errors = []
+        field_errors = {}
 
+        # Field validations
         if not phone_number:
-            errors.append("Phone number is required.")
-        if not email:
-            errors.append("Email is required.")
+            field_errors['phone_number'] = "Phone number is required."
+        elif not phone_number.isdigit():
+            field_errors['phone_number'] = "Phone number must be Integer."
+        elif len(phone_number) != 10:
+            field_errors['phone_number'] = "Phone number must be exactly 10 digits."
+
+        # Validate profile picture format and size
+        error_message = validate_profile_picture(profile_img)
+        if error_message:
+            field_errors["image"] = error_message
+
+        if not gender:
+            field_errors["gender"] = "Gender is required"
+
+
+        # Validate Date of Birth (DOB) for profile
+        if not dob:
+            field_errors.setdefault("dob", []).append("DOB is required.")
         else:
             try:
-                validate_email(email)
-            except ValidationError:
-                errors.append("Invalid email address.")
-        if not dob:
-            errors.append("Date of birth is required.")
+                dob_date = datetime.strptime(dob, "%Y-%m-%d").date()
+                min_dob = datetime(1980, 1, 1).date()
+                if dob_date < min_dob:
+                       field_errors['dob']= "Date of Birth must be on or after January 1, 1980"
+                elif dob_date > datetime.now().date():
+                     field_errors['dob']= "Date of Birth must be less than present date"
+            except ValueError:
+                   field_errors['dob'] = "Invalid Date of Birth format. Use YYYY-MM-DD."
 
-        if errors:
-            for error in errors:
-                messages.error(request, error)
-            return redirect('employee_profile', employee_id=employee.id)
+        if field_errors:
+            return JsonResponse({'status': 'error', 'errors': field_errors})
 
+        # Save valid data
         employee.phone_number = phone_number
-        employee.email = email
         employee.dob = dob
         employee.current_address = current_address
         employee.gender = gender
         employee.reporting_manager = reporting_manager
+        employee.profile_picture=profile_img
         employee.save()
-        messages.success(request, "About Me updated successfully.")
-        return redirect('employee_profile', employee_id=employee.id)
 
+        try:
+            request.session['ProfileImage'] =employee.profile_picture.url
+        except Exception:
+            request.session['ProfileImage'] = ""
+
+        print("Done inside")
+        return JsonResponse({'status': 'success', 'message': 'About Me updated successfully.'})
 
 def update_personal_info(request, employee_id):
     if request.method == 'POST':
@@ -2269,18 +2432,29 @@ def update_personal_info(request, employee_id):
         passport = request.POST.get('passport', '').strip()
         passport_number = request.POST.get('passport_number', '').strip()
         tell_number = request.POST.get('phone_number', '').strip()
-        nationality = request.POST.get('nationality', '').strip()
         religion = request.POST.get('religion', '').strip()
         marital_status = request.POST.get('marital_status', '').strip()
 
-        errors = []
-        if not tell_number:
-            errors.append("Phone number is required.")
+        field_errors = {}
 
-        if errors:
-            for error in errors:
-                messages.error(request, error)
-            return redirect('employee_profile', employee_id=employee.id)
+        # Validate passport number: exactly 12 digits
+        if not passport_number or not passport_number.strip():
+            field_errors['passport_number'] = "Passport number is required."
+        elif not passport_number.isdigit():
+            field_errors['passport_number'] = "Passport number must contain only digits."
+        elif len(passport_number) != 12:
+            field_errors['passport_number'] = "Passport number must be exactly 12 digits."
+
+        # Validate phone number: exactly 10 digits and numeric
+        if not tell_number or not tell_number.strip():
+            field_errors['phone_number'] = "Phone number is required."
+        elif not tell_number.isdigit():
+            field_errors['phone_number'] = "Phone number must contain only digits."
+        elif len(tell_number) != 10:
+            field_errors['phone_number'] = "Phone number must be exactly 10 digits."
+
+        if field_errors:
+            return JsonResponse({'status': 'error', 'errors': field_errors})
 
         # Update EmployeePersonalDetails
         personal_details, created = EmployeePersonalDetails.objects.get_or_create(employee=employee)
@@ -2291,8 +2465,8 @@ def update_personal_info(request, employee_id):
         personal_details.marital_status = marital_status
         personal_details.save()
 
-        messages.success(request, "Personal Info updated successfully.")
-        return redirect('employee_profile', employee_id=employee.id)
+    return JsonResponse({'status': 'success', 'message': 'Personal Info updated successfully.'})
+
 
 def update_emergency_contact(request, employee_id):
     if request.method == 'POST':
@@ -2300,38 +2474,56 @@ def update_emergency_contact(request, employee_id):
 
         primary_name = request.POST.get('primary_contact_name', '').strip()
         primary_phone = request.POST.get('primary_contact_phone', '').strip()
+        primary_relationship = request.POST.get('primary_contact_relationship', '').strip()
 
-        errors = []
-        if not primary_name or not primary_phone:
-            errors.append("Primary contact name and phone are required.")
+        secondary_name = request.POST.get('secondary_contact_name', '').strip()
+        secondary_phone = request.POST.get('secondary_contact_phone', '').strip()
+        secondary_relationship = request.POST.get('secondary_contact_relationship', '').strip()
 
-        if errors:
-            for error in errors:
-                messages.error(request, error)
-            return redirect('employee_profile', employee_id=employee.id)
+        field_errors = {}
 
-        # Update or create emergency contacts
+        # Validate primary contact
+        if not primary_name:
+            field_errors['primary_contact_name'] = "Primary contact name is required."
+        if not primary_phone:
+            field_errors['primary_contact_phone'] = "Primary contact phone is required."
+        elif not primary_phone.isdigit() or len(primary_phone) != 10:
+            field_errors['primary_contact_phone'] = "Phone number must be Integer of 10 digits."
+
+        # Optional: validate secondary if any value provided
+        if any([secondary_name, secondary_phone, secondary_relationship]):
+            if not secondary_name:
+                field_errors['secondary_contact_name'] = "Secondary contact name is required."
+            if not secondary_phone:
+                field_errors['secondary_contact_phone'] = "Secondary contact phone is required."
+            elif not secondary_phone.isdigit() or len(secondary_phone) != 10:
+                field_errors['secondary_contact_phone'] = "Phone number must be Integer of 10 digits."
+
+        if field_errors:
+            return JsonResponse({'status': 'error', 'errors': field_errors})
+
+        # Save primary contact
         EmployeeEmergencyContact.objects.update_or_create(
             employee=employee, priority=1,
             defaults={
                 'name': primary_name,
                 'phone_number': primary_phone,
-                'relationship': request.POST.get('primary_contact_relationship')
+                'relationship': primary_relationship
             }
         )
 
-        # Secondary contact
-        EmployeeEmergencyContact.objects.update_or_create(
-            employee=employee, priority=2,
-            defaults={
-                'name': request.POST.get('secondary_contact_name'),
-                'phone_number': request.POST.get('secondary_contact_phone'),
-                'relationship': request.POST.get('secondary_contact_relationship')
-            }
-        )
+        # Save secondary contact (if at least one field is provided)
+        if any([secondary_name, secondary_phone, secondary_relationship]):
+            EmployeeEmergencyContact.objects.update_or_create(
+                employee=employee, priority=2,
+                defaults={
+                    'name': secondary_name,
+                    'phone_number': secondary_phone,
+                    'relationship': secondary_relationship
+                }
+            )
 
-        messages.success(request, "Emergency Contact updated successfully.")
-        return redirect('employee_profile', employee_id=employee.id)
+        return JsonResponse({'status': 'success', 'message': 'Emergency contacts updated successfully.'})
 
 def update_bank_info(request, employee_id):
     if request.method == 'POST':
@@ -2339,28 +2531,34 @@ def update_bank_info(request, employee_id):
 
         account_no = request.POST.get('account_no', '').strip()
         pan_no = request.POST.get('pan_no', '').strip()
+        bank_name = request.POST.get('bank_name', '').strip()
+        ifsc_code = request.POST.get('ifsc_code', '').strip()
 
-        errors = []
+        errors = {}
+
+        if not bank_name:
+            errors["bank_name"] = "Bank name is required."
         if not account_no:
-            errors.append("Account number is required.")
+            errors["account_no"] = "Account number is required."
+        if not ifsc_code:
+            errors["ifsc_code"] = "IFSC code is required."
         if not pan_no:
-            errors.append("PAN number is required.")
+            errors["pan_no"] = "PAN number is required."
 
         if errors:
-            for error in errors:
-                messages.error(request, error)
-            return redirect('employee_profile', employee_id=employee.id)
+            return JsonResponse({'status': 'error', 'errors': errors})
 
-        # Update or create bank details
+        # Save or update bank info
         bank_details, created = EmployeeBankDetails.objects.get_or_create(employee=employee)
-        bank_details.bank_name = request.POST.get('bank_name')
+        bank_details.bank_name = bank_name
         bank_details.bank_account_no = account_no
-        bank_details.ifsc_code = request.POST.get('ifsc_code')
+        bank_details.ifsc_code = ifsc_code
         bank_details.pan_no = pan_no
         bank_details.save()
 
-        messages.success(request, "Bank Information updated successfully.")
-        return redirect('employee_profile', employee_id=employee.id)
+        return JsonResponse({'status': 'success', 'message': 'Bank information updated successfully.'})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
 
 def update_education(request, employee_id):
     if request.method == 'POST':
@@ -2368,44 +2566,168 @@ def update_education(request, employee_id):
 
         college = request.POST.get('college', '').strip()
         branch = request.POST.get('branch', '').strip()
+        start_date = request.POST.get('start_date', '').strip()
+        end_date = request.POST.get('end_date', '').strip()
 
-        if not college or not branch:
-            messages.error(request, "College and Branch are required.")
-            return redirect('employee_profile', employee_id=employee.id)
+        errors = {}
+
+        if not college:
+            errors['college'] = "College name is required."
+        if not branch:
+            errors['branch'] = "Branch is required."
+        if not start_date:
+            errors['start_date'] = "Start date is required."
+        if not end_date:
+            errors['end_date'] = "End date is required."
+
+        # Validate date format and logical order only if both dates are provided
+        if start_date and end_date:
+            try:
+                start_date_obj = datetime.strptime(start_date, '%Y-%m-%d')
+                end_date_obj = datetime.strptime(end_date, '%Y-%m-%d')
+                if start_date_obj > end_date_obj:
+                    errors['start_date'] = "Start date cannot be after end date."
+            except ValueError:
+                errors['start_date'] = "Invalid date format. Use YYYY-MM-DD."
+
+        if errors:
+            return JsonResponse({'status': 'error', 'errors': errors})
 
         # Update or create education details
         education, created = EmployeeEducation.objects.update_or_create(
-            employee=employee, institution_name=college,
+            employee=employee,
+            institution_name=college,
             defaults={
                 'branch': branch,
-                'start_date': request.POST.get('start_date'),
-                'end_date': request.POST.get('end_date')
+                'start_date': start_date,
+                'end_date': end_date,
             }
         )
 
-        messages.success(request, "Education updated successfully.")
-        return redirect('employee_profile', employee_id=employee.id)
+        return JsonResponse({'status': 'success', 'message': 'Education updated successfully.'})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
+
 
 def update_experience(request, employee_id):
     if request.method == 'POST':
         employee = get_object_or_404(EmployeeBISP, id=employee_id)
 
-        company = request.POST.get('company', '').strip()
-        position = request.POST.get('position', '').strip()
+        # Retrieve data from the form for primary and secondary experience
+        primary_company = request.POST.get('primary_company', '').strip()
+        primary_position = request.POST.get('primary_position', '').strip()
+        primary_start_date = request.POST.get('primary_start_date', '').strip()
+        primary_end_date = request.POST.get('primary_end_date', '').strip()
 
-        if not company or not position:
-            messages.error(request, "Company and Position are required.")
-            return redirect('employee_profile', employee_id=employee.id)
+        secondary_company = request.POST.get('secondary_company', '').strip()
+        secondary_position = request.POST.get('secondary_position', '').strip()
+        secondary_start_date = request.POST.get('secondary_start_date', '').strip()
+        secondary_end_date = request.POST.get('secondary_end_date', '').strip()
 
-        # Update or create experience details
-        experience, created = EmployeeExperience.objects.update_or_create(
-            employee=employee, company_name=company,
-            defaults={
-                'position': position,
-                'start_date': request.POST.get('start_date'),
-                'end_date': request.POST.get('end_date')
-            }
+        field_errors = {}
+
+        # Validate primary experience
+        if not primary_company:
+            field_errors['primary_company'] = "company is required."
+        if not primary_position:
+            field_errors['primary_position'] = " position is required."
+        if not primary_start_date:
+            field_errors['primary_start_date'] = "start date is required."
+        if not primary_end_date:
+            field_errors['primary_end_date'] = "end date is required."
+        else:
+            try:
+                primary_start_date_obj = datetime.strptime(primary_start_date, '%Y-%m-%d')
+                primary_end_date_obj = datetime.strptime(primary_end_date, '%Y-%m-%d')
+                if primary_start_date_obj > primary_end_date_obj:
+                    field_errors['primary_start_date'] = " start date cannot be after end date."
+            except ValueError:
+                field_errors['primary_start_date'] = "Invalid date format for experience. Use a valid date."
+
+        # Validate secondary experience (only if any value is provided)
+        if any([secondary_company, secondary_position, secondary_start_date, secondary_end_date]):
+            if not secondary_company:
+                field_errors['secondary_company'] = "company is required."
+            if not secondary_position:
+                field_errors['secondary_position'] = " position is required."
+            if not secondary_start_date:
+                field_errors['secondary_start_date'] = " start date is required."
+            if not secondary_end_date:
+                field_errors['secondary_end_date'] = " end date is required."
+            else:
+                try:
+                    secondary_start_date_obj = datetime.strptime(secondary_start_date, '%Y-%m-%d')
+                    secondary_end_date_obj = datetime.strptime(secondary_end_date, '%Y-%m-%d')
+                    if secondary_start_date_obj > secondary_end_date_obj:
+                        field_errors['secondary_start_date'] = " start date cannot be after end date."
+                except ValueError:
+                    field_errors['secondary_start_date'] = "Invalid date format for experience. Use a valid date."
+
+        if field_errors:
+            return JsonResponse({'status': 'error', 'errors': field_errors})
+
+        # Delete existing experience records for the employee before saving new ones
+        EmployeeExperience.objects.filter(employee=employee).delete()
+
+        # Save primary experience
+        EmployeeExperience.objects.create(
+            employee=employee,
+            company_name=primary_company,
+            position=primary_position,
+            start_date=primary_start_date_obj,
+            end_date=primary_end_date_obj,
+            priority=1  # Primary
         )
 
-        messages.success(request, "Experience updated successfully.")
-        return redirect('employee_profile', employee_id=employee.id)
+        # Save secondary experience (if any data is provided)
+        if any([secondary_company, secondary_position, secondary_start_date, secondary_end_date]):
+            EmployeeExperience.objects.create(
+                employee=employee,
+                company_name=secondary_company,
+                position=secondary_position,
+                start_date=secondary_start_date_obj,
+                end_date=secondary_end_date_obj,
+                priority=2  # Secondary
+            )
+
+        return JsonResponse({'status': 'success', 'message': 'Experience details updated successfully.'})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+
+def upload_document(request, employee_id):
+    if request.method == 'POST':
+        employee = get_object_or_404(EmployeeBISP, id=employee_id)
+        document_file = request.FILES.get('documentFile')
+
+        errors = {}
+
+        if not document_file:
+            errors['documentFile'] = "Document file is required."
+
+        # Optional: file type and size checks
+        allowed_extensions = ['.pdf', '.docx', '.jpg', '.jpeg', '.png']
+        max_size_mb = 5
+
+        if document_file:
+            # Check extension
+            if not any(document_file.name.lower().endswith(ext) for ext in allowed_extensions):
+                errors['documentFile'] = "Invalid file type. Only PDF, DOCX, JPG, and PNG allowed."
+
+            # Check file size
+            if document_file.size > max_size_mb * 1024 * 1024:
+                errors['documentFile'] = "File size must be under 5MB."
+
+        if errors:
+            return JsonResponse({'status': 'error', 'errors': errors})
+
+        # Save document
+        EmployeeDocument.objects.create(
+            employee=employee,
+            name=document_file.name,
+            file=document_file
+        )
+
+        return JsonResponse({'status': 'success', 'message': 'Document uploaded successfully.'})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})

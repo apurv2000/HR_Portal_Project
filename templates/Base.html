@@ -1,7 +1,8 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
-      xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+      xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
+      xmlns="http://www.w3.org/1999/html">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -293,6 +294,42 @@
 <script src="{% static 'plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 
+
+<!--Script  for show assigned employee according to project in add task module-->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const projectSelect = document.querySelector('select[name="project"]');
+    const assignedToSelect = document.querySelector('select[name="assigned_to"]');
+
+    projectSelect.addEventListener('change', function () {
+        const projectId = this.value;
+        assignedToSelect.innerHTML = '<option selected disabled>Loading...</option>';
+
+        const url = "{% url 'Project:get_project_employees' 0 %}".replace('0', projectId);
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                assignedToSelect.innerHTML = '<option value="" selected disabled>Select Employee</option>';
+
+                if (data.status === 'success') {
+                    data.employees.forEach(emp => {
+                        const opt = document.createElement('option');
+                        opt.value = emp.id;
+                        opt.textContent = emp.designation ? `${emp.name} (${emp.designation})` : emp.name;
+                        assignedToSelect.appendChild(opt);
+                    });
+                } else {
+                    assignedToSelect.innerHTML = '<option disabled>No team members found</option>';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                assignedToSelect.innerHTML = '<option disabled>Error loading employees</option>';
+            });
+    });
+});
+</script>
 
 <!--Script of Tooltip for rejection reason-->
 <script>

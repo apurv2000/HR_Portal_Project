@@ -39,27 +39,47 @@
             <!-- Profile Image -->
             <div class="card card-primary card-outline">
               <div class="card-body box-profile">
-             <div class="text-center">
-                <img
-                  class="profile-user-img img-fluid img-circle"
-                  src="{{ employee.profile_picture.url }}"
-                  alt="User profile picture"
-                  style="cursor: pointer;"
-                  data-bs-toggle="modal"
-                  data-bs-target="#profileImageModal"
-                >
-              </div>
+            <div class="text-center">
+                  {% if employee.profile_picture %}
+                    <img
+                      class="profile-user-img img-fluid img-circle"
+                      src="{{ employee.profile_picture.url }}"
+                      alt="User profile picture"
+                      style="cursor: pointer;"
+                      data-bs-toggle="modal"
+                      data-bs-target="#profileImageModal"
+                    >
+                  {% else %}
+                    <img
+                      class="profile-user-img img-fluid img-circle"
+                      src="{% static 'img/Damy.webp' %}"
+                      alt="User profile picture"
+                      style="cursor: pointer;"
+                      data-bs-toggle="modal"
+                      data-bs-target="#profileImageModal"
+                    >
+                  {% endif %}
+                </div>
                 <!--Modal for profile image-->
                 <div class="modal fade" id="profileImageModal" tabindex="-1" aria-labelledby="profileImageModalLabel" aria-hidden="true">
                   <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content bg-transparent border-0">
-                      <div class="modal-body text-center">
-                        <img
-                          src="{{  employee.profile_picture.url}}"
-                          alt="Profile Large"
-                          class="img-fluid rounded"
-                        >
-                      </div>
+                  <div class="modal-body text-center">
+                  {% if employee.profile_picture %}
+                    <img
+                      src="{{ employee.profile_picture.url }}"
+                      alt="Profile Large"
+                      class="img-fluid rounded"
+
+                    >
+                  {% else %}
+                    <img
+                      src="{% static 'images/default-avatar.gif' %}"
+                      alt="Default Profile"
+                      class="img-fluid rounded"
+                    >
+                  {% endif %}
+                </div>
                     </div>
                   </div>
                 </div>
@@ -137,10 +157,12 @@
                     <hr>
 
                     <!-- Reported to -->
+                      {% if employee.role != 'Administrator' %}
                     <div class="mb-3">
                       <strong><i class="far fa-file-alt mr-1"></i> Reported to</strong>
-                      <p class="text-muted mb-0">{{ employee.reporting_manager|default:"-" }}</p>
+                      <p class="text-muted mb-0">{{ employee.reported_to.name|default:"-" }}</p>
                     </div>
+                      {% endif %}
 
                   </div>
                 </div>
@@ -151,18 +173,18 @@
             <div class="card" >
               <div class="card-header p-2">
                 <ul class="nav nav-pills">
-                  <li class="nav-item"><a class="nav-link active" href="#activity" data-toggle="tab">Activity</a></li>
-                  <li class="nav-item"><a class="nav-link" href="#document" data-toggle="tab">Document</a></li>
-                  <li class="nav-item"><a class="nav-link" href="#timesheet" data-toggle="tab">Timesheet</a></li>
-                  <li class="nav-item"><a class="nav-link" href="#leave" data-toggle="tab">Leave</a></li>
-                  <li class="nav-item"><a class="nav-link" href="#project" data-toggle="tab">Project</a></li>
-                  <li class="nav-item"><a class="nav-link" href="#task" data-toggle="tab">Task</a></li>
-                  <li class="nav-item"><a class="nav-link" href="#assests" data-toggle="tab">Assets</a></li>
+                <li class="nav-item"><a class="nav-link active text-white" href="#activity" data-toggle="tab">Activity</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="#document" data-toggle="tab">Document</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="#timesheet" data-toggle="tab">Timesheet</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="#leave" data-toggle="tab">Leave</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="#project" data-toggle="tab">Project</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="#task" data-toggle="tab">Task</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="#assests" data-toggle="tab">Assets</a></li>
 
                 </ul>
               </div><!-- /.card-header -->
               <div class="card-body">
-                <div class="tab-content">
+                <div class="tab-content  ">
                 <div class="active tab-pane" id="activity" style="max-height: 600px; overflow-y: auto;">
                     <div class="row">
 
@@ -179,42 +201,35 @@
                                     <!-- Passport -->
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <strong><i class="fas fa-passport mr-1"></i> Passport:</strong>
-                                        <p class="text-muted mb-0">{{ employee.passport }}</p>
+                                        <p class="text-muted mb-0">{{ personalDetails.passport }}</p>
                                     </div>
                                     <hr>
 
                                     <!-- Passport No. -->
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <strong><i class="fas fa-id-card mr-1"></i> Passport No.:</strong>
-                                        <p class="text-muted mb-0 text-right" style="flex-grow: 1;">12345643212323452352524</p>
+                                        <p class="text-muted mb-0 text-right" style="flex-grow: 1;">{{ personalDetails.passport_number }}</p>
                                     </div>
                                     <hr>
 
                                     <!-- Telephone -->
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <strong><i class="fas fa-phone-alt mr-1"></i> Tel.:</strong>
-                                        <p class="text-muted mb-0">{{ employee.phone_number }}</p>
-                                    </div>
-                                    <hr>
-
-                                    <!-- Nationality -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <strong><i class="fas fa-flag mr-1"></i> Nationality:</strong>
-                                        <p class="text-muted mb-0">{{ employee.nationality }}</p>
+                                        <p class="text-muted mb-0">{{ personalDetails.Tell_number }}</p>
                                     </div>
                                     <hr>
 
                                     <!-- Religion -->
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <strong><i class="fas fa-praying-hands mr-1"></i>Religion:</strong>
-                                        <p class="text-muted mb-0">{{ employee.religion }}</p>
+                                        <p class="text-muted mb-0">{{ personalDetails.religion }}</p>
                                     </div>
                                     <hr>
 
                                     <!-- Marital Status -->
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <strong><i class="fas fa-ring mr-1"></i>Marital Status:</strong>
-                                        <p class="text-muted mb-0">{{ employee.marital_status }}</p>
+                                        <p class="text-muted mb-0">{{ personalDetails.marital_status }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -236,19 +251,19 @@
                                         <h5 class="text-primary mb-3"><i class="fas fa-user-friends mr-2"></i>Primary Contact</h5>
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <strong><i class="fas fa-user mr-1"></i>Name:</strong>
-                                            <p class="text-muted mb-0">{{ employee.primary_contact_name }}</p>
+                                            <p class="text-muted mb-0">{{ primary_contact.name|default_if_none:'' }}</p>
                                         </div>
                                         <hr>
 
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <strong><i class="fas fa-handshake mr-1"></i>Relationship:</strong>
-                                            <p class="text-muted mb-0">{{ employee.primary_contact_relationship }}</p>
+                                            <p class="text-muted mb-0">{{ primary_contact.relationship|default_if_none:'' }}</p>
                                         </div>
                                         <hr>
 
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <strong><i class="fas fa-phone-alt mr-1"></i> Phone:</strong>
-                                            <p class="text-muted mb-0">{{ employee.primary_contact_phone }}</p>
+                                            <p class="text-muted mb-0">{{ primary_contact.phone_number|default_if_none:'' }}</p>
                                         </div>
                                     </div>
 
@@ -257,19 +272,19 @@
                                         <h5 class="text-danger mb-3"><i class="fas fa-user-friends mr-2"></i>Secondary Contact</h5>
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <strong><i class="fas fa-user mr-1"></i> Name:</strong>
-                                            <p class="text-muted mb-0">{{ employee.secondary_contact_name }}</p>
+                                            <p class="text-muted mb-0">{{ secondary_contact.name|default_if_none:'' }}</p>
                                         </div>
                                         <hr>
 
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <strong><i class="fas fa-handshake mr-1"></i> Relationship:</strong>
-                                            <p class="text-muted mb-0">{{ employee.secondary_contact_relationship }}</p>
+                                            <p class="text-muted mb-0">{{ secondary_contact.relationship|default_if_none:'' }}</p>
                                         </div>
                                         <hr>
 
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <strong><i class="fas fa-phone-alt mr-1"></i> Phone:</strong>
-                                            <p class="text-muted mb-0">{{ employee.secondary_contact_phone }}</p>
+                                            <p class="text-muted mb-0">{{ secondary_contact.phone_number|default_if_none:'' }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -289,22 +304,22 @@
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <strong><i class="fas fa-building mr-1"></i> Bank Name:</strong>
-                                        <p class="text-muted mb-0">{{ employee.department }}</p>
+                                        <p class="text-muted mb-0">{{ bank_details.bank_name|default:'' }}</p>
                                     </div>
                                     <hr>
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <strong><i class="fas fa-briefcase mr-1"></i> Bank Account No.:</strong>
-                                        <p class="text-muted mb-0">{{ employee.position }}</p>
+                                        <p class="text-muted mb-0">{{bank_details.bank_account_no|default:''}}</p>
                                     </div>
                                     <hr>
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <strong><i class="fas fa-briefcase mr-1"></i> IFSC Code:</strong>
-                                        <p class="text-muted mb-0">{{ employee.position }}</p>
+                                        <p class="text-muted mb-0">{{bank_details.ifsc_code|default:'' }}</p>
                                     </div>
                                     <hr>
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <strong><i class="fas fa-briefcase mr-1"></i>PAN No:</strong>
-                                        <p class="text-muted mb-0">{{ employee.position }}</p>
+                                        <p class="text-muted mb-0">{{ employee.bank_details.pan_no|default:'' }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -329,10 +344,10 @@
                                             </div>
 
                                             <div class="pl-3">
-                                                <strong><i class="fas fa-university mr-1 text-primary"></i> Laxmi Narain College Of Technology, Bhopal</strong>
+                                                <strong><i class="fas fa-university mr-1 text-primary"></i> {{Edu.institution_name}}</strong>
                                                 <ul class="list-unstyled mt-2 mb-0">
-                                                    <li><i class="fas fa-laptop-code mr-1 text-muted"></i><strong>Branch:</strong> IT</li>
-                                                    <li><i class="fas fa-calendar-alt mr-1 text-muted"></i><strong>Duration:</strong> June 14, 2020 - June 10, 2024</li>
+                                                    <li><i class="fas fa-laptop-code mr-1 text-muted"></i><strong>Branch:</strong> {{Edu.branch }}</li>
+                                                    <li><i class="fas fa-calendar-alt mr-1 text-muted"></i><strong>Duration:</strong> {{Edu.start_date}} - {{Edu.end_date}}</li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -356,16 +371,33 @@
                                         <li class="mb-4 position-relative pl-4">
                                             <div class="timeline-dot bg-danger position-absolute" style="left: 0; top: 0.4rem; width: 10px; height: 10px; border-radius: 50%;"></div>
                                             <div class="ml-3">
-                                                <h5 class="mb-1 text-dark font-weight-bold">BISP</h5>
-                                                <p class="mb-1 text-muted"><i class="fas fa-briefcase mr-1"></i>SD</p>
+                                                <h5 class="mb-1 text-dark font-weight-bold">{{PriExperience.company_name }}</h5>
+                                                <p class="mb-1 text-muted"><i class="fas fa-briefcase mr-1"></i>{{PriExperience.position}}</p>
                                                 <small class="text-muted">
                                                     <i class="far fa-calendar-alt mr-1"></i>
-                                                    12/12/2000 - 21/21/2002
+                                                    {{PriExperience.start_date}} - {{PriExperience.end_date}}
                                                 </small>
                                             </div>
                                         </li>
                                     </ul>
                                 </div>
+                                {% if SecExperience.company and SecExperience.position %}
+                                 <div class="card-body">
+                                    <ul class="timeline p-0 list-unstyled">
+                                        <li class="mb-4 position-relative pl-4">
+                                            <div class="timeline-dot bg-danger position-absolute" style="left: 0; top: 0.4rem; width: 10px; height: 10px; border-radius: 50%;"></div>
+                                            <div class="ml-3">
+                                                <h5 class="mb-1 text-dark font-weight-bold">{{SecExperience.company_name }}</h5>
+                                                <p class="mb-1 text-muted"><i class="fas fa-briefcase mr-1"></i>{{SecExperience.position}}</p>
+                                                <small class="text-muted">
+                                                    <i class="far fa-calendar-alt mr-1"></i>
+                                                    {{SecExperience.start_date}} - {{SecExperience.end_date}}
+                                                </small>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
                         <!-- End Experience -->
@@ -393,17 +425,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td><a href="path/to/document1.pdf" target="_blank">Document 1</a></td>
-                                        <td>2025-04-30</td>
-                                        <td><a href="path/to/document1.pdf" class="btn btn-primary" download>Download</a></td>
+                                {% for docx in Document %}
+                                  <tr>
+                                        <td><a href="{{ docx.file.url }}" target="_blank" class="text-decoration-none text-primary">{{ docx.name }}</a></td>
+                                        <td>{{ docx.uploaded_at }}</td>
+                                        <td><a href="{{ docx.file.url }}" class="btn btn-primary" download>Download</a></td>
                                     </tr>
-                                    <tr>
-                                        <td><a href="path/to/document2.pdf" target="_blank">Document 2</a></td>
-                                        <td>2025-04-29</td>
-                                        <td><a href="path/to/document2.pdf" class="btn btn-primary" download>Download</a></td>
-                                    </tr>
-                                    <!-- Add more rows as documents are uploaded -->
+
+                                    {% endfor %}
                                 </tbody>
                             </table>
                         </div>
@@ -418,15 +447,20 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form action="/upload-document/" method="POST" enctype="multipart/form-data">
+                                     <div id="uploadMessages"></div>
+                               <form action="{% url 'upload_document' employee.id %}" method="POST" enctype="multipart/form-data" id="uploadDocumentForm">
+                                        {% csrf_token %}
+
                                         <!-- File Input -->
                                         <div class="mb-3">
                                             <label for="documentFile" class="form-label">Select Document</label>
                                             <input type="file" class="form-control" id="documentFile" name="documentFile" required>
                                         </div>
+
                                         <!-- Submit Button -->
                                         <button type="submit" class="btn btn-primary">Upload</button>
                                     </form>
+
                                 </div>
                             </div>
                         </div>
@@ -825,7 +859,7 @@
 </div>
 <!-- ./wrapper -->
 
-      <!-- Modal for Editing -->
+      <!-- Modal for About me-->
       <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
               <div class="modal-content">
@@ -837,47 +871,43 @@
                   </div>
                   <div class="modal-body">
                       <!-- Edit Form -->
-                      <form id="editForm" method="POST" action="{% url 'update_about_me' employee.id %}">
-                          <!-- Phone -->
-                          <div class="form-group">
-                              <label for="phone_number">Phone</label>
-                              <input type="text" class="form-control" id="phone_number" value="{{ employee.phone_number }}">
-                          </div>
-                          <!-- Email -->
-                          <div class="form-group">
-                              <label for="email">Email</label>
-                              <input type="email" class="form-control" id="email" value="{{ employee.email }}">
-                          </div>
-                          <!-- Birthday -->
-                          <div class="form-group">
-                              <label for="dob">Birthday</label>
-                              <input type="date" class="form-control" id="dob" value="{{ employee.dob }}">
-                          </div>
-                          <!-- Address -->
-                          <div class="form-group">
-                              <label for="current_address">Address</label>
-                              <input type="text" class="form-control" id="current_address" value="{{ employee.current_address }}">
-                          </div>
-                          <!-- Gender -->
-                          <div class="form-group">
-                              <label for="gender">Gender</label>
-                              <select class="form-control" id="gender">
-                                  <option value="Male" {% if employee.gender == "Male" %}selected{% endif %}>Male</option>
-                                  <option value="Female" {% if employee.gender == "Female" %}selected{% endif %}>Female</option>
+                  <form id="editForm" method="POST" action="{% url 'update_about_me' employee.id %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="phone_number">Phone</label>
+                        <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ employee.phone_number }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="dob">Birthday</label>
+                        <input type="date" class="form-control" id="dob" name="dob" value="{{ employee.dob|date:'Y-m-d' }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="current_address">Address</label>
+                        <input type="text" class="form-control" id="current_address" name="current_address" value="{{ employee.current_address }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select class="form-control" id="gender" name="gender" >
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
 
-                              </select>
-                          </div>
-                          <!-- Reported to -->
-                          <div class="form-group">
-                              <label for="reporting_manager">Reported to</label>
-                              <input type="text" class="form-control" id="reporting_manager" value="{{ employee.reporting_manager|default:"-" }}">
-                          </div>
-                      </form>
+                <div class="form-group">
+                    <label for="ProfileImage">Profile Image <span class="text-danger small">(Image size: Max 2MB)</span></label>
+                    <input type="file" class="form-control" id="ProfileImage" name="image" >
+                    <span class="text-danger small">Allowed formats: PNG and JPG.</span>
+                </div>
+
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+
                   </div>
-                  <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                      <button type="submit" class="btn btn-primary" form="editForm">Save Changes</button>
-                  </div>
+
               </div>
           </div>
       </div>
@@ -885,7 +915,7 @@
             <!--Modal for personal details -->
             <div class="modal fade" id="PersonaleditModal" tabindex="-1" role="dialog" aria-labelledby="editPersonalInfoLabel" aria-hidden="true">
               <div class="modal-dialog modal-lg" role="document">
-                <form method="POST" action="{% url 'update_personal_info' employee.id %}">
+                <form method="POST" id="personal-info-form">
                   {% csrf_token %}
                   <div class="modal-content">
                     <div class="modal-header bg-primary text-white">
@@ -896,31 +926,25 @@
                       <div class="form-row">
                         <div class="form-group col-md-6">
                           <label>Passport</label>
-                          <input type="text" class="form-control" name="passport" value="{{ employee.passport }}">
+                          <input type="text" class="form-control" name="passport" value="{{ personalDetails.passport }}">
                         </div>
                         <div class="form-group col-md-6">
                           <label>Passport No.</label>
-                          <input type="text" class="form-control" name="passport_no" value="12345643212323452352524">
+                          <input type="text" class="form-control" name="passport_number" value="{{ personalDetails.passport_number  }}">
                         </div>
                       </div>
                       <div class="form-row">
                         <div class="form-group col-md-6">
                           <label>Phone</label>
-                          <input type="text" class="form-control" name="phone_number" value="{{ employee.phone_number }}">
+                          <input type="text" class="form-control" name="phone_number" value="{{ personalDetails.Tell_number }}">
                         </div>
-                        <div class="form-group col-md-6">
-                          <label>Nationality</label>
-                          <input type="text" class="form-control" name="nationality" value="{{ employee.nationality }}">
-                        </div>
-                      </div>
-                      <div class="form-row">
                         <div class="form-group col-md-6">
                           <label>Religion</label>
-                          <input type="text" class="form-control" name="religion" value="{{ employee.religion }}">
+                          <input type="text" class="form-control" name="religion" value="{{ personalDetails.religion }}">
                         </div>
                         <div class="form-group col-md-6">
                           <label>Marital Status</label>
-                          <input type="text" class="form-control" name="marital_status" value="{{ employee.marital_status }}">
+                          <input type="text" class="form-control" name="marital_status" value="{{ personalDetails.marital_status }}">
                         </div>
                       </div>
                     </div>
@@ -936,51 +960,52 @@
             <!--Modal for Emergency Contact-->
             <div class="modal fade" id="editAdditionalInfoModal" tabindex="-1" role="dialog" aria-labelledby="editEmergencyContactLabel" aria-hidden="true">
               <div class="modal-dialog modal-lg" role="document">
-                <form method="POST" action="{% url 'update_about_me' employee.id %}">
-                  {% csrf_token %}
-                  <div class="modal-content">
-                    <div class="modal-header bg-secondary text-white">
-                      <h5 class="modal-title" id="editEmergencyContactLabel">Edit Emergency Contact</h5>
-                      <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+         <form method="POST" action="{% url 'update_emergency_contact' employee.id %}" id="emergencyForm">
+              {% csrf_token %}
+              <div class="modal-content">
+                <div class="modal-header bg-secondary text-white">
+                  <h5 class="modal-title">Edit Emergency Contact</h5>
+                  <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                  <h6>Primary Contact</h6>
+                  <div class="form-row">
+                    <div class="form-group col-md-4">
+                      <label>Name</label>
+                      <input type="text" class="form-control" name="primary_contact_name" value="{{ primary_contact.name|default_if_none:'' }}">
                     </div>
-                    <div class="modal-body">
-                      <h6>Primary Contact</h6>
-                      <div class="form-row">
-                        <div class="form-group col-md-4">
-                          <label>Name</label>
-                          <input type="text" class="form-control" name="primary_contact_name" value="{{ employee.primary_contact_name }}">
-                        </div>
-                        <div class="form-group col-md-4">
-                          <label>Relationship</label>
-                          <input type="text" class="form-control" name="primary_contact_relationship" value="{{ employee.primary_contact_relationship }}">
-                        </div>
-                        <div class="form-group col-md-4">
-                          <label>Phone</label>
-                          <input type="text" class="form-control" name="primary_contact_phone" value="{{ employee.primary_contact_phone }}">
-                        </div>
-                      </div>
-                      <h6>Secondary Contact</h6>
-                      <div class="form-row">
-                        <div class="form-group col-md-4">
-                          <label>Name</label>
-                          <input type="text" class="form-control" name="secondary_contact_name" value="{{ employee.secondary_contact_name }}">
-                        </div>
-                        <div class="form-group col-md-4">
-                          <label>Relationship</label>
-                          <input type="text" class="form-control" name="secondary_contact_relationship" value="{{ employee.secondary_contact_relationship }}">
-                        </div>
-                        <div class="form-group col-md-4">
-                          <label>Phone</label>
-                          <input type="text" class="form-control" name="secondary_contact_phone" value="{{ employee.secondary_contact_phone }}">
-                        </div>
-                      </div>
+                    <div class="form-group col-md-4">
+                      <label>Relationship</label>
+                      <input type="text" class="form-control" name="primary_contact_relationship" value="{{ primary_contact.relationship|default_if_none:'' }}">
                     </div>
-                    <div class="modal-footer">
-                      <button type="submit" class="btn btn-secondary">Save</button>
-                      <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                    <div class="form-group col-md-4">
+                      <label>Phone</label>
+                      <input type="text" class="form-control" name="primary_contact_phone" value="{{ primary_contact.phone_number|default_if_none:'' }}">
                     </div>
                   </div>
-                </form>
+                  <h6>Secondary Contact</h6>
+                  <div class="form-row">
+                    <div class="form-group col-md-4">
+                      <label>Name</label>
+                      <input type="text" class="form-control" name="secondary_contact_name" value="{{ secondary_contact.name|default_if_none:'' }}">
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label>Relationship</label>
+                      <input type="text" class="form-control" name="secondary_contact_relationship" value="{{ secondary_contact.relationship|default_if_none:'' }}">
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label>Phone</label>
+                      <input type="text" class="form-control" name="secondary_contact_phone" value="{{ secondary_contact.phone_number|default_if_none:'' }}">
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-secondary">Save</button>
+                  <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                </div>
+              </div>
+            </form>
+
               </div>
             </div>
 
@@ -988,37 +1013,41 @@
             <!--Modal for bank information-->
             <div class="modal fade" id="editBankModal" tabindex="-1" role="dialog" aria-labelledby="editBankInfoLabel" aria-hidden="true">
               <div class="modal-dialog" role="document">
-                <form method="POST" action="{% url 'update_about_me' employee.id %}">
-                  {% csrf_token %}
-                  <div class="modal-content">
-                    <div class="modal-header bg-success text-white">
-                      <h5 class="modal-title">Edit Bank Information</h5>
-                      <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                      <div class="form-group">
-                        <label>Bank Name</label>
-                        <input type="text" class="form-control" name="bank_name" value="{{ employee.department }}">
-                      </div>
-                      <div class="form-group">
-                        <label>Account Number</label>
-                        <input type="text" class="form-control" name="account_no" value="{{ employee.position }}">
-                      </div>
-                      <div class="form-group">
-                        <label>IFSC Code</label>
-                        <input type="text" class="form-control" name="ifsc_code" value="{{ employee.position }}">
-                      </div>
-                      <div class="form-group">
-                        <label>PAN Number</label>
-                        <input type="text" class="form-control" name="pan_no" value="{{ employee.position }}">
-                      </div>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="submit" class="btn btn-success">Save</button>
-                      <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
-                    </div>
+           <form method="POST" action="{% url 'update_bank_info' employee.id %}" id="bankForm">
+              {% csrf_token %}
+              <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                  <h5 class="modal-title">Edit Bank Information</h5>
+                  <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                  <!-- Placeholder for success/error messages -->
+                  <div id="formMessages"></div>
+
+                  <div class="form-group">
+                    <label>Bank Name</label>
+                    <input type="text" class="form-control" name="bank_name" value="{{ bank_details.bank_name|default:'' }}">
                   </div>
-                </form>
+                  <div class="form-group">
+                    <label>Account Number</label>
+                    <input type="text" class="form-control" name="account_no" value="{{ bank_details.bank_account_no|default:'' }}">
+                  </div>
+                  <div class="form-group">
+                    <label>IFSC Code</label>
+                    <input type="text" class="form-control" name="ifsc_code" value="{{ bank_details.ifsc_code|default:'' }}">
+                  </div>
+                  <div class="form-group">
+                    <label>PAN Number</label>
+                    <input type="text" class="form-control" name="pan_no" value="{{bank_details.pan_no|default:'' }}">
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-success">Save</button>
+                  <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                </div>
+              </div>
+            </form>
+
               </div>
             </div>
 
@@ -1026,67 +1055,107 @@
             <!--Modal for education-->
             <div class="modal fade" id="editEducationModal" tabindex="-1" role="dialog" aria-labelledby="editEducationLabel" aria-hidden="true">
               <div class="modal-dialog" role="document">
-                <form method="POST" action="#">
-                  {% csrf_token %}
-                  <div class="modal-content">
-                    <div class="modal-header bg-warning">
-                      <h5 class="modal-title">Edit Education</h5>
-                      <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                      <div class="form-group">
-                        <label>College Name</label>
-                        <input type="text" class="form-control" name="college" value="Laxmi Narain College Of Technology, Bhopal">
-                      </div>
-                      <div class="form-group">
-                        <label>Branch</label>
-                        <input type="text" class="form-control" name="branch" value="IT">
-                      </div>
-                      <div class="form-group">
-                        <label>Duration</label>
-                        <input type="text" class="form-control" name="duration" value="June 14, 2020 - June 10, 2024">
-                      </div>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="submit" class="btn btn-warning">Update</button>
-                    </div>
+           <form method="POST" action="{% url 'update_education' employee.id %}" id="educationForm">
+              {% csrf_token %}
+              <div class="modal-content">
+                <div class="modal-header bg-warning">
+                  <h5 class="modal-title">Edit Education</h5>
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body" id="educationFormMessages">
+                  <div class="form-group">
+                    <label>College Name</label>
+                    <input type="text" class="form-control" name="college" value="{{Edu.institution_name}}">
                   </div>
-                </form>
+                  <div class="form-group">
+                    <label>Branch</label>
+                    <input type="text" class="form-control" name="branch" value="{{Edu.branch}}">
+                  </div>
+                  <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" class="form-control" name="start_date" value="{{Edu.start_date}}">
+                  </div>
+                  <div class="form-group">
+                    <label>End Date</label>
+                    <input type="date" class="form-control" name="end_date" value="{{Edu.end_date}}">
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-warning">Update</button>
+                </div>
+              </div>
+            </form>
+
               </div>
             </div>
 
 
-            <!--Modal for Experience-->
+
+                <!--Modal for Experience-->
             <div class="modal fade" id="editExperienceModal" tabindex="-1" role="dialog" aria-labelledby="editExperienceLabel" aria-hidden="true">
               <div class="modal-dialog" role="document">
-                <form method="POST" action="#">
+                <form method="POST" action="{% url 'update_experience' employee.id %}" id="experienceForm">
                   {% csrf_token %}
                   <div class="modal-content">
                     <div class="modal-header bg-danger text-white">
                       <h5 class="modal-title">Edit Experience</h5>
                       <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
                     </div>
-                    <div class="modal-body">
-                      <div class="form-group">
-                        <label>Company</label>
-                        <input type="text" class="form-control" name="company" value="BISP">
+
+                    <div class="modal-body" id="experienceContainer">
+                      <!-- Two static experience blocks -->
+                      <div class="experience-entry border p-2 mb-2 rounded bg-light">
+                        <div class="form-group">
+                          <label>Company</label>
+                          <input type="text" class="form-control" name="primary_company">
+                        </div>
+                        <div class="form-group">
+                          <label>Position</label>
+                          <input type="text" class="form-control" name="primary_position">
+                        </div>
+                        <div class="form-row">
+                          <div class="form-group col">
+                            <label>Start Date</label>
+                            <input type="date" class="form-control" name="primary_start_date">
+                          </div>
+                          <div class="form-group col">
+                            <label>End Date</label>
+                            <input type="date" class="form-control" name="primary_end_date">
+                          </div>
+                        </div>
                       </div>
-                      <div class="form-group">
-                        <label>Position</label>
-                        <input type="text" class="form-control" name="position" value="SD">
-                      </div>
-                      <div class="form-group">
-                        <label>From - To</label>
-                        <input type="text" class="form-control" name="duration" value="12/12/2000 - 21/21/2002">
+
+                      <div class="experience-entry border p-2 mb-2 rounded bg-light">
+                        <div class="form-group">
+                          <label>Company</label>
+                          <input type="text" class="form-control" name="secondary_company">
+                        </div>
+                        <div class="form-group">
+                          <label>Position</label>
+                          <input type="text" class="form-control" name="secondary_position">
+                        </div>
+                        <div class="form-row">
+                          <div class="form-group col">
+                            <label>Start Date</label>
+                            <input type="date" class="form-control" name="secondary_start_date">
+                          </div>
+                          <div class="form-group col">
+                            <label>End Date</label>
+                            <input type="date" class="form-control" name="secondary_end_date">
+                          </div>
+                        </div>
                       </div>
                     </div>
+
                     <div class="modal-footer">
-                      <button type="submit" class="btn btn-danger">Update</button>
+                      <button type="submit" class="btn btn-danger">Save All</button>
+                      <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
                     </div>
                   </div>
                 </form>
               </div>
             </div>
+
 
 
 <!--Script for download table-->
@@ -1123,5 +1192,434 @@
     document.body.removeChild(link);
   }
 </script>
+
+<!--Script for Showing error and submit Personal detail form-->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector("#personal-info-form");
+    const errorContainer = document.querySelector("#error-container");
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        // Clear previous errors
+        if (errorContainer) {
+            errorContainer.innerHTML = '';
+        }
+        form.querySelectorAll(".text-danger").forEach(el => el.remove());
+
+        const formData = new FormData(form);
+
+        fetch("{% url 'update_personal_info' employee.id %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'error') {
+                for (const [field, error] of Object.entries(data.errors)) {
+                    const fieldElement = form.querySelector(`[name="${field}"]`);
+                    if (fieldElement) {
+                        const errorMessage = document.createElement("div");
+                        errorMessage.classList.add("text-danger");
+                        errorMessage.textContent = error;
+                        fieldElement.parentElement.appendChild(errorMessage);
+                    }
+                }
+            } else if (data.status === 'success') {
+                // Show a short success message
+                const successDiv = document.createElement("div");
+                successDiv.className = "alert alert-success";
+                successDiv.textContent = data.message;
+                form.prepend(successDiv);
+
+                // Close modal after delay (optional)
+                setTimeout(() => {
+                    successDiv.remove();
+                    $('#PersonaleditModal').modal('hide');
+                     location.reload();
+                }, 2000);
+            }
+        })
+        .catch(err => {
+            console.error("Fetch error:", err);
+        });
+    });
+});
+</script>
+
+
+<!--Script for Showing error and submit About me detail form-->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("editForm");
+
+    if (form) {
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            console.log("Submitting...");
+
+            // Clear previous errors
+            form.querySelectorAll(".text-danger").forEach(el => el.remove());
+
+            const formData = new FormData(form);
+            const actionUrl = form.getAttribute("action");
+
+            fetch(actionUrl, {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Response:", data);
+
+                if (data.status === "error") {
+                    // Display error messages
+                    for (const [field, error] of Object.entries(data.errors)) {
+                        const fieldElement = form.querySelector(`[name=${field}]`);
+                        if (fieldElement) {
+                            const errorDiv = document.createElement("div");
+                            errorDiv.className = "text-danger mt-1";
+                            errorDiv.textContent = error;
+                            fieldElement.parentElement.appendChild(errorDiv);
+                        }
+                    }
+                } else if (data.status === "success") {
+                    // Display success message
+                    const successMsg = document.createElement("div");
+                    successMsg.className = "alert alert-success";
+                    successMsg.textContent = data.message;
+                    form.prepend(successMsg);
+
+                    setTimeout(() => {
+                        successMsg.remove();
+                        $('#AboutMeModal').modal('hide');
+                        location.reload(); // Reload to reflect changes
+                    }, 2000);
+                }
+            })
+            .catch(error => console.error("AJAX error:", error));
+        });
+    }
+});
+
+</script>
+
+<!--Script for Showing error and submit Emergency Contact detail form-->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("emergencyForm");
+
+    if (form) {
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            // Remove previous error messages
+            form.querySelectorAll(".text-danger").forEach(el => el.remove());
+
+            const formData = new FormData(form);
+            const actionUrl = form.getAttribute("action");
+
+            fetch(actionUrl, {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "error") {
+                    // Display field errors
+                    for (const [field, message] of Object.entries(data.errors)) {
+                        const fieldElement = form.querySelector(`[name=${field}]`);
+                        if (fieldElement) {
+                            const errorDiv = document.createElement("div");
+                            errorDiv.className = "text-danger mt-1";
+                            errorDiv.textContent = message;
+                            fieldElement.parentElement.appendChild(errorDiv);
+                        }
+                    }
+                } else if (data.status === "success") {
+                    // Show success message
+                    const successDiv = document.createElement("div");
+                    successDiv.className = "alert alert-success";
+                    successDiv.textContent = data.message;
+                    form.parentElement.prepend(successDiv);
+
+                    setTimeout(() => {
+                        successDiv.remove();
+                        $('#editAdditionalInfoModal').modal('hide');
+                        location.reload(); // Optional: reload page to reflect changes
+                    }, 2000);
+                }
+            })
+            .catch(error => {
+                console.error("AJAX error:", error);
+            });
+        });
+    }
+});
+</script>
+
+<!--Script for Showing error and submit Bank detail form-->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("bankForm");
+
+    if (form) {
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            // Clear existing errors
+            form.querySelectorAll(".text-danger").forEach(el => el.remove());
+
+            const formData = new FormData(form);
+            const actionUrl = form.getAttribute("action");
+
+            fetch(actionUrl, {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const messageBox = document.getElementById("formMessages");
+                messageBox.innerHTML = "";
+
+                if (data.status === "error" && data.errors) {
+                    for (const [field, msg] of Object.entries(data.errors)) {
+                        const input = form.querySelector(`[name="${field}"]`);
+                        if (input) {
+                            const err = document.createElement("div");
+                            err.className = "text-danger mt-1";
+                            err.textContent = msg;
+                            input.parentElement.appendChild(err);
+                        }
+                    }
+                } else if (data.status === "success") {
+                    const successMsg = document.createElement("div");
+                    successMsg.className = "alert alert-success";
+                    successMsg.textContent = data.message;
+                    messageBox.appendChild(successMsg);
+
+                    setTimeout(() => {
+                        $('#bankModal').modal('hide');
+                        location.reload();
+                    }, 1500);
+                }
+            })
+            .catch(error => {
+                console.error("AJAX error:", error);
+            });
+        });
+    }
+});
+</script>
+
+<!--Script for Showing error and Education detail form-->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("educationForm");
+
+    if (form) {
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            // Clear previous errors
+            form.querySelectorAll(".text-danger").forEach(el => el.remove());
+
+            const formData = new FormData(form);
+            const actionUrl = form.getAttribute("action");
+            const messageContainer = document.getElementById("educationFormMessages");
+
+            fetch(actionUrl, {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "error") {
+                    if (data.errors) {
+                        for (const [field, msg] of Object.entries(data.errors)) {
+                            const input = form.querySelector(`[name="${field}"]`);
+                            if (input) {
+                                const err = document.createElement("div");
+                                err.className = "text-danger mt-1";
+                                err.textContent = msg;
+                                input.parentElement.appendChild(err);
+                            }
+                        }
+                    } else if (data.message) {
+                        const msg = document.createElement("div");
+                        msg.className = "alert alert-danger";
+                        msg.textContent = data.message;
+                        messageContainer.prepend(msg);
+                    }
+                } else if (data.status === "success") {
+                    const msg = document.createElement("div");
+                    msg.className = "alert alert-success";
+                    msg.textContent = data.message;
+                    messageContainer.prepend(msg);
+
+                    setTimeout(() => {
+                        $('#educationModal').modal('hide');
+                        location.reload();
+                    }, 1500);
+                }
+            })
+            .catch(error => {
+                console.error("AJAX error:", error);
+            });
+        });
+    }
+});
+</script>
+
+
+
+<!--Script for Showing error and Experience detail form-->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("experienceForm");
+
+    if (form) {
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            // Remove previous error messages
+            form.querySelectorAll(".text-danger").forEach(el => el.remove());
+
+            const formData = new FormData(form);
+            const actionUrl = form.getAttribute("action");
+
+            fetch(actionUrl, {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "error") {
+                    // Display field errors
+                    for (const [field, message] of Object.entries(data.errors)) {
+                        const fieldElement = form.querySelector(`[name=${field}]`);
+                        if (fieldElement) {
+                            const errorDiv = document.createElement("div");
+                            errorDiv.className = "text-danger mt-1";
+                            errorDiv.textContent = message;
+                            fieldElement.parentElement.appendChild(errorDiv);
+                        }
+                    }
+                } else if (data.status === "success") {
+                    // Show success message
+                    const successDiv = document.createElement("div");
+                    successDiv.className = "alert alert-success";
+                    successDiv.textContent = data.message;
+                    form.parentElement.prepend(successDiv);
+
+                    setTimeout(() => {
+                        successDiv.remove();
+                        $('#editAdditionalInfoModal').modal('hide');
+                        location.reload(); // Optional: reload page to reflect changes
+                    }, 2000);
+                }
+            })
+            .catch(error => {
+                console.error("AJAX error:", error);
+            });
+        });
+    }
+});
+</script>
+
+<!--Script for Showing error and Document form-->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("uploadDocumentForm");
+
+    if (form) {
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            // Clear previous messages and errors
+            document.getElementById("uploadMessages").innerHTML = "";
+            form.querySelectorAll(".text-danger").forEach(el => el.remove());
+
+            const formData = new FormData(form);
+            const actionUrl = form.getAttribute("action");
+            const messageContainer = document.getElementById("uploadMessages");
+
+            fetch(actionUrl, {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === "error") {
+                    if (data.errors) {
+                        for (const [field, msg] of Object.entries(data.errors)) {
+                            const input = form.querySelector(`[name="${field}"]`);
+                            if (input) {
+                                const error = document.createElement("div");
+                                error.className = "text-danger mt-1";
+                                error.textContent = msg;
+                                input.parentElement.appendChild(error);
+                            }
+                        }
+                    } else if (data.message) {
+                        const msg = document.createElement("div");
+                        msg.className = "alert alert-danger";
+                        msg.textContent = data.message;
+                        messageContainer.appendChild(msg);
+                    }
+                } else if (data.status === "success") {
+                    const msg = document.createElement("div");
+                    msg.className = "alert alert-success";
+                    msg.textContent = data.message;
+                    messageContainer.appendChild(msg);
+
+                    // Remove the success message after 2 seconds
+                    setTimeout(() => {
+                        msg.remove();  // Hide message
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('uploadModal'));
+                        modal.hide();
+                        location.reload();
+                    }, 2000);
+                }
+            })
+            .catch(error => {
+                const msg = document.createElement("div");
+                msg.className = "alert alert-danger";
+                msg.textContent = "Upload failed. Please try again.";
+                messageContainer.appendChild(msg);
+                console.error("Upload error:", error);
+            });
+        });
+    }
+});
+</script>
+
 
 {% endblock %}
