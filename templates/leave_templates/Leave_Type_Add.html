@@ -137,9 +137,11 @@
                  <select id="employee" name="employee" class="form-select">
                     <option value="">Select Employee</option>
                     {% for employee in employees %}
+                     {% if employee.status == 'active' %}
                         <option value="{{ employee.id }}" data-department="{{ employee.department.id }}">
                             {{ employee.name }}
                         </option>
+                     {% endif %}
                     {% endfor %}
                 </select>
               </div>

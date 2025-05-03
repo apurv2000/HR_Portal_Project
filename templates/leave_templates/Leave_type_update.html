@@ -133,9 +133,11 @@
                                  <select id="employee" name="employee" class="form-select">
                                     <option value="">Select Employee</option>
                                     {% for employee in employees %}
+                                      {% if employee.status == 'active' %}
                                         <option value="{{ employee.id }}" data-department="{{ employee.department.id }}"  {% if emp_lt.employee.id == employee.id %}selected{% endif %}>
                                             {{ employee.name }}
                                         </option>
+                                     {% endif %}
                                     {% endfor %}
                                 </select>
                             </div>
@@ -240,5 +242,38 @@
     </div>
 </div>
 </div>
+<!--script for show employee based on department in leave type add module-->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const departmentSelect = document.getElementById('department');
+  const employeeSelect = document.getElementById('employee');
+  const selectedEmployee = employeeSelect.value;  // Save the current selection
+
+  departmentSelect.addEventListener('change', function () {
+    const selectedDept = this.value;
+
+    Array.from(employeeSelect.options).forEach(option => {
+      const empDept = option.getAttribute('data-department');
+      if (!selectedDept || empDept === selectedDept || option.value === '') {
+        option.style.display = 'block';
+      } else {
+        option.style.display = 'none';
+      }
+    });
+
+    // Reset only if the selected employee does not belong to the selected department
+    const selectedOption = employeeSelect.querySelector(`option[value="${selectedEmployee}"]`);
+    if (!selectedOption || selectedOption.getAttribute('data-department') !== selectedDept) {
+      employeeSelect.value = '';
+    } else {
+      employeeSelect.value = selectedEmployee;
+    }
+  });
+
+  // Trigger change on page load
+  departmentSelect.dispatchEvent(new Event('change'));
+});
+
+</script>
 
 {% endblock %}
