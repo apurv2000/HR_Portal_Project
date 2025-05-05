@@ -314,7 +314,7 @@
             <p>Apply Leave</p>
           </a>
       </li>
-          {% if request.session.role == "Administrator" %}
+          {% if request.session.role != "Employee"  %}
             <li class="nav-item">
              <a href="{% url 'LeavelistApproved' %}" class="nav-link">
             <i class="far fa-circle nav-icon"></i>

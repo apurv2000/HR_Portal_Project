@@ -763,14 +763,24 @@ def Logout(request):
 
 
 #Show Leave List for Team members ID-12
+# Show Leave List for Team members (ID-12)
 def Leave_list_approved(request):
     if not request.session.get('employee_id'):
         return redirect('Login_user_page')
 
-    # Get all leaves from all employees, ordered by apply_date and then ID (newest first)
-    leave_queryset = Leave.objects.order_by('-created_at','-id')  # Most recent application first
+    role = request.session.get('role')  # safely fetch role
+
+    if role == 'Manager':
+        # Show only leaves submitted by the manager's team
+        manager_id = request.session.get('employee_id')
+        team_members = EmployeeBISP.objects.filter(reported_to_id=manager_id)
+        leave_queryset = Leave.objects.filter(employee__in=team_members).order_by('-id', '-created_at')
+    else:
+        # Get all leaves from all employees, ordered by apply_date and then ID (newest first)
+        leave_queryset = Leave.objects.order_by('-id', '-created_at')
 
     return render(request, 'leave_templates/Leave_list_approved.html', {'leave_queryset': leave_queryset})
+
 #ID -12
 # def update_leave_approve(request, leave_id):
 #     if not request.session.get('employee_id'):
