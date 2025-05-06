@@ -761,6 +761,53 @@ def Logout(request):
     request.session.flush()
     return render(request,'admin_templates/login.html')
 
+#Show All inactive Employee
+def Emplist_Inactive(request):
+
+    deleted_employees = EmployeeBISP.objects.filter(status='deleted')
+
+    # Get latest history entry for each deleted employee
+    Emp = []
+    for emp in deleted_employees:
+        latest_history = emp.history.order_by('-version').first()
+        if latest_history:
+            Emp.append(latest_history)
+
+    return render(request, 'admin_templates/Emp_Inactive_List.html', {'Emp': Emp})
+
+#Show Employee history
+def Emplist_History(request):
+    try:
+        Emp=EmployeeBISPHistory.objects.all()
+    except EmployeeBISPHistory.DoesNotExist:
+        Emp=None
+
+    return render(request,'admin_templates/Emp_Update_List.html',{'Emp':Emp})
+
+def Active_Emp(request,employee_id):
+    # Get the specific history entry
+
+    history_entry = get_object_or_404(EmployeeBISPHistory, id=employee_id)
+
+    # Get the corresponding employee
+    employee = history_entry.employee
+
+    employee.name = history_entry.name
+    employee.nationality = history_entry.nationality
+    employee.current_address = history_entry.current_address
+    employee.email = history_entry.email
+    employee.password = history_entry.password
+    employee.date_of_join = history_entry.date_of_join
+    employee.work_location = history_entry.work_location
+    employee.designation = history_entry.designation
+    employee.department = history_entry.department
+    employee.role = history_entry.role
+    employee.reported_to = history_entry.reported_to
+    # Reactivate
+    employee.status = 'active'
+    employee.save()
+
+    return redirect('Emplist')
 
 #Show Leave List for Team members ID-12
 # Show Leave List for Team members (ID-12)
@@ -896,10 +943,11 @@ def update_leave_approve_dashboard(request, leave_id):
         return redirect('Login_user_page')
 
     employee_id = request.session.get('employee_id')
+
     try:
         employeeC = EmployeeBISP.objects.get(id=employee_id)
     except EmployeeBISP.DoesNotExist:
-        employee=None
+        employeeC=None
 
     leave = get_object_or_404(Leave, id=leave_id)
     employee = leave.employee  # Get the employee related to this leave
@@ -1102,7 +1150,35 @@ def delete_employee(request, id):
     if not request.session.get('employee_id'):
         return redirect('Login_user_page')
 
-    employee = get_object_or_404(EmployeeBISP, id=id)
+    try:
+
+       employee = get_object_or_404(EmployeeBISP, id=id)
+    except EmployeeBISP.DoesNotExist:
+        employee=None
+
+    EmployeeBISPHistory.objects.create(
+        employee=employee,
+        name=employee.name,
+        dob=employee.dob,
+        gender=employee.gender,
+        nationality=employee.nationality,
+        permanent_address=employee.permanent_address,
+        current_address=employee.current_address,
+        phone_number=employee.phone_number,
+        email=employee.email,
+        password=employee.password,
+        aadhar_card=employee.aadhar_card,
+        date_of_join=employee.date_of_join,
+        work_location=employee.work_location,
+        designation=employee.designation,
+        department=employee.department,
+        role=employee.role,
+        profile_picture=employee.profile_picture,
+        version=employee.version,
+        reported_to=employee.reported_to,
+        created_at=employee.timestamp,
+
+    )
 
     # Save current state to history and soft delete
     employee.soft_delete()
@@ -1149,8 +1225,8 @@ def update_employee(request, id):
             role=employee.role,
             profile_picture=employee.profile_picture,
             version=employee.version,
-            timestamp=employee.timestamp,
-            reported_to=employee.reported_to
+            reported_to=employee.reported_to,
+            created_at=employee.timestamp,
 
         )
 

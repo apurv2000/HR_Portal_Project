@@ -115,9 +115,11 @@
                   <h3 class="card-title mb-0">About Me</h3>
 
                   <!-- Edit Button -->
+                   {% if request.session.employee_name == employee.name %}
                   <button class="btn btn-sm btn-primary ms-auto" data-toggle="modal" data-target="#editModal">
                     <i class="fas fa-edit"></i> Edit
                   </button>
+                     {% endif %}
                 </div>
 
 

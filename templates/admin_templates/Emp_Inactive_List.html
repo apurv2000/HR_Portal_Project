@@ -20,10 +20,7 @@
            <h1 class="h4 text-primary">List Of Employee</h1>
           </div>
           <div class="col-sm-6 text-right">
-            <!-- Button to add a new employee -->
-            <a href="{% url 'Emplist_Inactive' %}" class="btn btn-primary">Inactive</a>
-             <a href="{% url 'Emplist_History' %}" class="btn btn-primary">History</a>
-            <a href="{% url 'register' %}" class="btn btn-primary">Add Employee</a>
+                <a href="{% url 'Emplist' %}" class="btn btn-primary">Back</a>
           </div>
         </div>
       </div>
@@ -65,15 +62,16 @@
                       <th>Department</th>
                       <th>Designation</th>
                       <th>Email</th>
-                      <th>Nationality</th>
-                      <th>Current Address</th>
+                      <th>Register Date</th>
+                      <th>Last Date</th>
+                      <th>Address</th>
                       <th>Date Of Joining</th>
                       <th>Work Location</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {% for employee in employees %}
+                    {% for employee in Emp %}
                     <tr>
                       <!-- Employee Profile Image -->
                       <td>
@@ -93,16 +91,16 @@
                       <td>{{employee.role}}</td>
                       <td>{{ employee.department.name }}</td>
                       <td>{{ employee.designation.title }}</td>
-                      <td>{{ employee.gender }}</td>
-                      <td>{{ employee.nationality }}</td>
+                      <td>{{ employee.email }}</td>
+                      <td>{{ employee.created_at }}</td>
+                      <td>{{ employee.timestamp }}</td>
                       <td>{{ employee.current_address }}</td>
                       <td>{{ employee.date_of_join }}</td>
                       <td>{{ employee.work_location }}</td>
                       <!-- Action Buttons -->
                       <td>
                         <div class="d-flex gap-3">
-                          <a href="{% url 'update_employee_page' employee.id %}" class="btn btn-warning">Update</a>
-                          <a href="{% url 'delete_employee' employee.id %}" class="btn btn-danger" onclick="return confirm('Are you sure?');">Inactive</a>
+                          <a href="{% url 'active_employee' employee.id %}" class="btn btn-danger" onclick="return confirm('Are you sure?');">Active</a>
                         </div>
                       </td>
                     </tr>

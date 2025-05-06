@@ -55,6 +55,10 @@ class EmployeeBISP(models.Model):
     version = models.IntegerField(default=1)  # Start from version 1
     status = models.CharField(max_length=20, default="active")  # 'active' or 'deleted'
     timestamp = models.DateTimeField(auto_now=True)  # Automatically updates on save
+    created_at = models.DateTimeField(null=True,auto_now=True)
+
+
+
 
     def soft_delete(self):
         """Mark the employee as deleted (soft delete)."""
@@ -87,6 +91,7 @@ class EmployeeBISPHistory(models.Model):
     profile_picture = models.ImageField(upload_to="profile_pics/", blank=True, null=True)
     version = models.IntegerField(default=1)
     timestamp = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(null=True)
 
     def __str__(self):
         return f"History for {self.employee.name} - Version {self.version}"
