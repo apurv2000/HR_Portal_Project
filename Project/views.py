@@ -72,7 +72,8 @@ def update_project(request, id):
             admin=project.admin,
             description=project.description,
             upload_file=project.upload_file,
-            version=project.version
+            version=project.version,
+            created_at=project.timestamp,
         )
 
         errors = {}
@@ -261,7 +262,8 @@ def update_task(request, id):
             assigned_to=task.assigned_to,
             description=task.description,
             version=task.version,
-            status_field='active'  # This is historical record's status
+            status_field='active',  # This is historical record's status
+            created_at=task.timestamp
         )
 
         # Update Task
@@ -596,6 +598,8 @@ def project_detail(request, pk):
 
 #For showing project as completed
 def mark_project_completed(request, project_id):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
     project = get_object_or_404(Project, id=project_id)
     if request.method == 'POST':
         project.soft_delete()
@@ -603,6 +607,8 @@ def mark_project_completed(request, project_id):
 
 #In Adding new Task show assigned employee according to employee
 def get_project_employees(request, project_id):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
     if request.method == "GET":
         try:
             project = Project.objects.get(id=project_id)
@@ -619,3 +625,26 @@ def get_project_employees(request, project_id):
             return JsonResponse({'status': 'success', 'employees': employees_data})
         except Project.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Project not found'})
+
+def Project_history(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+
+    try:
+        Pro=ProjectHistory.objects.filter(project__status='active').order_by('-timestamp')
+    except ProjectHistory.DoesNotExist:
+        Pro=None
+
+    return render(request,'project_templates/Project_history.html',{'Pro':Pro})
+
+def Task_history(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+
+    try:
+        Task=TaskHistory.objects.filter(task__status_field='active').order_by('-timestamp')
+    except TaskHistory.DoesNotExist:
+        Task=None
+
+    return render(request,'task_templates/Task_history.html',{'Task':Task})
+

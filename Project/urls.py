@@ -14,6 +14,7 @@ urlpatterns = [
     path('Update/<int:id>/', views.update_project, name='Update_Project'),
     path('project/<int:project_id>/complete/', views.mark_project_completed, name='mark_completed'),
     path('get-project-employees/<int:project_id>/', views.get_project_employees, name='get_project_employees'),
+    path('project/history/',views.Project_history,name='Project_History'),
 
     #For Task
     path('task_list/', views.Task_list, name='task_list'),
@@ -23,6 +24,7 @@ urlpatterns = [
     path('update-task-status/', views.update_task_status, name='update_task_status'),
     path('task/update/page/<int:id>/', views.Task_update_page, name='task_update_page'),
     path('tasks/update/<int:id>/', views.update_task, name='update_task'),
+    path('task/history/',views.Task_history,name='Task_History')
 
 
 ]

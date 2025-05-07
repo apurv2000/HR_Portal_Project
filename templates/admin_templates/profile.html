@@ -88,22 +88,38 @@
                 <h3 class="profile-username text-center">{{employee.name}}</h3>
 
                 <p class="text-muted text-center">{{employee.department.name}}</p>
+                    <!-- Upper Employee Info UL -->
+                    <ul id="employee-info" class="list-group list-group-unbordered mb-3">
+                      <li class="list-group-item d-flex justify-content-between align-items-start flex-column flex-sm-row">
+                        <b>Designation</b>
+                        <span class="text-right text-wrap">{{ employee.designation.title }}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start flex-column flex-sm-row">
+                        <b>Role</b>
+                        <span class="text-right text-wrap">{{ employee.role }}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start flex-column flex-sm-row">
+                        <b>Date of Joining</b>
+                        <span class="text-right text-wrap">{{ employee.date_of_join }}</span>
+                      </li>
+                    </ul>
 
-                <ul class="list-group list-group-unbordered mb-3">
-                     <li class="list-group-item d-flex justify-content-between align-items-start flex-column flex-sm-row">
-                      <b>Designation</b>
-                      <span class="text-right text-wrap">{{ employee.designation.title }}</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-start flex-column flex-sm-row">
-                      <b>Role</b>
-                      <span class="text-right text-wrap">{{ employee.role }}</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-start flex-column flex-sm-row">
-                      <b>Date of Joining</b>
-                      <span class="text-right text-wrap">{{ employee.date_of_join }}</span>
-                    </li>
+                    <!-- Leave Info UL (Initially Hidden) -->
+                    <ul id="leave-info" class="list-group list-group-unbordered mb-3 d-none">
+                      <li class="list-group-item d-flex justify-content-between align-items-start flex-column flex-sm-row">
+                        <b>Total Leave</b>
+                        <span class="text-right text-wrap">{{ total_leave.total_leave_sum }}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start flex-column flex-sm-row">
+                        <b>Remaining Leave</b>
+                        <span class="text-right text-wrap">{{ total_leave.remaining_leave_sum}}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-start flex-column flex-sm-row">
+                        <b>Availed Leave</b>
+                        <span class="text-right text-wrap">{{ total_leave.availed_leave_sum }}</span>
+                      </li>
+                    </ul>
 
-                </ul>
               </div>
               <!-- /.card-body -->
             </div>
@@ -1654,6 +1670,29 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+</script>
+
+<!--Show Employee Leave details-->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const employeeInfo = document.getElementById('employee-info');
+    const leaveInfo = document.getElementById('leave-info');
+
+    // Listen to all tab clicks
+    document.querySelectorAll('.nav-link').forEach(tab => {
+      tab.addEventListener('click', function () {
+        const target = this.getAttribute('href');
+
+        if (target === '#leave') {
+          employeeInfo.classList.add('d-none');
+          leaveInfo.classList.remove('d-none');
+        } else {
+          employeeInfo.classList.remove('d-none');
+          leaveInfo.classList.add('d-none');
+        }
+      });
+    });
+  });
 </script>
 
 

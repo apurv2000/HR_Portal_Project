@@ -74,6 +74,7 @@ class ProjectHistory(models.Model):
     upload_file = models.FileField(upload_to='project_files/', blank=True, null=True)
     version = models.IntegerField()
     timestamp = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(null=True)
 
     def __str__(self):
         return f"History for {self.project.project_name} - Version {self.version}"
@@ -138,6 +139,7 @@ class TaskHistory(models.Model):
     version = models.IntegerField(default=1)  # Version number
     status_field= models.CharField(max_length=20, default='active')  # New status field (active/inactive)
     timestamp = models.DateTimeField(auto_now=True)  # Timestamp for when the history was created
+    created_at = models.DateTimeField(null=True)
 
     def __str__(self):
         return f"History of {self.task_title} (Version {self.version})"

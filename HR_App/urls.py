@@ -54,5 +54,7 @@ urlpatterns = [
       path('employee/<int:employee_id>/update/education/', views.update_education, name='update_education'),
       path('employee/<int:employee_id>/update/experience/', views.update_experience, name='update_experience'),
       path('employee/<int:employee_id>/document/', views.upload_document, name='upload_document'),
+      path('upload-employees/', views.upload_employees, name='upload_employees'),
+
 
 ]

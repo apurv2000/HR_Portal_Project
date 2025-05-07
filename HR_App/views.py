@@ -1,3 +1,5 @@
+import csv
+import io
 import os
 import random
 import re
@@ -529,6 +531,26 @@ def Profile(request):
     # Get current employee
     employee_id = request.session.get('employee_id')
     employee = EmployeeBISP.objects.get(id=employee_id)
+    # Leave Summary for each leave type
+    emp_leave_types = EmpLeaveType.objects.filter(employee=employee,leave_type__status = 'active')
+
+    leave_summary = [
+        {
+            'leave_type': elt.leave_type.name,
+            'total': elt.total_leave,
+            'availed': elt.availed_leave,
+            'remaining': elt.remaining_leave,
+        }
+        for elt in emp_leave_types
+    ]
+
+    # Aggregated leave totals
+    aggregated_leave = emp_leave_types.aggregate(
+        total_leave_sum=Sum('total_leave'),
+        remaining_leave_sum=Sum('remaining_leave'),
+        availed_leave_sum=Sum('availed_leave')
+    )
+
 
     # Filter TaskRecords where the task is assigned to current employee
     records = TaskRecord.objects.filter(
@@ -620,7 +642,7 @@ def Profile(request):
     except EmployeeDocument.DoesNotExist:
         Document= None
 
-    return render(request,'admin_templates/profile.html',{'employee':employee,'records': records,'projects': projects.distinct(),'tasks': tasks,'employees': [current_employee],'personalDetails':personalDetails,'primary_contact': primary_contact,'secondary_contact':secondary_contact,'bank_details':bank_details,'Edu':Edu,'PriExperience':PriExperience,'SecExperience':SecExperience,'Document':Document})
+    return render(request,'admin_templates/profile.html',{'employee':employee,'records': records,'projects': projects.distinct(),'tasks': tasks,'employees': [current_employee],'personalDetails':personalDetails,'primary_contact': primary_contact,'secondary_contact':secondary_contact,'bank_details':bank_details,'Edu':Edu,'PriExperience':PriExperience,'SecExperience':SecExperience,'Document':Document,'total_leave':aggregated_leave})
 
 #Profile of team member for administrator and manager
 def Team_profile(request,id):
@@ -638,6 +660,26 @@ def Team_profile(request,id):
         employee = EmployeeBISP.objects.get(id=id)
     except EmployeeBISP.DoesNotExist:
         employee = None
+
+    # Leave Summary for each leave type
+    emp_leave_types = EmpLeaveType.objects.filter(employee=employee, leave_type__status='active')
+
+    leave_summary = [
+            {
+                'leave_type': elt.leave_type.name,
+                'total': elt.total_leave,
+                'availed': elt.availed_leave,
+                'remaining': elt.remaining_leave,
+            }
+            for elt in emp_leave_types
+        ]
+
+    # Aggregated leave totals
+    aggregated_leave = emp_leave_types.aggregate(
+            total_leave_sum=Sum('total_leave'),
+            remaining_leave_sum=Sum('remaining_leave'),
+            availed_leave_sum=Sum('availed_leave')
+        )
 
         # Filter TaskRecords where the task is assigned to current employee
     records = TaskRecord.objects.filter(
@@ -726,7 +768,7 @@ def Team_profile(request,id):
         Document = None
 
 
-    return render(request, 'admin_templates/profile.html', {'employee':employee,'records': records,'projects': projects.distinct(),'tasks': tasks,'employees': [current_employee],'personalDetails':personalDetails,'primary_contact': primary_contact,'secondary_contact':secondary_contact,'bank_details':bank_details,'Edu':Edu,'PriExperience':PriExperience,'SecExperience':SecExperience,'Document':Document})
+    return render(request, 'admin_templates/profile.html', {'employee':employee,'records': records,'projects': projects.distinct(),'tasks': tasks,'employees': [current_employee],'personalDetails':personalDetails,'primary_contact': primary_contact,'secondary_contact':secondary_contact,'bank_details':bank_details,'Edu':Edu,'PriExperience':PriExperience,'SecExperience':SecExperience,'Document':Document,'total_leave':aggregated_leave})
 
 
 def Forget_pwd(request):
@@ -778,7 +820,7 @@ def Emplist_Inactive(request):
 #Show Employee history
 def Emplist_History(request):
     try:
-        Emp=EmployeeBISPHistory.objects.all()
+        Emp=EmployeeBISPHistory.objects.filter(employee__status='active').order_by('-timestamp','-id')
     except EmployeeBISPHistory.DoesNotExist:
         Emp=None
 
@@ -2445,7 +2487,9 @@ def upload_learning_video(request):
 
 
 def update_about_me(request, employee_id):
-    print("Done")
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+
     if request.method == 'POST':
 
 
@@ -2512,6 +2556,8 @@ def update_about_me(request, employee_id):
         return JsonResponse({'status': 'success', 'message': 'About Me updated successfully.'})
 
 def update_personal_info(request, employee_id):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
     if request.method == 'POST':
         employee = get_object_or_404(EmployeeBISP, id=employee_id)
 
@@ -2555,6 +2601,8 @@ def update_personal_info(request, employee_id):
 
 
 def update_emergency_contact(request, employee_id):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
     if request.method == 'POST':
         employee = get_object_or_404(EmployeeBISP, id=employee_id)
 
@@ -2612,6 +2660,8 @@ def update_emergency_contact(request, employee_id):
         return JsonResponse({'status': 'success', 'message': 'Emergency contacts updated successfully.'})
 
 def update_bank_info(request, employee_id):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
     if request.method == 'POST':
         employee = get_object_or_404(EmployeeBISP, id=employee_id)
 
@@ -2647,6 +2697,8 @@ def update_bank_info(request, employee_id):
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
 
 def update_education(request, employee_id):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
     if request.method == 'POST':
         employee = get_object_or_404(EmployeeBISP, id=employee_id)
 
@@ -2696,6 +2748,8 @@ def update_education(request, employee_id):
 
 
 def update_experience(request, employee_id):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
     if request.method == 'POST':
         employee = get_object_or_404(EmployeeBISP, id=employee_id)
 
@@ -2782,6 +2836,8 @@ def update_experience(request, employee_id):
 
 
 def upload_document(request, employee_id):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
     if request.method == 'POST':
         employee = get_object_or_404(EmployeeBISP, id=employee_id)
         document_file = request.FILES.get('documentFile')
@@ -2817,3 +2873,79 @@ def upload_document(request, employee_id):
         return JsonResponse({'status': 'success', 'message': 'Document uploaded successfully.'})
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
+
+def upload_employees(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+    if request.method == 'POST' and request.FILES.get('csv_file'):
+        csv_file = request.FILES['csv_file']
+
+        if not csv_file.name.endswith('.csv'):
+            messages.error(request, 'File is not CSV type')
+            return redirect('upload_employees')
+
+        try:
+            data_set = csv_file.read().decode('UTF-8')
+            io_string = io.StringIO(data_set)
+            reader = csv.DictReader(io_string)
+
+            skipped_emails = []
+            employees = []
+            for i, row in enumerate(reader, start=1):
+                emp_name = row.get('Name', '').strip()
+                email = row.get('Email', '').strip()
+
+                if not emp_name or not email:
+                    print(f"Skipping row {i}: Missing name or email -> {row}")
+                    continue
+
+                if EmployeeBISP.objects.filter(email=email).exists():
+                    skipped_emails.append(email)
+                    continue
+
+                plain_password = row.get('Password', '').strip() or None
+                try:
+                    department = Department.objects.get(name=row['Department']) if row.get('department') else None
+                    designation = Designation.objects.get(name=row['Designation']) if row.get('designation') else None
+
+
+                    employee = EmployeeBISP(
+                        name=emp_name,
+                        role=row.get('Role', '').strip() or 'Employee',
+                        department=department,
+                        designation=designation,
+                        password=make_password(plain_password) if plain_password else None,
+                        email=email,
+                        nationality=row.get('Nationality', '').strip() or None,
+                        current_address=row.get('Current Address', '').strip() or None,
+                        date_of_join=row.get('Date Of Joining', '').strip() or None,
+                        work_location=row.get('Work Location', '').strip() or None,
+
+
+                    )
+                    employees.append(employee)
+                except Exception as e:
+                    print(f"Error processing row {i}: {row}")
+                    print(f"Exception: {e}")
+
+            print(f"Total valid employees to insert: {len(employees)}")
+            if employees:
+                try:
+                    created = EmployeeBISP.objects.bulk_create(employees)
+                    print(f"{len(created)} employees inserted.")
+                    messages.success(request, f"{len(created)} employees uploaded successfully.")
+                except Exception as e:
+                    print("Bulk create error:", e)
+                    messages.error(request, f"Database error: {e}")
+            else:
+                messages.warning(request, "No valid employees found to upload.")
+
+            # Show skipped emails
+            if skipped_emails:
+                messages.warning(request,f"Skipped {len(skipped_emails)} emails already in use: {', '.join(skipped_emails)}")
+
+        except Exception as e:
+            messages.error(request, f"Error processing file: {e}")
+            return redirect('upload_employees')
+
+    return render(request, 'admin_templates/register.html')

@@ -11,6 +11,9 @@
           <h1 class="h4 text-primary">List Of Task</h1>
         </div>
         <div class="col-sm-6 text-end">
+          {% if request.session.role == "Administrator"  %}
+           <a href="{% url 'Project:Task_History' %}" class="btn btn-primary">History</a>
+            {% endif %}
           {% if request.session.role == "Administrator" or request.session.role == "Manager" %}
           <a href="{% url 'Project:task_add' %}" class="btn btn-primary">Add Task</a>
           {% endif %}
