@@ -31,6 +31,11 @@
   <!-- Upload Section -->
   <div class="card mb-4">
     <div class="card-body">
+           {% if error_msg %}
+            <div id="error-message" class="alert alert-danger" role="alert">
+              {{ error_msg }}
+            </div>
+          {% endif %}
       <h6 class="card-title">
         Upload Latest Handbook PDF <span class="text-danger">(pdf file only)</span>
       </h6>
@@ -90,4 +95,16 @@
   </div>
 </div>
   </div>
+<!--Error Message remove after 2 sec-->
+<script>
+  window.addEventListener('DOMContentLoaded', function () {
+    const errorBox = document.getElementById('error-message');
+    if (errorBox) {
+      setTimeout(() => {
+        errorBox.style.display = 'none';
+      }, 2000); // 2 seconds
+    }
+  });
+</script>
+
 {% endblock %}

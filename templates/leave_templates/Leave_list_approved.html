@@ -111,8 +111,11 @@
                         </div>
                           {% endif %}
                           <td>
+                            {{ leave.reason|truncatewords:3 }}
+                        {% if leave.reason|wordcount > 3 %}
+                          <a href="#" data-bs-toggle="modal" data-bs-target="#reasonModal{{ leave.id }}" class="text-decoration-none text-primary">more</a>
+                        {% endif %}
 
-                            {{ leave.reason|truncatewords:3 }}<a href="#" data-bs-toggle="modal" data-bs-target="#reasonModal{{ leave.id }}" class="text-decoration-none text-primary">more</a>
                           </td>
                           <!-- Modal for Full Reason -->
                           <div class="modal fade" id="reasonModal{{ leave.id }}" tabindex="-1" aria-labelledby="reasonModalLabel{{ leave.id }}" aria-hidden="true">

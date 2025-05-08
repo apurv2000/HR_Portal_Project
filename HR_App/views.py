@@ -16,7 +16,7 @@ from django.db import transaction, models
 from django.db.models import Prefetch, Sum, Value, CharField, F, Q
 from django.shortcuts import render, redirect, get_object_or_404
 import json
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.contrib.auth.hashers import make_password, check_password
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -2372,11 +2372,16 @@ def update_leave_type(request, leave_type_id):
 def uploadPDF(request):
     if not request.session.get('employee_id'):
         return redirect('Login_user_page')
+
+    error_msg = None
     if request.method == 'POST' and request.FILES.get('pdf_file'):
         file = request.FILES['pdf_file']
-        instance = HandbookPDF.objects.create(file=file, is_active=True)  # Save model instance
-        # You may want to deactivate previous active ones
-        HandbookPDF.objects.exclude(id=instance.id).update(is_active=False)
+
+        if file.content_type != 'application/pdf' or not file.name.lower().endswith('.pdf'):
+            error_msg = "Only PDF files are allowed."
+        else:
+            instance = HandbookPDF.objects.create(file=file, is_active=True)
+            HandbookPDF.objects.exclude(id=instance.id).update(is_active=False)
 
     pdfs = HandbookPDF.objects.all().order_by('-uploaded_at')
     context = {
@@ -2388,7 +2393,8 @@ def uploadPDF(request):
                 'is_active': pdf.is_active,
                 'id': pdf.id
             } for pdf in pdfs
-        ]
+        ],
+        'error_msg': error_msg,
     }
     return render(request, 'admin_templates/Handbook.html', context)
 
@@ -2904,9 +2910,23 @@ def upload_employees(request):
                     continue
 
                 plain_password = row.get('Password', '').strip() or None
+
                 try:
-                    department = Department.objects.get(name=row['Department']) if row.get('department') else None
-                    designation = Designation.objects.get(name=row['Designation']) if row.get('designation') else None
+                    dept_name = row.get('Department', '').strip()
+                    desig_name = row.get('Designation', '').strip()
+
+                    department = Department.objects.get(name__iexact=dept_name) if dept_name else None
+                    designation = Designation.objects.get(title__iexact=desig_name,
+                                                          department=department) if desig_name and department else None
+
+                except Department.DoesNotExist:
+                    print(f"Department '{dept_name}' not found.")
+                    department = None
+                except Designation.DoesNotExist:
+                    print(f"Designation '{desig_name}' not found for department '{dept_name}'.")
+                    designation = None
+
+                try:
 
 
                     employee = EmployeeBISP(

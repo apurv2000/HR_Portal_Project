@@ -48,7 +48,13 @@
                       <td>{{ record.start_time }}</td>
                       <td>{{ record.end_time }}</td>
                       <td>{{ record.hours }}</td>
-                         <td>{{ record.record_name|truncatewords:3 }}<a href="#" data-bs-toggle="modal" data-bs-target="#DescModal{{ record.id }}" class="text-decoration-none text-primary">..more</a>
+                    <td>
+                      {{ record.record_name|truncatewords:3 }}
+                      {% if record.record_name|wordcount > 3 %}
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#DescModal{{ record.id }}" class="text-decoration-none text-primary">..more</a>
+                      {% endif %}
+                    </td>
+
                      </td>
                         <!-- Modal for Full Description -->
                           <div class="modal fade" id="DescModal{{ record.id  }}" tabindex="-1" aria-labelledby="descModalLabel{{ record.id  }}" aria-hidden="true">

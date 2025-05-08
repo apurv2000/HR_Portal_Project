@@ -63,7 +63,7 @@ def timesheet_record_all(request):
     # Filter TaskRecords for both current and previous week
     records = TaskRecord.objects.filter(
         date__range=(monday_last_week, sunday_this_week)
-    ).order_by('-date')
+    ).order_by('-id', '-date')
 
     # Calculate hours
     for record in records:
@@ -85,7 +85,7 @@ def timesheet_record_image(request):
 
 
     # Filter TaskRecords for both current and previous week
-    records =ImagetaskRecord.objects.all().order_by('-start_date','-id')
+    records =ImagetaskRecord.objects.all().order_by('-start_date')
 
 
     return render(request, 'timesheet_templates/timesheet_record_image.html', {
