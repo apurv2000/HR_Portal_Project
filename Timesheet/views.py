@@ -123,31 +123,43 @@ def timesheet_add(request):
             day_errors = {}
 
             # Only validate and save if project is selected
-            if project_id:
-                at_least_one_filled = True  # Mark that a valid row is attempted
+            if project_id or task_id or desc:
+                at_least_one_filled = True
 
-                if not task_id:
-                    day_errors["task"] = "Task is required."
+                if task_id and (not project_id or not desc):
+                    if not project_id:
+                        day_errors["project"] = "Project is required "
+                    if not desc:
+                        day_errors["description"] = "Description is required "
+
+                if desc and (not project_id or not task_id):
+                    if not project_id:
+                        day_errors["project"] = "Project is required "
+                    if not task_id:
+                        day_errors["task"] = "Task is required "
+
+                if project_id and (not desc or not task_id):
+                    if not desc:
+                        day_errors["description"] = "Description is required "
+                    if not task_id:
+                        day_errors["task"] = "Task is required "
+
+
                 if not date:
                     day_errors["date"] = "Date is required."
                 if not start:
                     day_errors["start"] = "Start time is required."
                 if not end:
                     day_errors["end"] = "End time is required."
-                if not desc:
-                    day_errors["description"] = "Description is required."
+
 
                 # File size check
-                    # File size check
                 if file:
-                        # File size validation
-                     if file.size > 2 * 1024 * 1024:
-                          errors['upload_file'] = "File size must not exceed 2MB."
-
-                      # File format validation
-                     ext = os.path.splitext(file.name)[1].lower()
-                     if ext not in ALLOWED_EXTENSIONS:
-                            errors['upload_file'] = "Invalid file format."
+                    if file.size > 2 * 1024 * 1024:
+                        day_errors['file'] = "File size must not exceed 2MB."
+                    ext = os.path.splitext(file.name)[1].lower()
+                    if ext not in ALLOWED_EXTENSIONS:
+                        day_errors['file'] = "Invalid file format."
 
                 # Time check
                 if start and end:
@@ -208,16 +220,50 @@ def timesheet_add(request):
     emp_id = request.session['employee_id']
     employee = EmployeeBISP.objects.get(id=emp_id)
     last_week = request.GET.get('last_week') == '1'
-    week_data = [{'day': d.strftime('%A'), 'date': d.strftime('%Y-%m-%d')} for d in get_week_dates(last_week)]
-    projects = Project.objects.filter(team_members=employee)
-    tasks = Task.objects.filter(assigned_to=employee)
+
+    # Get week dates
+    raw_week_dates = get_week_dates(last_week)
+
+    # Fetch all TaskRecords for that employee and week
+    existing_records = TaskRecord.objects.filter(
+        task__assigned_to=employee,
+        date__in=raw_week_dates
+    ).exclude(task__status='Completed').select_related('task', 'task__project')
+
+    # Convert records to a dict: key = date string
+    record_map = {}
+    for record in existing_records:
+        date_str = record.date.strftime('%Y-%m-%d')
+        record_map[date_str] = {
+            'project': record.task.project.id,
+            'task': record.task.id,
+            'description': record.record_name,
+            'start_time': record.start_time.strftime('%H:%M'),
+            'end_time': record.end_time.strftime('%H:%M'),
+            'attachment': record.attachment.url if record.attachment else ''
+        }
+
+    # Prepare week data but exclude already filled days
+    week_data = [
+        {'day': d.strftime('%A'), 'date': d.strftime('%Y-%m-%d')}
+        for d in raw_week_dates
+        if d.strftime('%Y-%m-%d') not in record_map
+    ]
+
+    # Other required context
+    projects = Project.objects.filter(team_members=employee, status='active')
+    tasks = Task.objects.filter(assigned_to=employee).exclude(status='Completed')
+
+    # Check if all days are already filled (so no form should show)
+    already_filled_entire_week = len(week_data) == 0
 
     return render(request, 'timesheet_templates/timesheet.html', {
         'week_data': week_data,
         'projects': projects,
-        'tasks': tasks
+        'tasks': tasks,
+        'existing_records': record_map,
+        'already_filled_entire_week': already_filled_entire_week
     })
-
 
 def daily_timesheet(request):
     if not request.session.get('employee_id'):
@@ -225,8 +271,8 @@ def daily_timesheet(request):
 
     emp_id = request.session['employee_id']
     employee = EmployeeBISP.objects.get(id=emp_id)
-    projects = Project.objects.filter(team_members=employee)
-    tasks = Task.objects.filter(assigned_to=employee)
+    projects = Project.objects.filter(team_members=employee, status='active')
+    tasks = Task.objects.filter(assigned_to=employee).exclude(status='Completed')
 
     if request.method == 'POST':
         project_id = request.POST.get('project')

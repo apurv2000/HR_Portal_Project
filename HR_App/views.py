@@ -2962,7 +2962,7 @@ def upload_employees(request):
 
             # Show skipped emails
             if skipped_emails:
-                messages.warning(request,f"Skipped {len(skipped_emails)} emails already in use: {', '.join(skipped_emails)}")
+                messages.warning(request,f"Skipped {len(skipped_emails)} emails already in use")
 
         except Exception as e:
             messages.error(request, f"Error processing file: {e}")

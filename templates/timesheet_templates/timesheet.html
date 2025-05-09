@@ -15,6 +15,13 @@
     <div class="container timesheet-container">
 
 
+
+
+      {% if already_filled_entire_week %}
+        <div class="alert alert-info">
+          You have already submitted the timesheet for this week.
+        </div>
+      {% else %}
       <p class="description-required">Description is mandatory for sending the timesheet.  <div id="general-error"  class="text-danger mb-2 font-weight-bold "></div></p>
 
       <form id="form" method="POST" enctype="multipart/form-data" action="{% url 'Timesheet:timesheet_add' %}">
@@ -33,12 +40,11 @@
             </tr>
           </thead>
           <tbody>
-            {% for entry in week_data %}
+           {% for day in week_data %}
             <tr>
-              <td>{{ entry.day }}</td>
-
-              <td>
-                <input type="date" class="form-control" name="date_{{ forloop.counter }}" value="{{ entry.date }}">
+              <td>{{ day.day }}</td>
+               <td>
+                <input type="date" class="form-control" name="date_{{ forloop.counter }}" value="{{ day.date }}">
                 <div class="text-danger error-msg" data-error-for="date_{{ forloop.counter }}"></div>
               </td>
 
@@ -61,29 +67,25 @@
                 </select>
                 <div class="text-danger error-msg" data-error-for="task_{{ forloop.counter }}"></div>
               </td>
-
-              <td>
-                <input type="time" class="form-control" name="start_{{ forloop.counter }}" value="11:00">
-                <div class="text-danger error-msg" data-error-for="start_{{ forloop.counter }}"></div>
+              <td><input type="time" class="form-control" name="start_{{ forloop.counter }}" value="{{ existing_records.day.date.start_time|default:'11:00'  }}">
+              <div class="text-danger error-msg" data-error-for="start_{{ forloop.counter }}"></div>
               </td>
-
-              <td>
-                <input type="time" class="form-control" name="end_{{ forloop.counter }}" value="20:00">
+              <td><input type="time" class="form-control" name="end_{{ forloop.counter }}" value="{{ existing_records.day.date.end_time|default:'20:00'  }}">
                 <div class="text-danger error-msg" data-error-for="end_{{ forloop.counter }}"></div>
               </td>
-
-              <td>
-                <textarea class="form-control" name="description_{{ forloop.counter }}"></textarea>
-                <div class="text-danger error-msg" data-error-for="description_{{ forloop.counter }}"></div>
+              <td><textarea  class="form-control" name="description_{{ forloop.counter }}">{{ existing_records.day.date.description }}</textarea>
+                 <div class="text-danger error-msg" data-error-for="description_{{ forloop.counter }}"></div>
               </td>
-
               <td>
+                {% if existing_records.day.date.attachment %}
+                  <a href="{{ existing_records.day.date.attachment }}" target="_blank">View</a>
+                {% endif %}
                 <input type="file" class="form-control" name="file_{{ forloop.counter }}">
                 <div class="text-danger error-msg" data-error-for="file_{{ forloop.counter }}"></div>
               </td>
             </tr>
+          {% endfor %}
 
-            {% endfor %}
                <tr id="sunday-row" style="display: none;">
             <td>Sunday</td>
             <td>
@@ -135,7 +137,14 @@
         <div class="clearfix my-3">
           <h4 class="float-left">Add Weekly Record</h4>
           <button type="submit" class="btn btn-primary btn-top">Send</button>
-           {% if request.GET.last_week == "1" %}
+
+
+
+        </div>
+      </form>
+      {% endif %}
+      <div class="clearfix my-3">
+         {% if request.GET.last_week == "1" %}
               <button type="button" class="btn btn-primary btn-top" onclick="location.href='.'">
                 This Week Timesheet
               </button>
@@ -144,10 +153,7 @@
                 Last Week Timesheet
               </button>
             {% endif %}
-
-
-        </div>
-      </form>
+      </div>
     </div>
   </section>
 </div>
