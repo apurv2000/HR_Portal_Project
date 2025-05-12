@@ -274,6 +274,13 @@ def daily_timesheet(request):
     projects = Project.objects.filter(team_members=employee, status='active')
     tasks = Task.objects.filter(assigned_to=employee).exclude(status='Completed')
 
+    today = date.today()
+    # Check if already filled for today (for any task)
+    already_filled_today = TaskRecord.objects.filter(
+        task__assigned_to=employee,
+        date=today
+    ).exists()
+
     if request.method == 'POST':
         project_id = request.POST.get('project')
         task_id = request.POST.get('task')
@@ -318,6 +325,8 @@ def daily_timesheet(request):
             if ext not in ALLOWED_EXTENSIONS:
                 errors['upload_file'] = "Invalid file format."
 
+
+
         if errors:
                 return JsonResponse({'success': False, 'errors': errors},status=400)
 
@@ -337,6 +346,7 @@ def daily_timesheet(request):
     return render(request, 'timesheet_templates/timesheet_daily.html', {
         'projects': projects,
         'tasks': tasks,
+        'already_filled_today': already_filled_today,
     })
 
 

@@ -28,6 +28,11 @@
           <h4 class="mb-0">Daily Timesheet</h4>
         </div>
         <div class="card-body">
+            {% if already_filled_today %}
+              <div class="alert alert-info">
+          You have already submitted the timesheet for this date.
+        </div>
+            {% else %}
           <form id="taskForm" method="POST" >
             {% csrf_token %}
 
@@ -98,6 +103,7 @@
               <button type="submit" class="btn btn-primary">Send</button>
             </div>
           </form>
+            {% endif %}
         </div>
       </div>
     </div>
