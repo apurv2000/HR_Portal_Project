@@ -55,6 +55,7 @@ urlpatterns = [
       path('employee/<int:employee_id>/update/experience/', views.update_experience, name='update_experience'),
       path('employee/<int:employee_id>/document/', views.upload_document, name='upload_document'),
       path('upload-employees/', views.upload_employees, name='upload_employees'),
+      path('exit_management/',views.apply_resignation,name='exit_management')
 
 
 ]

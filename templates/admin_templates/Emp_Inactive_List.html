@@ -1,7 +1,7 @@
 {% extends 'base.html' %} <!-- Extends the base template -->
 {% load static %} <!-- Loads static files for images, CSS, etc. -->
 
-{% block title %}Employee List{% endblock %} <!-- Sets the page title -->
+{% block title %}Inactive Employee List{% endblock %} <!-- Sets the page title -->
 
 {% block content %}
 
@@ -17,7 +17,7 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-           <h1 class="h4 text-primary">List Of Employee</h1>
+           <h1 class="h4 text-primary">List Of Inactive Employee</h1>
           </div>
           <div class="col-sm-6 text-right">
                 <a href="{% url 'Emplist' %}" class="btn btn-primary">Back</a>

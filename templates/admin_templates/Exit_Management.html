@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Exit Management System{% endblock %}
+
+{% block content %}
+
+<!-- Sidebar -->
+{% include 'Side_Navbar.html' %}
+
+<div class="content-wrapper">
+
+  <!-- Page Header -->
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+        </div>
+        <div class="col-sm-6 text-right">
+        </div>
+      </div>
+    </div>
+  </section>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb d-flex justify-content-between align-items-center">
+        <div class="d-flex">
+          <li class="breadcrumb-item">
+            <a href="{% url 'Project:project_list' %}" class="text-primary">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Exit Management</li>
+        </div>
+        </ol>
+         </nav>
+
+  <div class="container mt-4">
+    <form method="post" action="{% url 'exit_management' %}">
+      {% csrf_token %}
+      <!--  Personal Detail Section -->
+      <div class="card shadow mb-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Personal Detail</h5>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label>Name</label>
+              <input type="text" class="form-control" value="{{employee.name}}" readonly>
+            </div>
+            <div class="form-group col-md-4">
+              <label>Employee ID</label>
+              <input type="text" class="form-control" value="{{employee.employee_IDs | default:''}}" readonly>
+            </div>
+            <div class="form-group col-md-4">
+              <label>Department</label>
+              <input type="text" class="form-control" value="{{employee.department.name}}" readonly>
+            </div>
+            <div class="form-group col-md-4">
+              <label>Designation</label>
+              <input type="text" class="form-control" value="{{employee.designation.title}}" readonly>
+            </div>
+            <div class="form-group col-md-4">
+              <label>Reporting Manager</label>
+              <input type="text" class="form-control" value="{{employee.reported_to.name|default:''}}" readonly>
+            </div>
+            <div class="form-group col-md-4">
+              <label>Date of Joining</label>
+              <input type="text" class="form-control" value="{{employee.date_of_join}}" readonly>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🔶 Resignation Detail Section -->
+      <div class="card shadow mb-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Resignation Detail</h5>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+           <div class="form-group col-md-4">
+            <label>Resignation Apply Date <span class="text-danger">*</span></label>
+            <input type="date" id="resignation_date" name="resignation_apply_date" class="form-control" value="{{ values.resignation_apply_date }}">
+            {% if errors.resignation_apply_date %}
+              <small class="text-danger">{{ errors.resignation_apply_date }}</small>
+            {% endif %}
+          </div>
+
+          <div class="form-group col-md-4">
+            <label>Last Working Date <span class="text-danger">*</span></label>
+            <input type="date" id="last_working_date" name="last_working_date" class="form-control" value="{{ values.last_working_date }}" readonly>
+            {% if errors.last_working_date %}
+              <small class="text-danger">{{ errors.last_working_date }}</small>
+            {% endif %}
+          </div>
+          <div class="form-group col-md-4">
+          <label>Reason Of Resignation <span class="text-danger">*</span></label>
+          <input type="text" name="reason" class="form-control" value="{{ values.reason }}">
+          {% if errors.reason %}
+            <small class="text-danger">{{ errors.reason }}</small>
+          {% endif %}
+        </div>
+        </div>
+      </div>
+
+
+      <!-- Resignation Questions Section -->
+      <div class="card shadow mb-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Exit Checklist</h5>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label>1. If selected anywhere else kindly furnish details.</label><br>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="selected_elsewhere" value="Yes">
+              <label class="form-check-label">Yes</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="selected_elsewhere" value="No" checked>
+              <label class="form-check-label">No</label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>2. Whether bond period is over.</label><br>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="bond_over" value="Yes" checked>
+              <label class="form-check-label">Yes</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="bond_over" value="No">
+              <label class="form-check-label">No</label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>3. Advance salary.</label><br>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="advance_salary" value="Yes">
+              <label class="form-check-label">Yes</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="advance_salary" value="No" checked>
+              <label class="form-check-label">No</label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>4. Any dues pending.</label><br>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="dues_pending" value="Yes">
+              <label class="form-check-label">Yes</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="dues_pending" value="No" checked>
+              <label class="form-check-label">No</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit/Cancel Buttons -->
+      <div class="text-center mb-5">
+        <button type="submit" class="btn btn-primary">Resign</button>
+        <button type="reset" class="btn btn-secondary">Cancel</button>
+      </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!--For Show late date according to resignation date-->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const resignationInput = document.getElementById('resignation_date');
+    const lastWorkingInput = document.getElementById('last_working_date');
+
+    resignationInput.addEventListener('change', function () {
+      const resignationDate = new Date(this.value);
+      if (!isNaN(resignationDate)) {
+        const lastWorkingDate = new Date(resignationDate);
+        lastWorkingDate.setMonth(lastWorkingDate.getMonth() + 3); // Add 3 months
+
+        // Adjust for month overflow (e.g. Jan 31 + 3 months = April 31 → May 1 or April 30)
+        const year = lastWorkingDate.getFullYear();
+        const month = String(lastWorkingDate.getMonth() + 1).padStart(2, '0');
+        const day = String(lastWorkingDate.getDate()).padStart(2, '0');
+        lastWorkingInput.value = `${year}-${month}-${day}`;
+      }
+    });
+  });
+</script>
+{% endblock %}

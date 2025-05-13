@@ -33,6 +33,7 @@ class EmployeeBISP(models.Model):
     nationality = models.CharField(max_length=100,null=True)
     permanent_address = models.CharField(max_length=200,null=True)
     current_address = models.CharField(max_length=200,null=True)
+    employee_IDs = models.CharField(max_length=20, unique=True, editable=False, null=True, blank=True)  # Alphanumeric ID
 
     phone_regex = RegexValidator(
         regex=r'^\+?1?\d{9,15}$',
@@ -80,6 +81,7 @@ class EmployeeBISPHistory(models.Model):
     current_address = models.CharField(max_length=200, null=True)
     phone_number = models.CharField(max_length=20, null=True)
     email = models.EmailField(max_length=50)
+    employee_IDs = models.CharField(max_length=20,null=True, blank=True)  # Alphanumeric ID
     password = models.CharField(max_length=200)
     aadhar_card = models.CharField(max_length=200, null=True)
     date_of_join = models.CharField(max_length=200, null=True)
@@ -336,3 +338,20 @@ class LearningVideo(models.Model):
 
     def __str__(self):
         return self.title
+
+class ResignationApplication(models.Model):
+    employee = models.ForeignKey(EmployeeBISP, on_delete=models.CASCADE, related_name='resignations')
+    resignation_apply_date = models.DateField()
+    last_working_date = models.DateField()
+    reason = models.TextField(null=True)
+
+    # Exit Checklist
+    selected_elsewhere = models.BooleanField(default=False)
+    bond_period_over = models.BooleanField(default=True)
+    advance_salary_taken = models.BooleanField(default=False)
+    dues_pending = models.BooleanField(default=False)
+
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Resignation - {self.employee.get_full_name()} ({self.employee.username})"

@@ -30,7 +30,7 @@ from Timesheet.models import TaskRecord,ImagetaskRecord
 from .models import EmployeeBISP, Leave, LeaveType, Designation, Department, HandbookPDF, \
     HandbookAcknowledgement, EmpLeaveType, EmployeeBISPHistory, LeaveTypeHistory, \
     LearningVideo, EmployeePersonalDetails, EmployeeEmergencyContact, EmployeeBankDetails, \
-    EmployeeEducation, EmployeeExperience, EmployeeDocument  # Import your Employee model
+    EmployeeEducation, EmployeeExperience, EmployeeDocument, ResignationApplication  # Import your Employee model
 from openpyxl import Workbook
 from datetime import date, timedelta
 
@@ -627,22 +627,26 @@ def Profile(request):
     except EmployeeEducation.DoesNotExist:
        Edu= None
 
-    try:
-        PriExperience =EmployeeExperience.objects.filter(employee=employee,priority=1).first()
-    except EmployeeExperience.DoesNotExist:
-        PriExperience= None
-
-    try:
-        SecExperience =EmployeeExperience.objects.filter(employee=employee,priority=2).first()
-    except EmployeeExperience.DoesNotExist:
-        SecExperience= None
+    # try:
+    #     PriExperience =EmployeeExperience.objects.filter(employee=employee,priority=1).first()
+    # except EmployeeExperience.DoesNotExist:
+    #     PriExperience= None
+    #
+    # try:
+    #     SecExperience =EmployeeExperience.objects.filter(employee=employee,priority=2).first()
+    # except EmployeeExperience.DoesNotExist:
+    #     SecExperience= None
 
     try:
         Document =EmployeeDocument.objects.filter(employee=employee)
     except EmployeeDocument.DoesNotExist:
         Document= None
+    try:
+        experiences = EmployeeExperience.objects.filter(employee=employee)
+    except  EmployeeExperience.DoesNotExist:
+        experiences=None
 
-    return render(request,'admin_templates/profile.html',{'employee':employee,'records': records,'projects': projects.distinct(),'tasks': tasks,'employees': [current_employee],'personalDetails':personalDetails,'primary_contact': primary_contact,'secondary_contact':secondary_contact,'bank_details':bank_details,'Edu':Edu,'PriExperience':PriExperience,'SecExperience':SecExperience,'Document':Document,'total_leave':aggregated_leave})
+    return render(request,'admin_templates/profile.html',{'employee':employee,'records': records,'projects': projects.distinct(),'tasks': tasks,'employees': [current_employee],'personalDetails':personalDetails,'primary_contact': primary_contact,'secondary_contact':secondary_contact,'bank_details':bank_details,'Edu':Edu,'experiences':experiences,'Document':Document,'total_leave':aggregated_leave})
 
 #Profile of team member for administrator and manager
 def Team_profile(request,id):
@@ -1253,6 +1257,7 @@ def update_employee(request, id):
             name=employee.name,
             dob=employee.dob,
             gender=employee.gender,
+            employee_IDs=employee.employee_IDs,
             nationality=employee.nationality,
             permanent_address=employee.permanent_address,
             current_address=employee.current_address,
@@ -1582,6 +1587,25 @@ def register_user(request):
         if errors:
             return JsonResponse({"status": "error", "errors": errors}, status=400)
 
+        current_year = datetime.now().year
+        prefix = f"EMP00{current_year}"
+
+        # Safely get last employee with a valid employee_IDs
+        last_employee = EmployeeBISP.objects.filter(
+            employee_IDs__startswith=prefix
+        ).exclude(employee_IDs__isnull=True).exclude(employee_IDs__exact='').order_by('-employee_IDs').first()
+
+        if last_employee:
+            try:
+                last_number = int(last_employee.employee_IDs[-3:])
+                next_number = last_number + 1
+            except ValueError:
+                next_number = 1  # fallback in case ID is malformed
+        else:
+            next_number = 1
+
+        new_employee_id = f"{prefix}{next_number:03d}"
+
         # Hash password before saving
         hashed_password = make_password(password)
 
@@ -1597,7 +1621,8 @@ def register_user(request):
             work_location=workloc,
             department=department_obj,
             role=role,
-            reported_to=reported_to
+            reported_to=reported_to,
+            employee_IDs=new_employee_id,
         )
         employee.save()
 
@@ -2752,94 +2777,69 @@ def update_education(request, employee_id):
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
 
-
 def update_experience(request, employee_id):
     if not request.session.get('employee_id'):
         return redirect('Login_user_page')
+
     if request.method == 'POST':
         employee = get_object_or_404(EmployeeBISP, id=employee_id)
-
-        # Retrieve data from the form for primary and secondary experience
-        primary_company = request.POST.get('primary_company', '').strip()
-        primary_position = request.POST.get('primary_position', '').strip()
-        primary_start_date = request.POST.get('primary_start_date', '').strip()
-        primary_end_date = request.POST.get('primary_end_date', '').strip()
-
-        secondary_company = request.POST.get('secondary_company', '').strip()
-        secondary_position = request.POST.get('secondary_position', '').strip()
-        secondary_start_date = request.POST.get('secondary_start_date', '').strip()
-        secondary_end_date = request.POST.get('secondary_end_date', '').strip()
-
         field_errors = {}
+        experiences = []
 
-        # Validate primary experience
-        if not primary_company:
-            field_errors['primary_company'] = "company is required."
-        if not primary_position:
-            field_errors['primary_position'] = " position is required."
-        if not primary_start_date:
-            field_errors['primary_start_date'] = "start date is required."
-        if not primary_end_date:
-            field_errors['primary_end_date'] = "end date is required."
-        else:
+        index = 1
+        while True:
+            company = request.POST.get(f'company_{index}')
+            position = request.POST.get(f'position_{index}')
+            start_date = request.POST.get(f'start_date_{index}')
+            end_date = request.POST.get(f'end_date_{index}')
+
+            if company is None:
+                break  # No more entries
+
+            # Validate fields
+            if not company:
+                field_errors[f'company_{index}'] = 'Company is required.'
+            if not position:
+                field_errors[f'position_{index}'] = 'Position is required.'
+            if not start_date:
+                field_errors[f'start_date_{index}'] = 'Start date is required.'
+            if not end_date:
+                field_errors[f'end_date_{index}'] = 'End date is required.'
+
+            start_date_obj, end_date_obj = None, None
             try:
-                primary_start_date_obj = datetime.strptime(primary_start_date, '%Y-%m-%d')
-                primary_end_date_obj = datetime.strptime(primary_end_date, '%Y-%m-%d')
-                if primary_start_date_obj > primary_end_date_obj:
-                    field_errors['primary_start_date'] = " start date cannot be after end date."
-            except ValueError:
-                field_errors['primary_start_date'] = "Invalid date format for experience. Use a valid date."
+                if start_date:
+                    start_date_obj = datetime.strptime(start_date, '%Y-%m-%d')
+                if end_date:
+                    end_date_obj = datetime.strptime(end_date, '%Y-%m-%d')
+                if start_date_obj and end_date_obj and start_date_obj > end_date_obj:
+                    field_errors[f'start_date_{index}'] = 'Start date cannot be after end date.'
+            except Exception:
+                field_errors[f'start_date_{index}'] = 'Invalid date format.'
 
-        # Validate secondary experience (only if any value is provided)
-        if any([secondary_company, secondary_position, secondary_start_date, secondary_end_date]):
-            if not secondary_company:
-                field_errors['secondary_company'] = "company is required."
-            if not secondary_position:
-                field_errors['secondary_position'] = " position is required."
-            if not secondary_start_date:
-                field_errors['secondary_start_date'] = " start date is required."
-            if not secondary_end_date:
-                field_errors['secondary_end_date'] = " end date is required."
-            else:
-                try:
-                    secondary_start_date_obj = datetime.strptime(secondary_start_date, '%Y-%m-%d')
-                    secondary_end_date_obj = datetime.strptime(secondary_end_date, '%Y-%m-%d')
-                    if secondary_start_date_obj > secondary_end_date_obj:
-                        field_errors['secondary_start_date'] = " start date cannot be after end date."
-                except ValueError:
-                    field_errors['secondary_start_date'] = "Invalid date format for experience. Use a valid date."
+            # Append if no errors for this block
+            if not any(field_errors.get(k) for k in [f'company_{index}', f'position_{index}', f'start_date_{index}', f'end_date_{index}']):
+                experiences.append({
+                    'company_name': company,
+                    'position': position,
+                    'start_date': start_date_obj,
+                    'end_date': end_date_obj,
+                    'priority': index,
+                })
+
+            index += 1
 
         if field_errors:
             return JsonResponse({'status': 'error', 'errors': field_errors})
 
-        # Delete existing experience records for the employee before saving new ones
+        # Save experiences
         EmployeeExperience.objects.filter(employee=employee).delete()
+        for exp in experiences:
+            EmployeeExperience.objects.create(employee=employee, **exp)
 
-        # Save primary experience
-        EmployeeExperience.objects.create(
-            employee=employee,
-            company_name=primary_company,
-            position=primary_position,
-            start_date=primary_start_date_obj,
-            end_date=primary_end_date_obj,
-            priority=1  # Primary
-        )
-
-        # Save secondary experience (if any data is provided)
-        if any([secondary_company, secondary_position, secondary_start_date, secondary_end_date]):
-            EmployeeExperience.objects.create(
-                employee=employee,
-                company_name=secondary_company,
-                position=secondary_position,
-                start_date=secondary_start_date_obj,
-                end_date=secondary_end_date_obj,
-                priority=2  # Secondary
-            )
-
-        return JsonResponse({'status': 'success', 'message': 'Experience details updated successfully.'})
+        return JsonResponse({'status': 'success', 'message': 'Experience updated successfully.'})
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request'})
-
 
 def upload_document(request, employee_id):
     if not request.session.get('employee_id'):
@@ -2969,3 +2969,66 @@ def upload_employees(request):
             return redirect('upload_employees')
 
     return render(request, 'admin_templates/register.html')
+
+
+def apply_resignation(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+
+    id = request.session.get('employee_id')
+    try:
+        employee = EmployeeBISP.objects.get(id=id)
+    except EmployeeBISP.DoesNotExist:
+        employee = None
+
+    errors = {}
+    values = {}
+
+    if request.method == 'POST':
+        resignation_apply_date = request.POST.get('resignation_apply_date')
+        last_working_date = request.POST.get('last_working_date')
+        reason = request.POST.get('reason')
+        selected_elsewhere = request.POST.get('selected_elsewhere') == 'Yes'
+        bond_period_over = request.POST.get('bond_over') == 'Yes'
+        advance_salary_taken = request.POST.get('advance_salary') == 'Yes'
+        dues_pending = request.POST.get('dues_pending') == 'Yes'
+
+        values = {
+            'resignation_apply_date': resignation_apply_date,
+            'last_working_date': last_working_date,
+            'reason': reason,
+            'selected_elsewhere': selected_elsewhere,
+            'bond_period_over': bond_period_over,
+            'advance_salary_taken': advance_salary_taken,
+            'dues_pending': dues_pending,
+        }
+
+        # Field validation
+        if not resignation_apply_date:
+            errors['resignation_apply_date'] = 'Resignation apply date is required.'
+        elif resignation_apply_date and last_working_date < resignation_apply_date:
+            errors['last_working_date'] = 'Last working date cannot be before apply date.'
+
+        if not reason:
+            errors['reason'] = 'Reason is required.'
+
+        # Save if no errors
+        if not errors:
+            ResignationApplication.objects.create(
+                employee=employee,
+                resignation_apply_date=resignation_apply_date,
+                last_working_date=last_working_date,
+                reason=reason,
+                selected_elsewhere=selected_elsewhere,
+                bond_period_over=bond_period_over,
+                advance_salary_taken=advance_salary_taken,
+                dues_pending=dues_pending,
+                submitted_at=timezone.now()
+            )
+            return redirect('exit_management')  # Change to your redirect URL
+
+    return render(request, 'admin_templates/Exit_Management.html', {
+        'employee': employee,
+        'errors': errors,
+        'values': values,
+    })

@@ -10,7 +10,7 @@
     <div class="container-fluid">
       <div class="row mb-2">
         <div class="col-sm-6">
-            <h1 class="h4 text-primary">List Of Project</h1>
+            <h1 class="h4 text-primary">Historylist Of Project</h1>
         </div>
         <div class="col-sm-6 text-end">
           {% if request.session.role == "Administrator"%}
@@ -44,9 +44,9 @@
               <tr>
                 <td>{{ forloop.counter }}</td>
                 <td>
-                  <a href="{% url 'Project:project_detail' project.id %}" class="text-decoration-none text-primary">
+
                     {{ project.project_name }}
-                  </a>
+
                 </td>
                 <td>{{ project.created_at}}</td>
                 <td>{{ project.timestamp}}</td>

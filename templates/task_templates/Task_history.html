@@ -8,7 +8,7 @@
     <div class="container-fluid">
       <div class="row mb-2">
         <div class="col-sm-6">
-          <h1 class="h4 text-primary">List Of Task</h1>
+          <h1 class="h4 text-primary">Historylist Of Task</h1>
         </div>
         <div class="col-sm-6 text-end">
           {% if request.session.role == "Administrator"  %}
@@ -42,7 +42,7 @@
             {% for task in Task %}
               <tr>
                 <td>{{ forloop.counter }}</td>
-                <td><a href="{% url 'Project:task_detail' task.id %}" class="text-decoration-none text-primary">{{task.task_title}}</a></td>
+                <td>{{task.task_title}}</td>
                 <td>{{task.project.project_name}}</td>
                 <td>{{task.created_at}}</td>
                 <td>{{task.timestamp}}</td>
