@@ -1,5 +1,6 @@
 import csv
 import io
+import logging
 import os
 import random
 import re
@@ -3032,3 +3033,13 @@ def apply_resignation(request):
         'errors': errors,
         'values': values,
     })
+
+logger = logging.getLogger('django')
+
+def test_log_view(request):
+    log_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logs', 'django_log.log')
+    if os.path.exists(log_path):
+        with open(log_path, 'r') as file:
+            content = file.read()
+        return HttpResponse(f"<pre>{content}</pre>")
+    return HttpResponse("Log file not found.")

@@ -319,7 +319,7 @@ def Task_list(request):
     if employee.role == 'Administrator':  # Assuming 'Administrator' is the role name in the field
         tasks = Task.objects.filter(project__status='active').order_by('-created_at')  # Show all tasks if user is an admin
     else:
-        tasks = Task.objects.filter(assigned_to=employee,project__status='active').order_by('-created_at')  # Show only tasks assigned to the logged-in user
+        tasks = Task.objects.filter(assigned_to=employee,project__status='active').exclude(status='Completed').order_by('-created_at')  # Show only tasks assigned to the logged-in user
 
     return render(request, 'task_templates/Task_list.html', {'tasks': tasks})
 

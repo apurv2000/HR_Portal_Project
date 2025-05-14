@@ -213,7 +213,7 @@
             <div class="card" >
               <div class="card-header p-2">
                 <ul class="nav nav-pills">
-                <li class="nav-item"><a class="nav-link active text-white" href="#activity" data-toggle="tab">Details</a></li>
+                <li class="nav-item"><a class="nav-link  text-white" href="#activity" data-toggle="tab">Details</a></li>
                 <li class="nav-item"><a class="nav-link text-white" href="#document" data-toggle="tab">Document</a></li>
                 <li class="nav-item"><a class="nav-link text-white" href="#timesheet" data-toggle="tab">Timesheet</a></li>
                 <li class="nav-item"><a class="nav-link text-white" href="#leave" data-toggle="tab">Leave</a></li>
@@ -225,7 +225,7 @@
               </div><!-- /.card-header -->
               <div class="card-body">
                 <div class="tab-content ">
-                <div class="tab-pane fade show active" id="activity" style="max-height: 600px; overflow-y: auto;">
+                <div  id="activity" style="max-height: 600px; overflow-y: auto;">
                     <div class="row">
 
                         <!-- Personal Information Card -->
@@ -397,7 +397,7 @@
                         </div>
                         <!-- End Education Information -->
 
-                        <!-- Experience -->
+                           <!-- Experience -->
                             <div class="col-12 mb-4">
                               <div class="card card-danger h-100">
                                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -1190,7 +1190,19 @@
               </div>
             </div>
 
+<!-- jQuery and Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
+<script>
+    $(document).ready(function () {
+        // When any tab link is clicked
+        $('a[data-toggle="tab"]').on('click', function () {
+            // Hide the card with id 'close'
+            $('#activity').hide();
+        });
+    });
+</script>
 
 <!--Script for download table-->
 <script>
@@ -1721,6 +1733,23 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 </script>
-<!--Script for adding more card for stored n number of experience-->
+<script>
+    $(document).ready(function () {
+        // Hide all tabs content initially
+        $('.tab-pane').hide();
+
+        // Show the active tab content on tab click
+        $('a[data-toggle="tab"]').on('click', function (e) {
+            var targetTab = $(this).attr('href');
+            // Hide all content
+            $('.tab-pane').hide();
+            // Show the clicked tab content
+            $(targetTab).show();
+        });
+
+        // Trigger click on the first tab to load the first content
+        $('a[data-toggle="tab"]').first().click();
+    });
+</script>
 
 {% endblock %}

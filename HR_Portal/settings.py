@@ -105,6 +105,35 @@ EMAIL_HOST_USER = 'apurv.bvks@gmail.com'  # Replace with your actual email
 EMAIL_HOST_PASSWORD = 'jlxf zjee hvrj soqb'  # Use an app password if using Gmail
 
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+
+    'formatters': {
+        'detailed': {
+            'format': '{asctime} | {levelname} | {filename}:{lineno} | {message}',
+            'style': '{',
+        },
+    },
+
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/django_log.log'),
+            'formatter': 'detailed',
+        },
+    },
+
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
