@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Exit Management System{% endblock %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+  body {
+    background-color: #f4f6f9;
+  }
+
+<!--  .card-header {-->
+<!--    background: linear-gradient(90deg, #0d6efd, #6610f2);-->
+<!--    color: white;-->
+<!--    font-weight: bold;-->
+<!--  }-->
+
+  .email-box {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.03);
+  }
+
+  .email-subject {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #0d6efd;
+  }
+
+  .section-title {
+    font-weight: 600;
+    font-size: 1.3rem;
+    color: #343a40;
+    margin-bottom: 1rem;
+  }
+
+  .activity-badge {
+    font-size: 0.75rem;
+    padding: 0.4em 0.8em;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+
+  .breadcrumb-item a {
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .list-group-item:hover {
+    background-color: #f1f1f1;
+    cursor: default;
+  }
+
+  .btn {
+    font-weight: 500;
+  }
+
+  .card {
+    border-radius: 0.75rem;
+  }
+</style>
+
+<!-- Sidebar -->
+{% include 'Side_Navbar.html' %}
+
+<div class="content-wrapper">
+
+  <!-- Breadcrumb -->
+  <section class="content-header">
+    <div class="container-fluid">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb d-flex justify-content-between align-items-center">
+          <div class="d-flex">
+            <li class="breadcrumb-item"><a href="{% url 'Project:project_list' %}" class="text-primary">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Exit Management</li>
+          </div>
+        </ol>
+      </nav>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <div class="container my-4">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header">Resignation Detail - <a href="#" class="text-white text-decoration-underline">Kanchan Yadav</a></div>
+      <div class="card-body">
+        <div class="row mb-4">
+          <!-- Left Column -->
+          <div class="col-md-8">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <p><strong>Department:</strong> Software Department</p>
+                <p><strong>Designation:</strong> Sr. Software Developer</p>
+                <p><strong>Role:</strong> Employee</p>
+                <p><strong>Advance Salary:</strong> No</p>
+                <p><strong>Reason:</strong> Relocation</p>
+              </div>
+              <div class="col-md-6">
+                <p><strong>Resignation Date:</strong> May 15, 2025</p>
+                <p><strong>Last Working Date:</strong> Aug. 13, 2025</p>
+                <p><strong>Bond Period Remaining:</strong> Yes</p>
+                <p><strong>Dues Pending:</strong> None</p>
+              </div>
+            </div>
+
+            <!-- Email Section -->
+            <div class="email-box">
+              <div class="email-subject mb-3">Subject: Resignation Letter - Relocation</div>
+              <br>
+              <hr>
+                <br>
+              <p>Dear [Manager Name],</p>
+              <p>I am writing to formally resign from my position as <strong>Sr. Software Developer</strong> at <strong>[Company Name]</strong> due to relocation. My last working day will be <strong>August 13, 2025</strong>.</p>
+              <p>Thank you for the opportunities and support throughout my time here.</p>
+              <p>Sincerely,<br><strong>Kanchan Yadav</strong></p>
+            </div>
+          </div>
+
+          <!-- Activity Log -->
+          <div class="col-md-4">
+            <div class="card shadow-sm">
+              <div class="card-header "><strong>Activity Log</strong></div>
+              <div class="card-body">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item"><span class="badge bg-secondary activity-badge">May 15</span> Resignation submitted</li>
+                  <li class="list-group-item"><span class="badge bg-warning text-dark activity-badge">May 16</span> HR Reviewed</li>
+                  <li class="list-group-item"><span class="badge bg-info text-dark activity-badge">May 17</span> IT Checklist Started</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex justify-content-end mt-4">
+          <button class="btn btn-danger me-2"><i class="bi bi-x-circle"></i> Reject</button>
+          <button class="btn btn-success me-2"><i class="bi bi-check-circle"></i> Approve</button>
+          <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#checklistModal">
+            <i class="bi bi-list-check"></i> View Checklist
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Document Upload Section -->
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="section-title">Document Upload</h5>
+        <div class="mb-3 row">
+          <label class="col-sm-2 col-form-label">Document:</label>
+          <div class="col-sm-8">
+            <input type="file" class="form-control" accept=".pdf,.jpeg,.jpg,.png">
+            <small class="text-danger">(PDF, JPEG, PNG only. Max 2MB)</small>
+          </div>
+          <div class="col-sm-2">
+            <button class="btn btn-primary">Upload</button>
+          </div>
+        </div>
+        <hr>
+        <table class="table table-bordered mt-3">
+          <thead class="table-light">
+            <tr>
+              <th>Document</th>
+              <th>Upload Date</th>
+              <th>Uploaded By</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="3" class="text-center text-muted">No documents uploaded yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Checklist Modal -->
+
+<!-- Checklist Modal -->
+<div class="modal fade" id="checklistModal" tabindex="-1" aria-labelledby="checklistModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="checklistModalLabel">Employee Checklist</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row g-4">
+
+            <!-- Knowledge Transfer -->
+            <div class="col-md-6">
+              <div class="card h-100 shadow-sm border-primary">
+                <div class="card-body">
+                  <h5><i class="me-2">🧠</i>Knowledge Transfer</h5>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="kt1"><label class="form-check-label" for="kt1"> Tools & workflows</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="kt2"><label class="form-check-label" for="kt2"> Project status</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="kt3"><label class="form-check-label" for="kt3"> Outstanding tasks</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="kt4"><label class="form-check-label" for="kt4"> Contacts & relationships</label></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- IT Access -->
+            <div class="col-md-6">
+              <div class="card h-100 shadow-sm border-danger">
+                <div class="card-body">
+                  <h5><i class="me-2">🔒</i>IT Permissions</h5>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="it1"><label class="form-check-label" for="it1"> Change passwords</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="it2"><label class="form-check-label" for="it2"> Revoke access</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="it3"><label class="form-check-label" for="it3"> Remove from payroll</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="it4"><label class="form-check-label" for="it4"> Update Org Tree</label></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Paperwork -->
+            <div class="col-md-6">
+              <div class="card h-100 shadow-sm border-warning">
+                <div class="card-body">
+                  <h5><i class="me-2">📄</i>Paperwork</h5>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="pw1"><label class="form-check-label" for="pw1"> Resignation letter</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="pw2"><label class="form-check-label" for="pw2"> Last paycheck arrangement</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="pw3"><label class="form-check-label" for="pw3"> NDA signed</label></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recover Assets -->
+            <div class="col-md-6">
+              <div class="card h-100 shadow-sm border-success">
+                <div class="card-body">
+                  <h5><i class="me-2">💻</i>Recover Assets</h5>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="ra1"><label class="form-check-label" for="ra1"> Laptop & Charger</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="ra2"><label class="form-check-label" for="ra2"> Mouse</label></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Exit Interview -->
+            <div class="col-md-6">
+              <div class="card h-100 shadow-sm border-info">
+                <div class="card-body">
+                  <h5><i class="me-2">🗣️</i>Exit Interview</h5>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="ei1"><label class="form-check-label" for="ei1"> Conduct interview</label></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Announcement -->
+            <div class="col-md-6">
+              <div class="card h-100 shadow-sm border-dark">
+                <div class="card-body">
+                  <h5><i class="me-2">📢</i>Announce Departure</h5>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="ad1"><label class="form-check-label" for="ad1"> Send announcement</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="ad2"><label class="form-check-label" for="ad2"> Host farewell party</label></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Save Button -->
+          <div class="text-end mt-4">
+            <button class="btn btn-primary"><i class="bi bi-save me-1"></i>Save Checklist</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+<!-- Bootstrap Icons CDN -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

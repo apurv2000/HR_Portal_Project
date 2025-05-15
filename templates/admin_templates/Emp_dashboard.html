@@ -60,13 +60,32 @@
             <!-- /.info-box -->
           </div>
           <!-- /.col -->
-          <div class="col-md-3 col-sm-6 col-12">
-            <div class="info-box bg-gradient-success">
+
+             <div class="col-md-3 col-sm-6 col-12">
+                <a href="{% url 'holiday' %}">
+            <div class="info-box bg-gradient-purple ">
               <span class="info-box-icon"><i class="fas fa-umbrella-beach"></i></span>
 
               <div class="info-box-content">
-                <span class="info-box-text">Remaining Leave</span>
-                 <span class="info-box-number">{{leave_totals.remaining_leave_sum}}</span>
+                <span class="info-box-text">Total Holiday</span>
+                 <span class="info-box-number">{{total_holiday}}</span>
+
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+                     </a>
+          </div>
+
+           <!-- /.col -->
+
+          <div class="col-md-3 col-sm-6 col-12">
+            <div class="info-box bg-gradient-secondary">
+              <span class="info-box-icon"><i class="far fa-calendar-alt"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Total Leave</span>
+               <span class="info-box-number">{{leave_totals.total_leave_sum }}</span>
 
               </div>
               <!-- /.info-box-content -->
@@ -75,12 +94,12 @@
           </div>
           <!-- /.col -->
           <div class="col-md-3 col-sm-6 col-12">
-            <div class="info-box bg-gradient-secondary">
-              <span class="info-box-icon"><i class="far fa-calendar-alt"></i></span>
+            <div class="info-box bg-gradient-success">
+              <span class="info-box-icon"><i class="fas fa-umbrella-beach"></i></span>
 
               <div class="info-box-content">
-                <span class="info-box-text">Total Leave</span>
-               <span class="info-box-number">{{leave_totals.total_leave_sum }}</span>
+                <span class="info-box-text">Remaining Leave</span>
+                 <span class="info-box-number">{{leave_totals.remaining_leave_sum}}</span>
 
               </div>
               <!-- /.info-box-content -->

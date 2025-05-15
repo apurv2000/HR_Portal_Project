@@ -56,7 +56,10 @@ urlpatterns = [
       path('employee/<int:employee_id>/document/', views.upload_document, name='upload_document'),
       path('upload-employees/', views.upload_employees, name='upload_employees'),
       path('exit_management/',views.apply_resignation,name='exit_management'),
+      path('exit_management/details/', views.Resignation_details, name='resignation_details'),
+      path('exit_management/email/', views.Exit_management_email, name='exit_mail'),
       path('test-log/', views.test_log_view),
+      path('holiday/', views.holiday, name='holiday'),
 
 
 ]

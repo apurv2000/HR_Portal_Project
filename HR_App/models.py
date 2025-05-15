@@ -355,3 +355,12 @@ class ResignationApplication(models.Model):
 
     def __str__(self):
         return f"Resignation - {self.employee.get_full_name()} ({self.employee.username})"
+
+
+class Holiday(models.Model):
+    title = models.CharField(max_length=100)
+    day = models.CharField(max_length=15)
+    date = models.DateField()
+
+    def __str__(self):
+        return f"{self.title} ({self.date})"

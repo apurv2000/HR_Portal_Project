@@ -31,7 +31,8 @@ from Timesheet.models import TaskRecord,ImagetaskRecord
 from .models import EmployeeBISP, Leave, LeaveType, Designation, Department, HandbookPDF, \
     HandbookAcknowledgement, EmpLeaveType, EmployeeBISPHistory, LeaveTypeHistory, \
     LearningVideo, EmployeePersonalDetails, EmployeeEmergencyContact, EmployeeBankDetails, \
-    EmployeeEducation, EmployeeExperience, EmployeeDocument, ResignationApplication  # Import your Employee model
+    EmployeeEducation, EmployeeExperience, EmployeeDocument, ResignationApplication, \
+    Holiday  # Import your Employee model
 from openpyxl import Workbook
 from datetime import date, timedelta
 
@@ -194,6 +195,7 @@ def Manager(request):
         'projects': project_qs,
         'tasks': task_qs,
         'total_employee':EmployeeBISP.objects.filter(status='active').count(),
+        'total_holiday': Holiday.objects.count(),
         'status_counts': status_counts,
         'overdue_tasks': overdue_tasks,
         'status_percentages': status_percentages,
@@ -351,6 +353,7 @@ def Hr(request):
         'projects': project_qs,
         'tasks': task_qs,
         'total_employee': EmployeeBISP.objects.filter(status='active').count(),
+        'total_holiday':Holiday.objects.count(),
         'status_counts': status_counts,
         'overdue_tasks': overdue_tasks,
         'status_percentages': status_percentages,
@@ -503,6 +506,7 @@ def Employee(request):
         'total_tasks': task_qs.count(),
         'projects': project_qs,
         'tasks': task_qs,
+        'total_holiday': Holiday.objects.count(),
         'total_employee': EmployeeBISP.objects.filter(status='active').count(),
         'status_counts': status_counts,
         'overdue_tasks': overdue_tasks,
@@ -1891,12 +1895,16 @@ def Apply_leave(request):
                     dates.append(current)
                     current += timedelta(days=1)
 
+                # Get all holiday dates in the range
+                holiday_dates = set(
+                    Holiday.objects.filter(date__range=(from_date, till_date)).values_list('date', flat=True))
+
                 for i, date in enumerate(dates):
                     key = f"halfday_option_{date}"
                     choice = request.POST.get(key)
 
                     is_sunday = date.weekday() == 6
-                    is_holiday = False  # Add your real holiday logic here
+                    is_holiday = date in holiday_dates
 
                     # Always count weekday
                     if not is_sunday and not is_holiday:
@@ -3028,12 +3036,19 @@ def apply_resignation(request):
             )
             return redirect('exit_management')  # Change to your redirect URL
 
-    return render(request, 'admin_templates/Exit_Management.html', {
+    return render(request, 'exit_management_templates/Exit_Management.html', {
         'employee': employee,
         'errors': errors,
         'values': values,
     })
 
+def Resignation_details(request):
+    return render(request,'exit_management_templates/Exit_Management_details.html')
+
+def Exit_management_email(request):
+    return render(request,'exit_management_templates/Exit_Management_Email.html')
+
+# For Log File
 logger = logging.getLogger('django')
 
 def test_log_view(request):
@@ -3043,3 +3058,20 @@ def test_log_view(request):
             content = file.read()
         return HttpResponse(f"<pre>{content}</pre>")
     return HttpResponse("Log file not found.")
+
+
+# For Holiday
+def holiday(request):
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        date = request.POST.get('date')
+
+        if title and date:
+            date_obj = datetime.strptime(date, '%Y-%m-%d').date()
+            day = date_obj.strftime('%A')
+            Holiday.objects.create(title=title, day=day, date=date_obj)
+
+        return redirect('holiday')
+
+    holidays = Holiday.objects.all().order_by('date')
+    return render(request, 'holiday_templates/holiday.html', {'holidays': holidays})

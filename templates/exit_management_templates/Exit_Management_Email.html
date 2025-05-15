@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Exit Management System{% endblock %}
+
+{% block content %}
+
+<!-- Sidebar -->
+{% include 'Side_Navbar.html' %}
+
+<div class="content-wrapper">
+
+  <!-- Breadcrumb -->
+  <section class="content-header">
+    <div class="container-fluid">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb d-flex justify-content-between align-items-center">
+          <div class="d-flex">
+            <li class="breadcrumb-item">
+              <a href="{% url 'Project:project_list' %}" class="text-primary">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">Exit Management</li>
+          </div>
+        </ol>
+      </nav>
+    </div>
+  </section>
+
+  <div class="container my-5">
+    <!-- Card -->
+    <div class="card shadow">
+      <div class="card-header bg-white">
+        <h5 class="mb-0">Send Exist Email</h5>
+      </div>
+      <div class="card-body">
+        <form>
+          <!-- From -->
+          <div class="mb-3">
+            <label for="from" class="form-label fw-bold">From</label>
+            <input type="email" class="form-control" id="from" value="hr@bisosolutions.com" readonly>
+          </div>
+
+          <!-- To & BCC -->
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="to" class="form-label fw-bold">To</label>
+              <input type="email" class="form-control" id="to" placeholder="recipient@example.com">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="bcc" class="form-label fw-bold">BCC</label>
+              <input type="email" class="form-control" id="bcc">
+            </div>
+          </div>
+
+          <!-- CC -->
+          <div class="mb-3">
+            <label for="cc" class="form-label fw-bold">CC</label>
+            <input type="email" class="form-control" id="cc">
+          </div>
+
+          <!-- Subject -->
+          <div class="mb-3">
+            <label for="subject" class="form-label fw-bold">Subject</label>
+            <input type="text" class="form-control" id="subject">
+          </div>
+
+          <!-- Message -->
+          <div class="mb-3">
+            <label for="message" class="form-label fw-bold">Message</label>
+            <textarea class="form-control" id="message" rows="10"></textarea>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="text-end">
+            <button type="submit" class="btn btn-primary">Send Email</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div> <!-- End content-wrapper -->
+
+<!-- CKEditor Script -->
+<script src="https://cdn.ckeditor.com/4.25.1/standard/ckeditor.js"></script>
+<script>
+  // Initialize CKEditor after DOM is fully loaded
+  document.addEventListener("DOMContentLoaded", function () {
+    CKEDITOR.replace('message');
+  });
+</script>
+
+{% endblock %}
