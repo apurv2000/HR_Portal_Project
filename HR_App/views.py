@@ -7,11 +7,13 @@ import re
 import string
 from itertools import chain
 from operator import attrgetter
+
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.core.files.storage import FileSystemStorage
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMessage
 from django.core.paginator import Paginator
 from django.db import transaction, models
 from django.db.models import Prefetch, Sum, Value, CharField, F, Q
@@ -32,7 +34,7 @@ from .models import EmployeeBISP, Leave, LeaveType, Designation, Department, Han
     HandbookAcknowledgement, EmpLeaveType, EmployeeBISPHistory, LeaveTypeHistory, \
     LearningVideo, EmployeePersonalDetails, EmployeeEmergencyContact, EmployeeBankDetails, \
     EmployeeEducation, EmployeeExperience, EmployeeDocument, ResignationApplication, \
-    Holiday  # Import your Employee model
+    Holiday, ExitEmail  # Import your Employee model
 from openpyxl import Workbook
 from datetime import date, timedelta
 
@@ -160,9 +162,16 @@ def Manager(request):
         activity_datetime=F('acknowledged_at')
     ).select_related('employee', 'pdf')
 
+    # Latest resignations *only* for employees under this manager
+    latest_resignations = ResignationApplication.objects.filter(
+        employee__reported_to =employee
+    ).annotate(
+        activity_type=Value('Resignation', output_field=CharField()),
+        activity_datetime=F('submitted_at')
+    )
 
     # Attach normalized datetime (prefer updated_at or fallback)
-    for item in chain(latest_tasks, latest_leaves, latest_projects, latest_acknowledgements,latest_projectCom,self_tasks):
+    for item in chain(latest_tasks, latest_leaves, latest_projects, latest_acknowledgements,latest_projectCom,self_tasks,latest_resignations ):
         if not hasattr(item, 'activity_datetime') or not item.activity_datetime:
             if hasattr(item, 'timestamp'):
                 item.activity_datetime = item.timestamp
@@ -184,11 +193,12 @@ def Manager(request):
             latest_acknowledgements,
             latest_projectCom,
             self_tasks,
+            latest_resignations
         ),
         key=lambda x: x.activity_datetime,
         reverse=True
     )[:10]
-
+    resignation = ResignationApplication.objects.filter(employee=employee).count()
     context = {
         'total_projects': project_qs.count(),
         'total_tasks': task_qs.count(),
@@ -205,6 +215,7 @@ def Manager(request):
         'employee_leaves ':employee_leaves,
         'latest_pdf': latest_pdf,
         'acknowledgement': acknowledgement,
+        'resignation':resignation,
 
     }
 
@@ -320,9 +331,14 @@ def Hr(request):
         activity_datetime=F('acknowledged_at')  # Use actual acknowledgement datetime
     ).select_related('employee', 'pdf')
 
+    #Latest Resignation
+    latest_resignations = ResignationApplication.objects.annotate(
+        activity_type=Value('Resignation', output_field=CharField()),
+        activity_datetime=F('submitted_at')  # or .resignation_apply_date
+    )
 
     # Normalize the datetime for other activities
-    for item in chain(latest_tasks, latest_leaves, latest_projects, latest_acknowledgements, latest_projectCom):
+    for item in chain(latest_tasks, latest_leaves, latest_projects, latest_acknowledgements, latest_projectCom, latest_resignations):
         if not hasattr(item, 'activity_datetime') or not item.activity_datetime:
             if hasattr(item, 'timestamp'):
                 item.activity_datetime = item.timestamp
@@ -343,10 +359,13 @@ def Hr(request):
             latest_projects,
             latest_acknowledgements,
             latest_projectCom,
+            latest_resignations
         ),
         key=lambda x: x.activity_datetime,
         reverse=True
     )[:10]
+
+    resignation = ResignationApplication.objects.filter(employee=employee).count()
     context = {
         'total_projects': project_qs.count(),
         'total_tasks': task_qs.count(),
@@ -363,6 +382,7 @@ def Hr(request):
         'team_employees':team_employees,
         'latest_pdf': latest_pdf,
         'acknowledgement': acknowledgement,
+        'resignation':resignation
 
     }
 
@@ -501,6 +521,7 @@ def Employee(request):
         reverse=True
     )[:10]
 
+    resignation=ResignationApplication.objects.filter(employee=employee).count()
     context = {
         'total_projects': project_qs.count(),
         'total_tasks': task_qs.count(),
@@ -515,6 +536,7 @@ def Employee(request):
         'latest_activities': combined_activities,
         'latest_pdf': latest_pdf,
         'acknowledgement': acknowledgement,
+        'resignation': resignation,
 
     }
 
@@ -3034,7 +3056,7 @@ def apply_resignation(request):
                 dues_pending=dues_pending,
                 submitted_at=timezone.now()
             )
-            return redirect('exit_management')  # Change to your redirect URL
+            return redirect('exit_mail_send')  # Change to your redirect URL
 
     return render(request, 'exit_management_templates/Exit_Management.html', {
         'employee': employee,
@@ -3042,11 +3064,136 @@ def apply_resignation(request):
         'values': values,
     })
 
+# View Resignation Details
 def Resignation_details(request):
-    return render(request,'exit_management_templates/Exit_Management_details.html')
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+
+    id = request.session.get('employee_id')
+
+    try:
+        employee = EmployeeBISP.objects.get(id=id)
+    except EmployeeBISP.DoesNotExist:
+        employee = None
+
+    Email = None
+
+    if employee:
+        Email = ExitEmail.objects.filter(employee=employee).first()
+
+
+    return render(request, 'exit_management_templates/Exit_Management_details.html', {
+        'Email': Email,
+    })
+
 
 def Exit_management_email(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+
     return render(request,'exit_management_templates/Exit_Management_Email.html')
+
+# For Send Email
+def Exit_management_email(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+    id = request.session.get('employee_id')
+
+    try:
+        employee = EmployeeBISP.objects.get(id=id)
+    except EmployeeBISP.DoesNotExist:
+        employee = None
+
+    try:
+        resignation = ResignationApplication.objects.filter(employee=employee).last()
+    except ResignationApplication.DoesNotExist:
+        resignation = None
+
+
+    errors = {}
+    success = False
+    values = {}
+
+    if request.method == 'POST':
+        values = request.POST.copy()  # to preserve entered values in form
+
+        from_email = settings.EMAIL_HOST_USER  # use your email from settings
+        to_email = request.POST.get('to_email', '').strip()
+        cc = request.POST.get('cc', '').strip()
+        bcc = request.POST.get('bcc', '').strip()
+        subject = request.POST.get('subject', '').strip()
+        message = request.POST.get('message', '').strip()
+
+        # Validate required fields
+        if not to_email:
+            errors['to_email'] = "To Email is required."
+        if not subject:
+            errors['subject'] = "Subject is required."
+        if not message:
+            errors['message'] = "Message cannot be empty."
+
+        # (Optional) You can add simple email validation here if you want
+
+        if not errors:
+            try:
+                # Save email record to DB (optional, if you have this model)
+                ExitEmail.objects.create(
+                    employee=employee,
+                    resignation=resignation,
+                    from_email=from_email,
+                    to_email=to_email,
+                    cc=cc or None,
+                    bcc=bcc or None,
+                    subject=subject,
+                    message=message
+                )
+
+                # Send the email
+                email = EmailMessage(
+                    subject=subject,
+                    body=message,
+                    from_email=from_email,
+                    to=[to_email],
+                    cc=[cc] if cc else [],
+                    bcc=[bcc] if bcc else [],
+                )
+                email.content_subtype = "html"
+                email.send()
+
+                success = True
+                values = {}  # clear form after success
+
+            except Exception as e:
+                errors['email_error'] = f"Failed to send email: {str(e)}"
+
+    else:
+        values['from_email'] = settings.EMAIL_HOST_USER
+
+    return render(request, 'exit_management_templates/Exit_Management_Email.html', {
+        'errors': errors,
+        'values': values,
+        'success': success,
+    })
+
+# Show Employee based resignation deatils
+def Resign_emp(request,id):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+
+    try:
+        employee = EmployeeBISP.objects.get(id=id)
+    except EmployeeBISP.DoesNotExist:
+        employee = None
+
+    Email = None
+
+    if employee:
+        Email = ExitEmail.objects.filter(employee=employee).first()
+
+    return render(request, 'exit_management_templates/Exit_Management_details.html', {
+        'Email': Email,
+    })
+
 
 # For Log File
 logger = logging.getLogger('django')
@@ -3062,6 +3209,8 @@ def test_log_view(request):
 
 # For Holiday
 def holiday(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
     if request.method == 'POST':
         title = request.POST.get('title')
         date = request.POST.get('date')

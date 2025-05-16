@@ -139,6 +139,24 @@
             </div>
             <!-- /.info-box -->
           </div>
+          {% if resignation >= 1 %}
+          <div class="col-md-3 col-sm-6 col-12">
+            <a href="{% url 'resignation_details' %}">
+
+            <div class="info-box bg-gradient-danger">
+              <span class="info-box-icon"><i  class="fas fa-project-diagram"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">View Resignation Details</span>
+
+
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+              </a>
+            <!-- /.info-box -->
+          </div>
+          {% endif %}
         </div>
       <!--Add Cards For Different functionality-->
       {% include 'admin_templates/Statistics.html' %}

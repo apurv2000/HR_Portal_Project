@@ -456,7 +456,7 @@ hr {
                                     {{ activity.status }}
                                 </span>
                             </div>
-                     {% elif  activity.activity_type == 'TaskSelf' %}
+                            {% elif  activity.activity_type == 'TaskSelf' %}
                             <div class="mb-2">
                                 <strong class="text-primary">📝 Task:</strong>
                                 <a href="{% url 'Project:task_detail' activity.id %}" class="text-decoration-none">{{ activity.task_title }}</a>
@@ -472,6 +472,30 @@ hr {
                                     {{ activity.status }}
                                 </span>
                             </div>
+                         {% elif  activity.activity_type == 'Resignation' %}
+                          <a href="{% url 'resign_emp' activity.employee.id %}">
+                            <div class="mb-2">
+
+                              <strong class="text-danger">✍️ Resignation</strong>
+                              {% if activity.employee.name %}
+                                <span class="text-dark small">
+
+                                  ({{ activity.employee.name }})
+
+                                </span>
+                                {% endif %}
+
+                              <div class="text-muted small">
+                                Applied On: <time>{{ activity.resignation_apply_date|date:"M d, Y" }}</time><br>
+                                Last Working: <time>{{ activity.last_working_date|date:"M d, Y" }}</time>
+                              </div>
+                              {% if activity.reason %}
+                                <div class="mt-1"><em>Reason:</em> {{ activity.reason }}</div>
+                              {% endif %}
+                              <span class="badge bg-secondary mt-2">Submitted</span>
+
+                            </div>
+                              </a>
                         {% elif activity.activity_type == 'ProjectCom' %}
                             <div class="mb-2">
                                 <strong class="text-info">📁 Project Assigned:</strong>

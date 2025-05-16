@@ -86,37 +86,38 @@
   <!-- Main Content -->
   <div class="container my-4">
     <div class="card shadow-sm mb-4">
-      <div class="card-header">Resignation Detail - <a href="#" class="text-white text-decoration-underline">Kanchan Yadav</a></div>
+          <div class="card-header bg-primary text-white">
+      Resignation Detail - <a href="#" class="text-white text-decoration-underline">{{ Email.resignation.employee.name }}</a>
+    </div>
       <div class="card-body">
         <div class="row mb-4">
           <!-- Left Column -->
           <div class="col-md-8">
             <div class="row mb-3">
               <div class="col-md-6">
-                <p><strong>Department:</strong> Software Department</p>
-                <p><strong>Designation:</strong> Sr. Software Developer</p>
-                <p><strong>Role:</strong> Employee</p>
-                <p><strong>Advance Salary:</strong> No</p>
-                <p><strong>Reason:</strong> Relocation</p>
+              <p><strong>Department:</strong> {{ Email.resignation.employee.department }}</p>
+              <p><strong>Designation:</strong> {{ Email.resignation.employee.designation }}</p>
+              <p><strong>Role:</strong> {{ Email.resignation.employee.role }}</p>
+              <p><strong>Advance Salary Taken:</strong> {{Email.resignation.advance_salary_taken|yesno:"Yes,No" }}</p>
+              <p><strong>Reason:</strong> {{ Email.resignation.reason }}</p>
               </div>
               <div class="col-md-6">
-                <p><strong>Resignation Date:</strong> May 15, 2025</p>
-                <p><strong>Last Working Date:</strong> Aug. 13, 2025</p>
-                <p><strong>Bond Period Remaining:</strong> Yes</p>
-                <p><strong>Dues Pending:</strong> None</p>
+              <p><strong>Resignation Date:</strong> {{ Email.resignation.resignation_apply_date|date:"M d, Y" }}</p>
+              <p><strong>Last Working Date:</strong> {{ Email.resignation.last_working_date|date:"M d, Y" }}</p>
+              <p><strong>Bond Period Over:</strong> {{ Email.resignation.bond_period_over|yesno:"Yes,No" }}</p>
+              <p><strong>Dues Pending:</strong> {{ Email.resignation.dues_pending|yesno:"Yes,No" }}</p>
+              <p><strong>Selected Elsewhere:</strong> {{ Email.resignation.selected_elsewhere|yesno:"Yes,No" }}</p>
               </div>
             </div>
 
             <!-- Email Section -->
             <div class="email-box">
-              <div class="email-subject mb-3">Subject: Resignation Letter - Relocation</div>
+              <div class="email-subject mb-3">Subject: {{ Email.subject }}</div>
               <br>
               <hr>
                 <br>
-              <p>Dear [Manager Name],</p>
-              <p>I am writing to formally resign from my position as <strong>Sr. Software Developer</strong> at <strong>[Company Name]</strong> due to relocation. My last working day will be <strong>August 13, 2025</strong>.</p>
-              <p>Thank you for the opportunities and support throughout my time here.</p>
-              <p>Sincerely,<br><strong>Kanchan Yadav</strong></p>
+               {{ Email.message|safe}}
+              <p class="text-muted">Sent At: {{ Email.sent_at|date:"M d, Y H:i" }}</p>
             </div>
           </div>
 
