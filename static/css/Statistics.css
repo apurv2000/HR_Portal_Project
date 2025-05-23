@@ -1,0 +1,23 @@
+ body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            border: 1px solid #ddd;
+        }
+        .department-card {
+            text-align: center;
+            padding: 20px;
+        }
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+        }
+        h6 {
+            font-weight: bold;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }

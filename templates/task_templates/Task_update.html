@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'Side_Navbar.html' %}
+
+<div class="content-wrapper">
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6"></div>
+        <div class="col-sm-6 position-fixed">
+        </div>
+      </div>
+    </div>
+  </section>
+    <nav aria-label="breadcrumb">
+              <ol class="breadcrumb">
+                       <li class="breadcrumb-item"><a href="{% url 'Project:task_list' %}" class="text-primary">Task</a></li>
+                      <li class="breadcrumb-item active" aria-current="page">Edit Task</li>
+               </ol>
+    </nav>
+
+  <section class="content">
+    <div class="container-fluid px-4">
+      <div class="card shadow mt-3 w-100">
+        <div class="card-header bg-primary text-white">
+           <h4 class="mb-0">Edit Task</h4>
+        </div>
+        <div class="card-body">
+          <form id="taskForm" method="POST" action="{% url 'Project:update_task' task.id %}">
+            {% csrf_token %}
+
+            <div class="alert alert-success alert-dismissible fade show d-none" id="form-success">
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Task Title <span class="text-danger">*</span></label>
+                <input type="text" name="task_title" class="form-control"
+                       value="{{ task.task_title|default_if_none:'' }}">
+
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Project <span class="text-danger">*</span></label>
+                <select name="project" class="form-select form-control">
+                  <option value="" selected disabled>Select Project</option>
+                  {% for project in projects %}
+                   {% if project.status == 'active'%}
+                    <option value="{{ project.id }}" {% if task and task.project.id == project.id %}selected{% endif %}>
+                      {{ project.project_name }}
+                    </option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Start Date <span class="text-danger">*</span></label>
+                <input type="date" name="start_date" class="form-control"
+                       value="{% if task %}{{ task.start_date|date:'Y-m-d' }}{% endif %}">
+
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">End Date <span class="text-danger">*</span></label>
+                <input type="date" name="end_date" class="form-control"
+                       value="{% if task %}{{ task.end_date|date:'Y-m-d' }}{% endif %}">
+
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-4 col-sm-12 mb-3">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select form-control">
+                  <option value="Pending" {% if task and task.status == 'Pending' %}selected{% endif %}>Pending</option>
+                  <option value="Inprogress" {% if task and task.status == 'Inprogress' %}selected{% endif %}>Inprogress</option>
+                  <option value="Claimed Completed" {% if task and task.status == 'Claimed Completed' %}selected{% endif %}>Claimed Completed</option>
+                  <option value="Completed" {% if task and task.status == 'Completed' %}selected{% endif %}>Completed</option>
+
+                </select>
+
+              </div>
+              <div class="col-md-4 col-sm-12 mb-3">
+                <label class="form-label">Priority</label>
+                <select name="priority" class="form-select form-control">
+                  <option value="Low" {% if task and task.priority == 'Low' %}selected{% endif %}>Low</option>
+                  <option value="Medium" {% if task and task.priority == 'Medium' %}selected{% endif %}>Medium</option>
+                  <option value="High" {% if task and task.priority == 'High' %}selected{% endif %}>High</option>
+                </select>
+
+              </div>
+
+
+            <div class="col-md-4 col-sm-12 mb-3">
+              <label class="form-label">Assigned To <span class="text-danger">*</span></label>
+            <select name="assigned_to" id="assignedTo" class="form-select form-control">
+              <option value="" selected disabled>Loading...</option>
+            </select>
+            </div>
+              </div>
+
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              <textarea name="description" class="form-control" rows="3">{% if task %}{{ task.description }}{% endif %}</textarea>
+
+            </div>
+
+            <div class="text-end">
+              <button type="submit" class="btn btn-primary">Edit Task</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+$(document).ready(function () {
+    $("#taskForm").submit(function (e) {
+        e.preventDefault(); // prevent full-page reload
+
+        const form = $(this);
+        const url = form.attr('action');
+        const formData = new FormData(this);
+
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                if (response.success) {
+                    $("#form-success").removeClass("d-none").text(response.message);
+                    setTimeout(function () {
+                        window.location.href = "{% url 'Project:task_list' %}";
+                    }, 1500);
+                }
+            },
+            error: function (xhr) {
+                let errors = xhr.responseJSON.errors;
+                $(".error-message").remove();
+
+               $.each(errors, function (key, message) {
+                    let field = $("[name='" + key + "']");
+                    let errorEl = $("<small class='text-danger error-message d-block mt-1'>" + message + "</small>");
+
+                    if (field.length) {
+                        field.closest(".col-md-6, .mb-3, .form-group").append(errorEl);
+                    }
+                });
+
+            }
+        });
+    });
+});
+</script>
+
+
+<!--Script for render assigned employee according to selected project-->
+{% if task and task.assigned_to %}
+<script>const selectedAssignedTo = "{{ task.assigned_to.id }}";</script>
+{% else %}
+<script>const selectedAssignedTo = null;</script>
+{% endif %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const projectSelect = document.querySelector("select[name='project']");
+    const assignedToSelect = document.querySelector("select[name='assigned_to']");
+
+    function loadEmployees(projectId, selectedEmpId = null) {
+        if (!projectId) return;
+
+        const url = "{% url 'Project:get_project_employees' 0 %}".replace('0', projectId);
+
+        assignedToSelect.innerHTML = '<option selected disabled>Loading...</option>';
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                assignedToSelect.innerHTML = '<option value="" disabled>Select Employee</option>';
+                if (data.status === 'success') {
+                    data.employees.forEach(emp => {
+                        const option = document.createElement("option");
+                        option.value = emp.id;
+                        option.textContent = emp.designation ? `${emp.name} (${emp.designation})` : emp.name;
+                        if (String(emp.id) === String(selectedEmpId)) {
+                            option.selected = true;
+                        }
+                        assignedToSelect.appendChild(option);
+                    });
+                } else {
+                    assignedToSelect.innerHTML = '<option disabled>No employees found</option>';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                assignedToSelect.innerHTML = '<option disabled>Error loading employees</option>';
+            });
+    }
+
+    // Trigger on project change
+    projectSelect.addEventListener("change", function () {
+        const projectId = this.value;
+        loadEmployees(projectId);
+    });
+
+    // Load initially on edit form load
+    const initialProjectId = projectSelect.value;
+    if (initialProjectId) {
+        loadEmployees(initialProjectId, selectedAssignedTo);
+    }
+});
+</script>
+
+{% endblock %}

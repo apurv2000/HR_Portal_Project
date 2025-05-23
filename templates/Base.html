@@ -1,0 +1,1181 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
+      xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
+      xmlns="http://www.w3.org/1999/html">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{% endblock %}</title>
+
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- Tempusdominus Bootstrap 4 -->
+  <link rel="stylesheet" href="{% static 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}">
+  <!-- iCheck -->
+  <link rel="stylesheet" href="{% static 'plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}">
+  <!-- JQVMap -->
+  <link rel="stylesheet" href="{% static 'plugins/jqvmap/jqvmap.min.css' %}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static 'css/adminlte.min.css' %}">
+  <!-- overlayScrollbars -->
+  <link rel="stylesheet" href="{% static 'plugins/overlayScrollbars/css/OverlayScrollbars.min.css' %}">
+  <!-- Daterange picker -->
+  <link rel="stylesheet" href="{% static 'plugins/daterangepicker/daterangepicker.css' %}">
+  <!-- summernote -->
+  <link rel="stylesheet" href="{% static 'plugins/summernote/summernote-bs4.min.css' %}">
+  <link rel="stylesheet" href="{% static 'plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static 'plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static 'plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- Statistics -->
+  <link rel="stylesheet" href="{% static 'css/statistics.css' %}">
+
+
+  <!--Style for Highlight selected row for half day leave info-->
+   <style>
+  .highlight-row {
+    background-color: #e0f7fa !important; /* Light teal blue */
+    transition: background-color 0.3s ease;
+  }
+  </style>
+
+    <!--Style for Timesheet.html-->
+   <style>
+    .timesheet-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .form-control-time {
+      max-width: 140px;
+    }
+    .description-required {
+      color: red;
+      font-size: 0.9rem;
+    }
+    .btn-top {
+      float: right;
+      margin-left: 10px;
+    }
+    .table td, .table th {
+      vertical-align: middle;
+    }
+  </style>
+    <!--For Project Detail Page-->
+      <style>
+        .info-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .info-card-label {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        .info-card-value {
+            font-weight: bold;
+        }
+        .detail-label {
+            color: #6c757d;
+            font-weight: bold;
+        }
+        .detail-value {
+            color: #343a40;
+        }
+        .recent-task {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .task-icon {
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            padding: 5px;
+            margin-right: 10px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 24px;
+            height: 24px;
+        }
+        .task-meta {
+            color: #6c757d;
+            font-size: 0.9em;
+            background-color: #f8f9fa;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+    </style>
+    <!--For Project Add Field Look-->
+  <style>
+      .card {
+        border-radius: 10px;
+    }
+
+    .card-header {
+        border-bottom: 1px solid #dee2e6;
+        padding: 1rem 1.5rem;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+    }
+
+    .form-control, .form-select {
+        border-radius: 0.4rem;
+        padding: 0.45rem 0.75rem;
+    }
+
+    .input-group .form-control {
+        margin-left: 5px;
+    }
+
+    .row.mb-3 {
+        align-items: center;
+    }
+
+    .form-text {
+        font-size: 0.85rem;
+    }
+
+    textarea.form-control {
+        resize: vertical;
+    }
+
+    .text-end {
+        text-align: right;
+    }
+
+    .select2-container--default .select2-selection--multiple {
+        padding: 0.35rem;
+        min-height: 38px;
+        border: 1px solid #ced4da;
+        border-radius: 0.4rem;
+    }
+    .form-control, .form-select {
+        border: 1px solid #ced4da;
+        box-shadow: none;
+        transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.25);
+    }
+
+    .form-label {
+        font-weight: 600;
+    }
+
+    .card-form {
+        border: 1px solid #e3e6f0;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 0.15rem 0.75rem rgba(0, 0, 0, 0.05);
+        background-color: #fff;
+    }
+    </style>
+   <!--For Leave_Add -->
+     <style>
+
+
+        .container {
+            margin-top: 30px;
+        }
+        .card-header {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+        label { font-weight: bold; }
+    </style>
+      <!--Handbook-->
+        <style>
+        .pdf-shadow-box {
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+          border-radius: 10px;
+          overflow: hidden;
+        }
+        .pdf-viewer {
+          width: 100%;
+          height: 500px;
+          border: none;
+        }
+        .dropdown-item.acknowledge {
+          color: #198754;
+        }
+        .dropdown-item.not-approved {
+          color: #dc3545;
+        }
+      </style>
+
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+{% block content %}
+
+
+{% endblock %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+<!-- jQuery -->
+
+<script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+
+<!-- jQuery UI 1.11.4 -->
+<script src="{% static 'plugins/jquery-ui/jquery-ui.min.js' %}"></script>
+<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+<script>
+  $.widget.bridge('uibutton', $.ui.button)
+</script>
+
+<!-- Bootstrap 4 -->
+<script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+<script src="{% static 'plugins/chart.js/Chart.min.js' %}"></script>
+<!-- Sparkline -->
+<script src="{% static 'plugins/sparklines/sparkline.js' %}"></script>
+<!-- JQVMap -->
+<script src="{% static 'plugins/jqvmap/jquery.vmap.min.js' %}"></script>
+<script src="{% static 'plugins/jqvmap/maps/jquery.vmap.usa.js' %}"></script>
+<!-- jQuery Knob Chart -->
+<script src="{% static 'plugins/jquery-knob/jquery.knob.min.js' %}"></script>
+<!-- daterangepicker -->
+<script src="{% static 'plugins/moment/moment.min.js' %}"></script>
+<script src="{% static 'plugins/daterangepicker/daterangepicker.js' %}"></script>
+<!-- Tempusdominus Bootstrap 4 -->
+<script src="{% static 'plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js' %}"></script>
+<!-- Summernote -->
+<script src="{% static 'plugins/summernote/summernote-bs4.min.js' %}"></script>
+<!-- overlayScrollbars -->
+<script src="{% static 'plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'js/adminlte.js' %}"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="{% static 'js/demo.js' %}"></script>
+<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+<script src="{% static 'js/pages/dashboard.js' %}"></script>
+<!--<script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>-->
+<script src="{% static 'plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static 'plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static 'plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'plugins/bs-custom-file-input/bs-custom-file-input.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+
+<!--Script  for show assigned employee according to project in add task module-->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const projectSelect = document.querySelector('select[name="project"]');
+    const assignedToSelect = document.querySelector('select[name="assigned_to"]');
+
+    projectSelect.addEventListener('change', function () {
+        const projectId = this.value;
+        assignedToSelect.innerHTML = '<option selected disabled>Loading...</option>';
+
+        const url = "{% url 'Project:get_project_employees' 0 %}".replace('0', projectId);
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                assignedToSelect.innerHTML = '<option value="" selected disabled>Select Employee</option>';
+
+                if (data.status === 'success') {
+                    data.employees.forEach(emp => {
+                        const opt = document.createElement('option');
+                        opt.value = emp.id;
+                        opt.textContent = emp.designation ? `${emp.name} (${emp.designation})` : emp.name;
+                        assignedToSelect.appendChild(opt);
+                    });
+                } else {
+                    assignedToSelect.innerHTML = '<option disabled>No team members found</option>';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                assignedToSelect.innerHTML = '<option disabled>Error loading employees</option>';
+            });
+    });
+});
+</script>
+
+<!--Script of Tooltip for rejection reason-->
+<script>
+  // Function to initialize tooltips across the page
+  function initializeTooltips() {
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+
+    if (tooltipTriggerList.length > 0) {
+      tooltipTriggerList.forEach((tooltipTriggerEl) => {
+        try {
+          new bootstrap.Tooltip(tooltipTriggerEl);
+        } catch (error) {
+          console.error('Tooltip initialization failed for:', tooltipTriggerEl, error);
+        }
+      });
+    }
+  }
+
+  // Ensure the DOM is fully loaded before initializing
+  document.addEventListener('DOMContentLoaded', initializeTooltips);
+</script>
+
+
+<!--For Half Day leave info highlight select row -->
+<script>
+  function highlightRow(rowId) {
+    // Remove highlight from any previously highlighted row
+    document.querySelectorAll('tr.table-active').forEach(row => {
+      row.classList.remove('table-active');
+    });
+
+    // Add highlight to the current row
+    const row = document.getElementById(rowId);
+    if (row) {
+       row.classList.add('highlight-row');
+    }
+  }
+
+  // Remove highlight when modal is closed
+  document.querySelectorAll('.modal').forEach(modal => {
+    modal.addEventListener('hidden.bs.modal', () => {
+         document.querySelectorAll('tr.highlight-row').forEach(row => {
+        row.classList.remove('highlight-row');
+      });
+    });
+  });
+</script>
+
+<!--Script for render Task according to Project in Timesheet-->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const projectSelects = document.querySelectorAll('.project-select');
+
+    projectSelects.forEach(function (projectSelect) {
+      projectSelect.addEventListener('change', function () {
+        const counter = this.getAttribute('data-counter');
+        const selectedProjectId = this.value;
+        const taskSelect = document.querySelector(`.task-select[name="task_${counter}"]`);
+
+        // Hide all tasks first
+        taskSelect.querySelectorAll('option').forEach(function (option) {
+          if (option.value === '') return; // keep the default "Select Task"
+          option.style.display = option.getAttribute('data-project') === selectedProjectId ? 'block' : 'none';
+        });
+
+        // Reset selection
+        taskSelect.selectedIndex = 0;
+      });
+    });
+  });
+</script>
+
+<!--Add Sunday in Timesheet-->
+<script>
+document.getElementById('sundayCheckbox').addEventListener('change', function () {
+  const sundayRow = document.getElementById('sunday-row');
+  const sundayDateInput = document.querySelector('[name="date_8"]');
+
+
+  if (this.checked) {
+    sundayRow.style.display = '';
+
+    // Get Saturday's date (assumed name="date_6")
+    const saturdayDateInput = document.querySelector('[name="date_6"]');
+    if (saturdayDateInput && saturdayDateInput.value) {
+      const saturday = new Date(saturdayDateInput.value);
+      const sunday = new Date(saturday);
+      sunday.setDate(saturday.getDate() + 1);
+
+
+      const formattedSunday = sunday.toISOString().split('T')[0];
+      sundayDateInput.value = formattedSunday;  // Set value, not placeholder
+    } else {
+      // fallback to today's Sunday
+      const today = new Date();
+      const sunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() + (7 - today.getDay()));
+      sundayDateInput.value = sunday.toISOString().split('T')[0];
+
+    }
+
+  } else {
+    sundayRow.style.display = 'none';
+
+    // Clear values completely (not just reset placeholder)
+    ['project_8', 'task_8', 'date_8', 'start_8', 'end_8', 'description_8', 'file_8'].forEach(name => {
+      const el = document.querySelector(`[name="${name}"]`);
+      if (el) {
+        if (el.tagName === 'SELECT') {
+          el.selectedIndex = 0;
+        } else {
+          el.value = '';
+        }
+      }
+    });
+  }
+});
+</script>
+
+<!--For remove error message when user again start typing on that field-->
+<script>
+  document.querySelectorAll(".form-control").forEach(input => {
+  input.addEventListener("input", function () {
+    const name = this.name;
+    const errEl = document.querySelector(`[data-error-for="${name}"]`);
+    if (errEl) errEl.textContent = '';
+  });
+});
+</script>
+
+<!--Script for render errors and success message on Timesheet page-->
+<script>
+document.getElementById("form").addEventListener("submit", function (e) {
+  e.preventDefault();
+  let form = e.target;
+  let formData = new FormData(form);
+
+  // Clear old errors
+  document.querySelectorAll(".error-msg").forEach(el => el.textContent = '');
+
+  fetch(form.action, {
+    method: "POST",
+    headers: {
+      "X-Requested-With": "XMLHttpRequest",
+    },
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+  console.log("Received JSON:", data);
+  if (data.status === "success") {
+    alert(data.message);
+    form.reset();
+    location.reload();
+  } else {
+    console.log("error");
+
+    // Display general error if exists
+    if (data.errors.general) {
+      document.getElementById("general-error").textContent = data.errors.general;
+    } else {
+      document.getElementById("general-error").textContent = '';  // Clear if no general error
+    }
+
+    // Display field-level error messages
+    for (const [dayKey, fields] of Object.entries(data.errors)) {
+      if (dayKey === "general") continue;  // Skip general error here
+      const dayIndex = dayKey.split('_')[1];
+      for (const [field, msg] of Object.entries(fields)) {
+        const errEl = document.querySelector(`[data-error-for="${field}_${dayIndex}"]`);
+        if (errEl) errEl.textContent = msg;
+      }
+    }
+  }
+})
+
+  .catch(error => {
+    console.error("Error submitting timesheet:", error);
+  });
+});
+</script>
+
+
+<!-- Script to dynamically update remaining leave -->
+<script>
+  function updateRemainingLeave() {
+    const select = document.getElementById("leavetype");
+    const selected = select.options[select.selectedIndex];
+    const remaining = selected.getAttribute("data-remaining");
+
+    document.getElementById("remainleave").value = remaining || '';
+  }
+</script>
+
+<!-- Script to Handle Active Option in task detail dropdown-->
+<script>
+  function submitStatus(status) {
+    document.getElementById('statusInput').value = status;
+    document.getElementById('statusForm').submit();
+  }
+</script>
+
+
+
+<!--For TaskTable Datatable in Task List-->
+<script>
+  $(document).ready(function () {
+    $('#taskTable').DataTable({
+      dom: 'Bfrtip',
+      buttons: [
+        'copy', 'csv', 'excel', 'pdf', 'print', 'colvis'
+      ],
+      responsive: true
+    });
+  });
+</script>
+
+<!--For ProjectTable Datatable in Project List-->
+<script>
+  $(document).ready(function () {
+    $('#projectTable').DataTable({
+      dom: 'Bfrtip',
+      buttons: [
+        'copy', 'csv', 'excel', 'pdf', 'print', 'colvis'
+      ],
+      responsive: true
+    });
+  });
+</script>
+
+<!--For Project Add Validation -->
+<script>
+$(document).ready(function () {
+    // Clear error on change or input
+    $("select, input, textarea").on("change input", function () {
+        $(this).siblings(".error-message").remove(); // For inputs
+        $(this).closest(".col-md-4").find(".error-message").remove(); // For selects inside Bootstrap grid
+    });
+
+    $("#addProjectForm").submit(function (event) {
+        event.preventDefault();
+
+        $(".error-message").remove(); // Clear previous error messages
+
+        let formData = new FormData(this);
+        let actionUrl = $(this).attr("action");
+
+        $.ajax({
+            type: "POST",
+            url: actionUrl,
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                if (response.status === "success") {
+                    alert(response.message);
+                    window.location.href = "{% url 'Project:project_list' %}";
+                }
+            },
+            error: function (xhr) {
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    let errors = xhr.responseJSON.errors;
+
+                    $.each(errors, function (key, message) {
+                        let field = $("[name='" + key + "']");
+
+                        if (key === "team_members") {
+                            $("#teamMembersWrapper").append(
+                                "<small class='text-danger error-message d-block mt-1'>" + message + "</small>"
+                            );
+                            return;
+
+                        }
+
+                        // Special case for rate_amount inside input-group
+                        if (key === "rate_amount") {
+                            field.closest(".col-md-4").append(
+                                "<small class='text-danger error-message d-block mt-1'>" + message + "</small>"
+                            );
+                            return;
+                        }
+                        if (field.length) {
+                            let helpText = field.closest(".col-md-4").find("small.form-text");
+
+                            if (helpText.length) {
+                                helpText.after("<small class='text-danger error-message d-block mt-1'>" + message + "</small>");
+                            } else {
+                                field.after("<small class='text-danger error-message d-block mt-1'>" + message + "</small>");
+                            }
+                        }
+                    });
+                } else {
+                    alert("Something went wrong. Please try again.");
+                }
+            }
+        });
+    });
+});
+
+</script>
+
+
+
+
+<!--For Leave list Approved for status -->
+<script>
+
+// Function to submit the form with the selected status
+  function submitStatusForm(leaveId, status) {
+    // Set the value of the hidden input to the selected status (Approve or Reject)
+    document.getElementById('status-input-' + leaveId).value = status;
+
+    // Submit the form
+    document.getElementById('status-form-' + leaveId).submit();
+  }
+
+  // Function to show the rejection box
+  function showRejectBox(leaveId) {
+    // Show the rejection textarea and submit button
+    document.getElementById('reject-box-' + leaveId).style.display = 'block';
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    // Select all reject option links
+    const rejectLinks = document.querySelectorAll('.reject-option');
+
+    // Add click event listener to each reject link
+    rejectLinks.forEach(link => {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();  // Prevent the link from navigating
+
+        const leaveId = this.getAttribute('data-leave-id'); // Get the leave ID
+        const rejectBox = document.getElementById(`reject-box-${leaveId}`); // Get the rejection box
+
+        // Show the rejection textarea and submit button
+        if (rejectBox) {
+          rejectBox.style.display = 'block';
+        }
+
+        // Set status to Rejected and submit the form automatically when rejection is submitted
+        const statusInput = document.getElementById(`status-input-${leaveId}`);
+        if (statusInput) {
+          statusInput.value = 'Rejected'; // Set the status to 'Rejected'
+        }
+      });
+    });
+  });
+</script>
+
+<!-- JavaScript to toggle visibility for leave details toggles-->
+<script>
+function toggleCollapse(elementId) {
+    var collapseElement = document.getElementById(elementId);
+    if (collapseElement.style.display === "none" || collapseElement.style.display === "") {
+        collapseElement.style.display = "block";
+    } else {
+        collapseElement.style.display = "none";
+    }
+}
+
+</script>
+<!--For Leaning Video-->
+<script>
+  function playVideoInFullscreen() {
+    const video = document.getElementById("projectVideo");
+    const poster = document.getElementById("videoPoster");
+
+    // Hide the poster and show the video
+    poster.style.display = "none";
+    video.classList.remove("hidden");
+
+    // Attempt to request fullscreen
+    const requestFullscreen = video.requestFullscreen ||
+                              video.webkitRequestFullscreen ||
+                              video.mozRequestFullScreen ||
+                              video.msRequestFullscreen;
+
+    if (requestFullscreen) {
+      requestFullscreen.call(video).then(() => {
+        video.play();
+      }).catch((err) => {
+        console.error("Fullscreen error:", err);
+        video.play(); // fallback to play if fullscreen fails
+      });
+    } else {
+      console.warn("Fullscreen API not supported.");
+      video.play();
+    }
+  }
+</script>
+
+
+<!-- Script to show Acknowledge button only after viewing the PDF -->
+<script>
+  function markViewed() {
+    document.getElementById('acknowledgeSection').style.display = 'inline-block';
+  }
+</script>
+
+<!--For Leave type add-->
+<script>
+$(document).ready(function() {
+    $('#leaveTypeForm').on('submit', function(e) {
+        e.preventDefault();
+
+        // Clear previous error messages
+        $('.error-message').remove();
+        $('.form-control, .form-select').removeClass('is-invalid');
+        $('.form-check-input').removeClass('is-invalid');
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response.status === 'success') {
+                    alert(response.message);
+                    window.location.href = "{% url 'LeaveDetail' %}";
+                } else if (response.status === 'error' && response.field) {
+                    const $input = $(`[name="${response.field}"]`);
+                    $input.addClass('is-invalid');
+                    $input.after(`<div class="error-message text-danger">${response.message}</div>`);
+                } else {
+                    alert(response.message || "Something went wrong.");
+                }
+            },
+            error: function(xhr) {
+                if (xhr.status === 400 || xhr.responseJSON) {
+                    const errors = xhr.responseJSON.errors || {};
+                    for (const field in errors) {
+                        const $input = $(`[name="${field}"]`);
+
+                        if ($input.length) {
+                            if ($input.attr('type') === 'radio' || $input.attr('type') === 'checkbox') {
+                                // Add error to the entire group for radios/checkboxes
+                                $input.closest('.mb-3').append(`<div class="error-message text-danger">${errors[field]}</div>`);
+                                $input.addClass('is-invalid');
+                            } else {
+                                $input.addClass('is-invalid');
+                                $input.after(`<div class="error-message text-danger">${errors[field]}</div>`);
+                            }
+                        } else {
+                            alert(`${field}: ${errors[field]}`);
+                        }
+                    }
+                } else {
+                    alert("An unexpected error occurred.");
+                }
+            }
+        });
+    });
+});
+</script>
+
+<!--For Applicable Tab in leave type Add -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const allEmpRadio = document.getElementById("allEmp");
+    const indEmpRadio = document.getElementById("indEmp");
+    const applicableTab = document.getElementById("applicableTab");
+    const applicableLink = document.getElementById("applicable-tab");
+    const entitlementLink = document.getElementById("entitlement-tab");
+
+    // Remove active classes from all tabs and contents on load
+    document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active', 'show'));
+
+    function toggleApplicableTab() {
+      if (allEmpRadio.checked) {
+        // Hide applicable tab
+        applicableTab.style.display = "none";
+
+        // If it was active, remove its active state
+        if (applicableLink.classList.contains("active")) {
+          applicableLink.classList.remove("active");
+          document.getElementById("applicable").classList.remove("show", "active");
+        }
+      } else {
+        // Show applicable tab
+        applicableTab.style.display = "block";
+      }
+    }
+
+    allEmpRadio.addEventListener("change", toggleApplicableTab);
+    indEmpRadio.addEventListener("change", toggleApplicableTab);
+
+    // Initial setup: no active tab, apply radio logic
+    toggleApplicableTab();
+  });
+</script>
+
+
+<!-- Compensatory Checkbox -->
+<script>
+  const compensatoryCheckbox = document.getElementById('compensatoryCheckbox');
+  const reasonContainer = document.getElementById('compensatoryReasonContainer');
+
+  compensatoryCheckbox.addEventListener('change', function () {
+    reasonContainer.style.display = this.checked ? 'block' : 'none';
+  });
+</script>
+
+
+<!-- Script to handle Half Day logic -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const fromDate = document.getElementById("fromDate");
+    const tillDate = document.getElementById("tillDate");
+    const halfDayCheckbox = document.getElementById("halfDayCheckbox");
+    const halfDayTableContainer = document.getElementById("halfDayTableContainer");
+    const halfDayTableBody = document.getElementById("halfDayTableBody");
+
+    function formatDate(date) {
+      return date.toISOString().split('T')[0];
+    }
+
+    function getDayName(date) {
+      return date.toLocaleDateString("en-US", { weekday: 'long' });
+    }
+
+    function generateHalfDayRows(start, end) {
+      halfDayTableBody.innerHTML = '';
+      let current = new Date(start);
+      end = new Date(end);
+
+      while (current <= end) {
+        const dateStr = formatDate(current);
+        const dayName = getDayName(current);
+        const isSunday = current.getDay() === 0; // 0 = Sunday
+
+        if (!isSunday) {  // Only create rows for non-Sunday days
+          const row = document.createElement("tr");
+
+          row.innerHTML = `
+            <td>
+              <input type="hidden" name="halfday_date" value="${dateStr}">
+              ${dateStr}
+            </td>
+            <td>${dayName}</td>
+            <td>
+              <select name="halfday_option_${dateStr}" class="form-control">
+                <option value="none">Full Day</option>
+                <option value="first_half">First Half</option>
+                <option value="second_half">Second Half</option>
+              </select>
+            </td>
+          `;
+          halfDayTableBody.appendChild(row);
+        }
+
+        current.setDate(current.getDate() + 1);
+      }
+
+      halfDayTableContainer.style.display = 'block';
+    }
+
+    halfDayCheckbox.addEventListener("change", () => {
+      if (halfDayCheckbox.checked && fromDate.value && tillDate.value) {
+        generateHalfDayRows(fromDate.value, tillDate.value);
+      } else {
+        halfDayTableContainer.style.display = 'none';
+        halfDayTableBody.innerHTML = '';
+      }
+    });
+
+    fromDate.addEventListener("change", () => {
+      if (halfDayCheckbox.checked && fromDate.value && tillDate.value) {
+        generateHalfDayRows(fromDate.value, tillDate.value);
+      }
+    });
+
+    tillDate.addEventListener("change", () => {
+      if (halfDayCheckbox.checked && fromDate.value && tillDate.value) {
+        generateHalfDayRows(fromDate.value, tillDate.value);
+      }
+    });
+  });
+</script>
+
+<!--Apply Leave-->
+<script>
+$(document).ready(function () {
+    $('#leave-form').submit(function (e) {
+        e.preventDefault();
+        $('.text-danger').text('');  // Clear any previous error messages
+        var formData = new FormData(this);
+        var csrf_token = $('input[name="csrfmiddlewaretoken"]').val();
+
+        $.ajax({
+            type: "POST",
+            url: "{% url 'applyleave' %}",  // URL to your Django view
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRFToken': csrf_token
+            },
+            success: function(response) {
+                if (response.status == 'success') {
+                    alert(response.message);
+                    $('#leave-form')[0].reset();  // Reset the form
+                    window.location.reload();  // Reload the page to reflect changes
+                }
+            },
+          error: function (xhr) {
+    console.log("Full error response:", xhr);  // Log the full response to inspect it
+    if (xhr.responseJSON && xhr.responseJSON.errors) {
+        var errors = xhr.responseJSON.errors;
+        $.each(errors, function (field, message) {
+            $('#error-' + field).text(message);  // Show error next to the field
+        });
+    } else {
+        console.log("No errors object found in the response.");
+        // Optionally, handle cases where the error format isn't what we expect
+    }
+}
+        });
+    });
+
+    // Clear error message when the user starts typing
+    $('#leave-form input, #leave-form select, #leave-form textarea').on('input change focus', function () {
+        var name = $(this).attr('name');
+        $('#error-' + name).text('');  // Clear the specific error message
+    });
+});
+
+</script>
+
+<script>
+<!-- Datatable in Emplist -->
+$(document).ready(function () {
+  if (!$.fn.DataTable.isDataTable("#employeeTable")) {
+    $("#employeeTable").DataTable({
+      responsive: true,
+      scrollX: true,  // Enable horizontal scrolling
+      autoWidth: false,
+      columnDefs: [
+        { targets: '_all', className: 'dt-head-center dt-body-center' } // Center all columns
+      ]
+    });
+  }
+});
+</script>
+<script>
+$(document).ready(function () {
+    // Destroy DataTable if already initialized
+    if ($.fn.DataTable.isDataTable('#example1')) {
+        $('#example1').DataTable().destroy();
+    }
+
+    // Initialize DataTable with scrolling enabled
+    let table1 = $('#example1').DataTable({
+        responsive: false, // Disable responsive mode to ensure horizontal scrolling works
+        scrollX: true, // Enables horizontal scrolling
+        autoWidth: false, // Ensures proper column width adjustment
+        lengthChange: false,
+        buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"]
+    });
+
+    // Append buttons to correct location
+    table1.buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+});
+
+</script>
+
+<script>
+$(function () {
+  bsCustomFileInput.init();
+});
+</script>
+
+<!--Popup Message for Registeration form-->
+<script>
+$(document).ready(function() {
+    // Remove error message when the user starts typing
+    $(document).on("input", "input, select, textarea", function() {
+        $(this).next(".error-message").remove();  // Remove error next to the input field
+    });
+
+    // Special handling for gender field
+    $('input[name="gender"]').on('change', function() {
+        $('#gender-error').text('');  // Clear gender error message when gender is selected
+    });
+
+    $("#registerForm").submit(function(event) {
+        event.preventDefault();  // Prevent default form submission
+        $(".error-message").remove();  // Clear previous errors before submission
+
+        let formData = new FormData(this);  // Get form data
+        let actionUrl = $("#registerForm").attr("action");  // Get action URL
+
+        $.ajax({
+            type: "POST",
+            url: actionUrl,
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.status === "success") {
+                    alert(response.message);
+                    window.location.href = "{% url 'Emplist' %}";
+                }
+            },
+            error: function(xhr) {
+                let errors = xhr.responseJSON.errors;
+
+                $.each(errors, function(key, value) {
+                    let inputField = $("[name='" + key + "']");
+
+                    if (key === "gender") {
+                        $('#gender-error').text(value);  // Show gender error under the gender field
+                    } else {
+                        if (inputField.length) {
+                            inputField.after("<small class='text-danger error-message'>" + value + "</small>");
+                        }
+                    }
+                });
+            }
+        });
+    });
+});
+</script>
+
+<!--<script>-->
+<!--$(document).ready(function () {-->
+<!--    // Remove error message when user types or selects an input-->
+<!--    $('#registerForm').on('input change', 'input, select, textarea', function () {-->
+<!--        let fieldName = $(this).attr('name');-->
+
+<!--        if (fieldName === 'gender') {-->
+<!--            $('#gender-error').text('');-->
+<!--        } else {-->
+<!--            $(this).siblings('.error-message').remove(); // Remove inline error messages-->
+<!--        }-->
+<!--    });-->
+
+<!--    $("#registerForm").submit(function (event) {-->
+<!--        event.preventDefault();-->
+<!--        $(".error-message").remove(); // Clear all previous errors-->
+
+<!--        let formData = new FormData(this);-->
+<!--        let actionUrl = $(this).attr("action");-->
+
+<!--        $.ajax({-->
+<!--            type: "POST",-->
+<!--            url: actionUrl,-->
+<!--            data: formData,-->
+<!--            processData: false,-->
+<!--            contentType: false,-->
+<!--            success: function (response) {-->
+<!--                if (response.status === "success") {-->
+<!--                    alert(response.message);-->
+<!--                    window.location.href = "{% url 'Emplist' %}";-->
+<!--                }-->
+<!--            },-->
+<!--            error: function (xhr) {-->
+<!--                let errors = xhr.responseJSON.errors;-->
+
+<!--                $.each(errors, function (key, value) {-->
+<!--                    if (key.toLowerCase() === "gender") {-->
+<!--                        $('#gender-error').text(value);-->
+<!--                    } else {-->
+<!--                        let inputField = $("[name='" + key + "']");-->
+<!--                        if (inputField.length) {-->
+<!--                            inputField.after("<small class='text-danger error-message'>" + value + "</small>");-->
+<!--                        }-->
+<!--                    }-->
+<!--                });-->
+<!--            }-->
+<!--        });-->
+<!--    });-->
+<!--});-->
+<!--</script>-->
+
+
+
+<!--Pop message for Login page-->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    let loginForm = document.getElementById("loginForm");
+    let emailInput = document.getElementById("email");
+    let passwordInput = document.getElementById("password");
+    let emailError = document.getElementById("email-error");
+    let passwordError = document.getElementById("password-error");
+    let generalError = document.getElementById("general-error");
+
+    if (!loginForm || !emailInput || !passwordInput) {
+        console.error("One or more required elements are missing.");
+        return;
+    }
+
+    // Remove error messages as soon as the user starts typing
+    function clearErrors() {
+        emailError.style.display = "none";
+        passwordError.style.display = "none";
+        generalError.style.display = "none";
+    }
+    emailInput.addEventListener("input", clearErrors);
+    passwordInput.addEventListener("input", clearErrors);
+
+    loginForm.addEventListener("submit", function (e) {
+        e.preventDefault(); // Prevent form submission
+
+        // Clear previous errors
+        emailError.style.display = "none";
+        passwordError.style.display = "none";
+        generalError.style.display = "none";
+
+        let formData = new FormData(loginForm);
+
+        fetch("{% url 'Login_user' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.redirect_url) {
+                window.location.href = data.redirect_url; // Redirect if login is successful
+            } else {
+                // Show specific field errors if provided
+                if (data.email_error) {
+                    emailError.innerText = data.email_error;
+                    emailError.style.display = "block";
+                }
+                if (data.password_error) {
+                    passwordError.innerText = data.password_error;
+                    passwordError.style.display = "block";
+                }
+                if (data.error) {
+                    generalError.innerText = data.error;
+                    generalError.style.display = "block";
+                }
+            }
+        })
+        .catch(error => {
+            generalError.innerText = "An error occurred. Please try again.";
+            generalError.style.display = "block";
+            console.error("Login Error:", error);
+        });
+    });
+});
+</script>
+
+</body>
+</html>

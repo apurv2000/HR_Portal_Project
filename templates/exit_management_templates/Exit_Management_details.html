@@ -1,0 +1,789 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Exit Management System{% endblock %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+  body {
+    background-color: #f4f6f9;
+  }
+
+<!--  .card-header {-->
+<!--    background: linear-gradient(90deg, #0d6efd, #6610f2);-->
+<!--    color: white;-->
+<!--    font-weight: bold;-->
+<!--  }-->
+
+  .email-box {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.03);
+  }
+
+  .email-subject {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #0d6efd;
+  }
+
+  .section-title {
+    font-weight: 600;
+    font-size: 1.3rem;
+    color: #343a40;
+    margin-bottom: 1rem;
+  }
+
+  .activity-badge {
+    font-size: 0.75rem;
+    padding: 0.4em 0.8em;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+
+  .breadcrumb-item a {
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .list-group-item:hover {
+    background-color: #f1f1f1;
+    cursor: default;
+  }
+
+  .btn {
+    font-weight: 500;
+  }
+
+  .card {
+    border-radius: 0.75rem;
+  }
+
+  #checklistModal .modal-body {
+    max-height: 75vh;
+    overflow-y: auto;
+  }
+
+  /* Gradient vertical line */
+.timeline {
+  position: relative;
+  padding-left: 40px;
+  border-left: 4px solid;
+  border-image: linear-gradient(to bottom, #4f46e5, #06b6d4) 1; /* Indigo to cyan gradient */
+}
+
+/* Each item */
+.timeline-item {
+  position: relative;
+  padding-left: 25px;
+}
+
+/* Hover and focus states */
+.timeline-item:hover,
+.timeline-item:focus {
+  background-color: #f0f9ff; /* light blue */
+  box-shadow: 0 8px 15px rgba(6, 182, 212, 0.25);
+}
+
+/* Timeline Dot */
+.timeline-dot {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Dot icon scales on hover */
+.timeline-item:hover .timeline-dot,
+.timeline-item:focus .timeline-dot {
+  background: linear-gradient(135deg, #06b6d4, #4f46e5);
+  box-shadow: 0 0 20px rgba(79, 70, 229, 0.8);
+  transform: scale(1.15);
+}
+
+/* Date styling */
+.timeline-date {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2563eb; /* Bright blue */
+  margin-bottom: 6px;
+  user-select: none;
+}
+
+/* Content text */
+.timeline-content {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1e293b; /* Dark slate */
+}
+
+/* Scrollbar styling for Webkit browsers */
+.card-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.card-body::-webkit-scrollbar-track {
+  background: #e0e7ff;
+  border-radius: 10px;
+}
+
+.card-body::-webkit-scrollbar-thumb {
+  background: #6366f1;
+  border-radius: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.card-body::-webkit-scrollbar-thumb:hover {
+  background: #4f46e5;
+}
+
+
+.scrollable-body {
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+</style>
+
+<!-- Sidebar -->
+{% include 'Side_Navbar.html' %}
+
+<div class="content-wrapper">
+
+  <!-- Breadcrumb -->
+  <section class="content-header">
+   <div class="container-fluid">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb d-flex justify-content-between align-items-center">
+      <div class="d-flex">
+        <li class="breadcrumb-item">
+          <a href="{% url 'Project:project_list' %}" class="text-primary">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Exit Management</li>
+      </div>
+        {% if request.session.role == 'Administrator' %}
+      <li class="ms-auto">
+         <a href="#" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#changeLastDateModal">
+          Change Last Working Date
+        </a>
+      </li>
+        {% endif %}
+    </ol>
+  </nav>
+</div>
+  </section>
+
+  <!-- Main Content -->
+  <div class="container my-4">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-primary text-white d-flex align-items-center">
+
+        <div>
+          Resignation Detail -
+          <a href="#" class="text-white text-decoration-underline">{{ Email.resignation.employee.name }}</a>
+        </div>
+        {% if request.session.role == 'Administrator' %}
+
+        <div class="ms-auto">
+           {% if Email.resignation.status != 'Finish Process' %}
+          <a href="{% url 'finish' Email.resignation.employee.id  %}" class="btn btn-sm btn-light text-primary">
+            Finish Process
+          </a>
+          {% else %}
+             <h5 class="text-white">Process Completed</h5>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+
+
+      <div class="card-body">
+        <div class="row mb-4">
+          <!-- Left Column -->
+          <div class="col-md-8">
+            <div class="row mb-3">
+              <div class="col-md-6">
+              <p><strong>Department:</strong> {{ Email.resignation.employee.department }}</p>
+              <p><strong>Designation:</strong> {{ Email.resignation.employee.designation }}</p>
+              <p><strong>Role:</strong> {{ Email.resignation.employee.role }}</p>
+              <p><strong>Advance Salary Taken:</strong> {{Email.resignation.advance_salary_taken|yesno:"Yes,No" }}</p>
+              <p><strong>Reason:</strong> {{ Email.resignation.reason }}</p>
+              </div>
+              <div class="col-md-6">
+              <p><strong>Resignation Date:</strong> {{ Email.resignation.resignation_apply_date|date:"M d, Y" }}</p>
+              <p><strong>Last Working Date:</strong> {{ Email.resignation.last_working_date|date:"M d, Y" }}</p>
+              <p><strong>Bond Period Over:</strong> {{ Email.resignation.bond_period_over|yesno:"Yes,No" }}</p>
+              <p><strong>Dues Pending:</strong> {{ Email.resignation.dues_pending|yesno:"Yes,No" }}</p>
+              <p><strong>Selected Elsewhere:</strong> {{ Email.resignation.selected_elsewhere|yesno:"Yes,No" }}</p>
+              </div>
+            </div>
+
+            <!-- Email Section -->
+            <div class="email-box">
+              <div class="email-subject mb-3">Subject: {{ Email.subject }}</div>
+              <br>
+              <hr>
+                <br>
+               {{ Email.message|safe}}
+              <p class="text-muted">Sent At: {{ Email.sent_at|date:"M d, Y H:i" }}</p>
+            </div>
+          </div>
+
+          <!-- Activity Log -->
+          <div class="col-md-4">
+      <div class="card shadow-lg border-0" style="max-height: 500px; border-radius: 15px;">
+  <div class="card-header bg-primary text-white" style="border-top-left-radius: 15px; border-top-right-radius: 15px; font-size: 1.3rem; font-weight: bold;">
+    <i class="fa fa-history mr-2"></i> Activity Log
+  </div>
+  <div class="card-body p-4 scrollable-body" style="overflow-y: auto;">
+    <ul class="timeline list-unstyled mb-0">
+      {% for activity in activities %}
+        <li class="timeline-item d-flex align-items-start mb-4" tabindex="0" title="{{ activity.label }}">
+          <div class="timeline-dot me-3 mt-1">
+            {% if activity.type == 'change' %}
+              <i class="fa fa-edit text-danger fa-lg"></i>
+            {% elif activity.type == 'info' %}
+              <i class="fa fa-info-circle text-info fa-lg"></i>
+            {% else %}
+              <i class="fa fa-check-circle text-success fa-lg"></i>
+            {% endif %}
+          </div>
+          <div>
+            <div class="d-flex align-items-center">
+              <span class="font-weight-semibold text-dark">{{ activity.timestamp|date:"d M Y, H:i" }}</span>
+              {% if activity.type == 'change' %}
+                <span class="badge badge-danger ml-2">Update</span>
+              {% elif activity.type == 'info' %}
+                <span class="badge badge-info ml-2">Info</span>
+              {% else %}
+                <span class="badge badge-success ml-2">Done</span>
+              {% endif %}
+            </div>
+            <div class="text-muted small mt-1">{{ activity.label }}</div>
+          </div>
+        </li>
+      {% empty %}
+        <li class="text-center text-muted">No activities yet</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+
+
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+
+      <div class="d-flex justify-content-end mt-4">
+        {% if request.session.role == 'Manager' and Email.resignation.employee.role != request.session.role %}
+          {% if Email.resignation.manager_approved == True %}
+             <div class="me-auto">
+            <h5 class="text-success">Approved by Manager and forwarded to HR</h5>
+             </div>
+          {% elif Email.resignation.manager_approved == False %}
+          <div class="me-auto">
+            <h5 class="text-danger">Rejected by Manager</h5>
+          </div>
+          {% else %}
+            <!-- Pending: show buttons -->
+            <button class="btn btn-danger me-2" onclick="updateApprovalStatus(false)">
+              <i class="bi bi-x-circle"></i> Reject
+            </button>
+            <button class="btn btn-success me-2" onclick="updateApprovalStatus(true)">
+              <i class="bi bi-check-circle"></i> Approve
+            </button>
+          {% endif %}
+
+        {% elif request.session.role == 'Administrator' and Email.resignation.employee.role != request.session.role %}
+          {% if Email.resignation.hr_approved == True %}
+          <div class="me-auto">
+            <h5 class="text-success">Approved by HR</h5>
+          </div>
+          {% elif Email.resignation.hr_approved == False %}
+              <div class="me-auto">
+            <h5 class="text-danger">Rejected by HR</h5>
+              </div>
+          {% else %}
+            <!-- Pending: show buttons -->
+            <button class="btn btn-danger me-2" onclick="updateApprovalStatusHR(false)">
+              <i class="bi bi-x-circle"></i> Reject
+            </button>
+            <button class="btn btn-success me-2" onclick="updateApprovalStatusHR(true)">
+              <i class="bi bi-check-circle"></i> Approve
+            </button>
+          {% endif %}
+        {% endif %}
+        {% if request.session.role == 'Employee' or Email.resignation.employee.role == request.session.role%}
+        {% if Email.resignation.status == 'Manager Approved Request' %}
+          <div class="me-auto">
+            <h5 class="text-success">Manager Approved Request </h5>
+          </div>
+        {% elif  Email.resignation.status == 'Manager Rejected Request' %}
+          <div class="me-auto">
+            <h5 class="text-danger">Manager Rejected Request </h5>
+          </div>
+         {% elif  Email.resignation.status == 'HR Approved Request' %}
+          <div class="me-auto">
+            <h5 class="text-success">HR Approved Request </h5>
+          </div>
+         {% elif  Email.resignation.status == 'HR Rejected Request' %}
+          <div class="me-auto">
+            <h5 class="text-danger">HR Rejected Request</h5>
+          </div>
+         {% elif  Email.resignation.status == 'Finish Process' %}
+          <div class="me-auto">
+            <h5 class="text-success">Finish Process</h5>
+          </div>
+        {% else %}
+        <a class="btn btn-danger me-2" href="{% url 'withdraw_Resign' Email.resignation.id %}">
+              <i class="bi bi-x-circle"></i> Withdraw
+            </a>
+        {% endif %}
+        {% endif %}
+
+        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#checklistModal">
+          <i class="bi bi-list-check"></i> View Checklist
+        </button>
+      </div>
+
+      </div>
+    </div>
+
+    <!-- Document Upload Section -->
+      <form id="uploadform" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="employee_id" id="employee_ids" value="{{ Email.resignation.employee.id }}">
+
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="section-title">Document</h5>
+
+            <div class="mb-3 row">
+              <label class="col-sm-2 col-form-label">Document:</label>
+              <div class="col-sm-8">
+                <input type="file" name="document" class="form-control" accept=".pdf,.jpeg,.jpg,.png" required>
+                <small id="upload-error" class="text-danger d-block mt-1"></small>
+                <small class="text-muted">(PDF, JPEG, PNG only. Max 2MB)</small>
+              </div>
+              <div class="col-sm-2">
+                <button type="submit" class="btn btn-primary">Upload</button>
+              </div>
+            </div>
+
+            <hr>
+            <table class="table table-bordered mt-3">
+              <thead class="table-light">
+                <tr>
+                  <th>Document</th>
+                  <th>Upload Date</th>
+                  <th>Uploaded By</th>
+                </tr>
+              </thead>
+              <tbody id="document-table-body">
+                {% for doc in documents %}
+                  <tr>
+                    <td><a href="{{ doc.document.url }}" target="_blank">{{ doc.document.name }}</a></td>
+                    <td>{{ doc.upload_date|date:"Y-m-d H:i" }}</td>
+                    <td>{{ doc.uploaded_by.username }}</td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="3" class="text-center text-muted">No documents uploaded yet.</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </form>
+
+
+  </div>
+
+  <!-- Checklist Modal -->
+
+<!-- Checklist Modal -->
+<!-- Modal HTML -->
+<div id="message-container" class="mt-3"></div>
+
+<div class="modal fade" id="checklistModal" tabindex="-1" aria-labelledby="checklistModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable modal-fullscreen-sm-down">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Employee Checklist</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="checklistForm" method="POST" action="#">
+        <input type="hidden" name="employee_id" id="employee_id" value="{{ Email.resignation.employee.id }}">
+
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="container-fluid">
+            <div class="row g-4">
+
+              <!-- Knowledge Transfer -->
+              <div class="col-12 col-md-6">
+                <div class="card h-100 shadow-sm border-primary">
+                  <div class="card-body">
+                    <h5>🧠 Knowledge Transfer</h5>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="kt1" name="kt1" {% if checklist.kt_tools_workflows  %}checked{% endif %}>
+                      <label class="form-check-label" for="kt1">Tools & workflows</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="kt2" name="kt2" {% if kt_project_status %}checked{% endif %}>
+                      <label class="form-check-label" for="kt2">Project status</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="kt3" name="kt3" {% if checklist.kt_outstanding_tasks  %}checked{% endif %}>
+                      <label class="form-check-label" for="kt3">Outstanding tasks</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="kt4" name="kt4" {% if checklist.kt_contacts_relationships  %}checked{% endif %}>
+                      <label class="form-check-label" for="kt4">Contacts & relationships</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- IT Access -->
+              <div class="col-12 col-md-6">
+                <div class="card h-100 shadow-sm border-danger">
+                  <div class="card-body">
+                    <h5>🔒 IT Permissions</h5>
+                    <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="it1" name="it1" {% if checklist.it_change_passwords %}checked{% endif %}>
+                    <label class="form-check-label" for="it1"> Change passwords</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="it2" name="it2" {% if checklist.it_revoke_access %}checked{% endif %}>
+                    <label class="form-check-label" for="it2"> Revoke access</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="it3" name="it3" {% if checklist.it_remove_from_payroll %}checked{% endif %}>
+                    <label class="form-check-label" for="it3"> Remove from payroll</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="it4" name="it4" {% if checklist.it_update_org_tree %}checked{% endif %}>
+                    <label class="form-check-label" for="it4"> Update Org Tree</label>
+                  </div>
+
+                  </div>
+                </div>
+              </div>
+
+              <!-- Paperwork -->
+              <div class="col-12 col-md-6">
+                <div class="card h-100 shadow-sm border-warning">
+                  <div class="card-body">
+                    <h5>📄 Paperwork</h5>
+                          <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="pw1" name="pw1" {% if checklist.pw_resignation_letter %}checked{% endif %}>
+                        <label class="form-check-label" for="pw1"> Resignation letter</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="pw2" name="pw2" {% if checklist.pw_last_paycheck %}checked{% endif %}>
+                        <label class="form-check-label" for="pw2"> Last paycheck arrangement</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="pw3" name="pw3" {% if checklist.pw_nda_signed %}checked{% endif %}>
+                        <label class="form-check-label" for="pw3"> NDA signed</label>
+                      </div>
+
+                  </div>
+                </div>
+              </div>
+
+              <!-- Recover Assets -->
+              <div class="col-12 col-md-6">
+                <div class="card h-100 shadow-sm border-success">
+                  <div class="card-body">
+                    <h5>💻 Recover Assets</h5>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="ra1" name="ra1" {% if checklist.ra_laptop_charger %}checked{% endif %}>
+                <label class="form-check-label" for="ra1"> Laptop & Charger</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="ra2" name="ra2" {% if checklist.ra_mouse %}checked{% endif %}>
+                <label class="form-check-label" for="ra2"> Mouse</label>
+              </div>
+
+
+                  </div>
+                </div>
+              </div>
+
+              <!-- Exit Interview -->
+              <div class="col-12 col-md-6">
+                <div class="card h-100 shadow-sm border-info">
+                  <div class="card-body">
+                    <h5>🗣️ Exit Interview</h5>
+                 <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="ei1" name="ei1" {% if checklist.ei_conduct_interview %}checked{% endif %}>
+                <label class="form-check-label" for="ei1"> Conduct interview</label>
+              </div>
+
+
+                  </div>
+                </div>
+              </div>
+
+              <!-- Announcement -->
+              <div class="col-12 col-md-6">
+                <div class="card h-100 shadow-sm border-dark">
+                  <div class="card-body">
+                    <h5>📢 Announce Departure</h5>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="ad1" name="ad1" {% if checklist.ad_send_announcement %}checked{% endif %}>
+                      <label class="form-check-label" for="ad1"> Send announcement</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="ad2" name="ad2" {% if checklist.ad_host_farewell %}checked{% endif %}>
+                      <label class="form-check-label" for="ad2"> Host farewell party</label>
+                    </div>
+
+
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Save Button -->
+            <div class="text-end mt-4">
+              <button type="submit" id="submit" class="btn btn-primary">
+                <i class="bi bi-save me-1"></i>Save Checklist
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+  <!--Modal for Last working date change-->
+  <div class="modal fade" id="changeLastDateModal" tabindex="-1" aria-labelledby="changeLastDateModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="changeLastDateForm" method="POST">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="changeLastDateModalLabel">Change Last Working Date</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <label for="last_working_date" class="form-label">Last Working Date</label>
+          <input type="date" class="form-control" id="last_working_date" name="last_working_date">
+          <input type="hidden" name="employee_id" value="{{ Email.resignation.employee.id }}">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Date</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+</div>
+
+<!-- Bootstrap Icons CDN -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!--Submit Checklist form-->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('checklistForm');
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+
+      fetch("{% url 'checklist_store' %}", {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',  // Required for POST
+        },
+        body: formData,
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const modalEl = document.getElementById('checklistModal');
+         const modal = new bootstrap.Modal(modalEl);
+        modal.hide();
+
+
+
+          // Optional: reload data or show toast
+          alert('Checklist saved successfully!');
+        } else {
+          alert(data.error || 'Something went wrong.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Server error occurred.');
+      });
+    });
+  });
+</script>
+
+
+
+<script>
+document.getElementById('changeLastDateForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  const form = e.target;
+  const formData = new FormData(form);
+
+  fetch("{% url 'update_last_working_date' %}", {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+    },
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    // Clear previous errors
+    document.querySelectorAll('.text-danger').forEach(el => el.remove());
+
+    if (data.success) {
+      alert(data.message);
+      location.reload();  // Or update the date dynamically on the page
+    } else if (data.errors) {
+      for (let [field, message] of Object.entries(data.errors)) {
+        const input = document.querySelector(`[name="${field}"]`);
+        if (input) {
+          const errorEl = document.createElement('small');
+          errorEl.className = 'text-danger';
+          errorEl.textContent = message;
+          input.parentNode.appendChild(errorEl);
+        }
+      }
+    } else if (data.message) {
+      alert(data.message);
+    }
+  })
+  .catch(err => {
+    console.error('Error:', err);
+    alert('An error occurred while submitting the form.');
+  });
+});
+</script>
+
+<script>
+  function updateApprovalStatus(approve) {
+    const actionText = approve ? 'approve' : 'reject';
+
+    if (!confirm(`Are you sure you want to ${actionText} this resignation?`)) {
+      return;
+    }
+
+    fetch("{% url 'update_manager_approval' resignation_id=Email.resignation.id %}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({ manager_approved: approve })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const message = approve ? 'Resignation Approved Successfully!' : 'Resignation Rejected.';
+        alert(message);
+        location.reload(); // Optional: refresh page to reflect changes
+      } else {
+        alert(data.error || 'Update failed');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Something went wrong.');
+    });
+  }
+</script>
+
+
+<script>
+  function updateApprovalStatusHR(approve) {
+    const actionText = approve ? 'approve' : 'reject';
+
+    if (!confirm(`Are you sure you want to ${actionText} this resignation as HR?`)) {
+      return;
+    }
+
+    fetch("{% url 'update_HR_approval' resignation_id=Email.resignation.id %}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({ hr_approved: approve })  // Ensure your view reads 'hr_approved'
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const message = approve ? 'Resignation Approved by HR!' : 'Resignation Rejected by HR.';
+        alert(message);
+        location.reload(); // Refresh to show status
+      } else {
+        alert(data.error || 'Update failed');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Something went wrong while processing HR approval.');
+    });
+  }
+</script>
+<script>
+document.getElementById('uploadform').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const formData = new FormData(form);
+    const errorDiv = document.getElementById('upload-error');
+    errorDiv.innerText = ''; // Clear old errors
+
+    fetch("{% url 'upload_exit_doc' %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: formData,
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("File uploaded successfully.");
+            window.location.reload();
+        } else if (data.errors) {
+            errorDiv.innerText = data.errors.document || 'Upload failed.';
+        } else {
+            errorDiv.innerText = 'Unexpected error occurred.';
+        }
+    })
+    .catch(() => {
+        errorDiv.innerText = "Server error occurred.";
+    });
+});
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'Side_Navbar.html' %}
+
+<div class="content-wrapper">
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6"></div>
+        <div class="col-sm-6 position-fixed">
+
+        </div>
+      </div>
+    </div>
+  </section>
+     <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'Project:task_list' %}"  class="text-primary">Timesheet</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Image timesheet</li>
+            </ol>
+          </nav>
+
+  <section class="content">
+    <div class="container-fluid px-4">
+      <div class="card shadow mt-3 w-100">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">Image Timesheet</h4>
+        </div>
+        <div class="card-body">
+          <form id="taskForm" method="POST" >
+            {% csrf_token %}
+
+            <div class="alert alert-success alert-dismissible fade show d-none" id="form-success">
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+         <div class="row mb-3">
+
+              <div class="col-md-6">
+                <label class="form-label">Start Date <span class="text-danger">*</span></label>
+                <input type="date" name="start_date" class="form-select form-control"  id="start_date" readonly>
+
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">End date <span class="text-danger" >*</span></label>
+                <input type="date" name="end_date" class="form-select form-control"  id="end_date" readonly>
+              </div>
+            </div>
+
+            <div class="mb-3">
+                    <label class="form-label">Upload File <span class="text-danger small">(file size: Max 2MB)</span></label>
+                    <input type="file" name="upload_file" class="form-control">
+                    <span class="text-danger small">Allowed formats: PDF, DOC, DOCX, JPG, JPEG, PNG.</span>
+                     <div class="text-danger" id="error-upload_file"></div>
+            </div>
+
+            <div class="text-end">
+              <button type="submit" class="btn btn-primary">Send</button>
+                    {% if request.GET.last_week == "1" %}
+              <button type="button" class="btn btn-primary btn-top" onclick="location.href='.'">
+                This Week Timesheet
+              </button>
+            {% else %}
+              <button type="button" class="btn btn-primary btn-top" onclick="location.href='?last_week=1'">
+                Last Week Timesheet
+              </button>
+            {% endif %}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!--Script  for add monday date in start date and sunday date in end date of current week-->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const startDateInput = document.getElementById("start_date");
+    const endDateInput = document.getElementById("end_date");
+
+    if (!startDateInput || !endDateInput) return;
+
+    const today = new Date();
+    const params = new URLSearchParams(window.location.search);
+    const isLastWeek = params.get("last_week") === "1";
+
+    let baseDate = new Date(today);
+    if (isLastWeek) {
+      baseDate.setDate(baseDate.getDate() - 7);  // Shift to one week back
+    }
+
+    const day = baseDate.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
+
+    // Calculate Monday of the selected week
+    const monday = new Date(baseDate);
+    monday.setDate(baseDate.getDate() - ((day + 6) % 7));
+
+    // Calculate Sunday of that week
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+
+    // Format date to yyyy-mm-dd
+    const formatDate = (date) => date.toISOString().split('T')[0];
+
+    startDateInput.value = formatDate(monday);
+    endDateInput.value = formatDate(sunday);
+  });
+</script>
+
+
+<!--For form submition-->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('taskForm');
+    const successAlert = document.getElementById('form-success');
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        // Clear previous error messages
+        document.querySelectorAll('[id^="error-"]').forEach(function (el) {
+            el.innerText = '';
+        });
+
+        // Hide success message
+        successAlert.classList.add('d-none');
+        successAlert.innerText = '';
+
+        const formData = new FormData(form);
+
+       fetch("{% url 'Timesheet:timesheet_image' %}", {
+    method: 'POST',
+    headers: {
+        'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+        'X-Requested-With': 'XMLHttpRequest',  // 🛠 add this line
+    },
+    body: formData
+        })
+
+        .then(async (response) => {
+            const contentType = response.headers.get('content-type') || '';
+            let data = {};
+
+            if (contentType.includes('application/json')) {
+                data = await response.json();
+            } else {
+                throw new Error('Server did not return JSON');
+            }
+
+            return { status: response.status, body: data };
+        })
+        .then(({ status, body }) => {
+            if (status === 200 && body.success) {
+                // Show success message
+                successAlert.classList.remove('d-none');
+                successAlert.innerText = body.message;
+
+                setTimeout(() => {
+                    successAlert.classList.add('d-none');
+                    successAlert.innerText = '';
+                }, 2000);
+
+                // Reset form fields
+                form.reset();
+
+                // If backend sends back start and end date
+                if (body.data) {
+                    if (body.data.start_date) {
+                        document.getElementById('start_date').value = body.data.start_date;
+                    }
+                    if (body.data.end_date) {
+                        document.getElementById('end_date').value = body.data.end_date;
+                    }
+                }
+            } else if (status === 400 && body.errors) {
+                // Show validation errors
+                for (const field in body.errors) {
+                    const errorDiv = document.getElementById(`error-${field}`);
+                    if (errorDiv) {
+                        errorDiv.innerText = body.errors[field];
+                    }
+                }
+            } else {
+                alert(body.message || "An unexpected error occurred. Please try again.");
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            alert("Something went wrong while submitting: " + error.message);
+        });
+    });
+});
+</script>
+
+{% endblock %}

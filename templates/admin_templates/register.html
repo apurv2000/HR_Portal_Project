@@ -1,0 +1,431 @@
+{% extends 'base.html' %}  <!-- Extends the base template -->
+{% load static %}  <!-- Loads static files for images, CSS, etc. -->
+{% block title %} {{ employee.id|default:"Register" }} Employee {% endblock %}  <!-- Sets the page title -->
+{% block content %}
+ <!-- Sidebar -->
+  {% include 'Side_Navbar.html' %}
+
+  <!-- Content Wrapper -->
+  <div class="content-wrapper">
+
+    <!-- Page Header -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+           <h1 class="h4 text-primary"> {% if employee %} Update Employee {% else %} Register a new Employee {% endif %}</h1>
+          </div>
+          <div class="col-sm-6 text-right">
+          </div>
+        </div>
+      </div>
+    </section>
+
+<div class="container-fluid ">
+
+    <div class="card p-4">
+      <div class="card-body register-card-body">
+     <div class="row">
+    <!-- Left: Employee Form Section -->
+    <div class="col-md-6 d-flex justify-content-start">
+        <p class="login-box-msg text-center">
+            {% if employee %} Update Employee {% else %} Register a new Employee {% endif %}
+        </p>
+    </div>
+
+            <!-- Right: CSV Upload Section -->
+            <div class="col-md-6 d-flex justify-content-end">
+               <div class="card p-2">
+          <form method="post" enctype="multipart/form-data" action="{% url 'upload_employees' %}">
+            {% csrf_token %}
+            <div class="form-group d-flex align-items-center mb-0" style="gap: 6px;">
+              <input type="file" name="csv_file" accept=".csv" required class="form-control-file form-control-sm">
+              <button type="submit" class="btn btn-success btn-sm">Upload</button>
+            </div>
+          </form>
+
+             <!-- Display messages -->
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} mt-1 py-1 px-1 small alert-dismissible fade show" role="alert">
+                {{ message }}
+              </div>
+            {% endfor %}
+        </div>
+
+        </div>
+
+       <!-- Form -->
+        <form action="{% if employee %}{% url 'update_employee' employee.id %}{% else %}{% url 'register_user' %}{% endif %}"
+          method="post" enctype="multipart/form-data" id="registerForm">
+          {% csrf_token %}
+          <div class="row g-3">
+
+            <div class="col-md-4">
+              <label for="fullName">Full Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="fullName" name="Full_Name"
+                     value="{{ employee.name|default:'' }}" placeholder="Enter full name" >
+            </div>
+
+            <div class="col-md-4">
+              <label for="email">Email <span class="text-danger">*</span></label>
+              <input type="email" class="form-control" id="email" name="Email"
+                     value="{{ employee.email|default:'' }}" placeholder="Enter email" >
+            </div>
+
+            <div class="col-md-4">
+              <label for="password">Password <span class="text-danger">*</span></label>
+              <input type="password" class="form-control" id="password" name="PWD"
+                     placeholder="Enter password" >
+            </div>
+
+            <div class="col-md-4">
+              <label for="repassword">Retype Password <span class="text-danger">*</span></label>
+              <input type="password" class="form-control" id="repassword" name="RPWD"
+                     placeholder="Retype password" >
+            </div>
+
+<!--         <div class="col-md-4">-->
+<!--              <label>Gender  <span class="text-danger">*</span></label>-->
+<!--              <div class="d-flex">-->
+<!--                  <input type="radio" name="gender" value="male" class="me-1"-->
+<!--                         {% if employee.gender == "male" %}checked{% endif %}> Male-->
+<!--                  <input type="radio" name="gender" value="female" class="ms-3 me-1"-->
+<!--                         {% if employee.gender == "female" %}checked{% endif %}> Female-->
+<!--              </div>-->
+<!--           <small id="gender-error" class="text-danger"></small> &lt;!&ndash; This div will display gender errors &ndash;&gt;-->
+<!--          </div>-->
+
+
+
+              <div class="col-md-4">
+              <label for="currentAddress">Address with Pincode  <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="currentAddress" name="Cur_Address"
+                     value="{{ employee.current_address|default:'' }}" placeholder="Enter current address" >
+            </div>
+
+            <div class="col-md-4">
+              <label for="nationality">Nationality</label>
+              <input type="text" class="form-control" id="nationality" name="Nationality"
+                     value="{{ employee.nationality|default:'' }}" placeholder="Nationality" readonly>
+            </div>
+
+            <div class="col-md-4">
+              <label for="role">Role <span class="text-danger">*</span></label>
+              <select class="form-control" id="role" name="role" >
+                <option value="">Select Role</option>
+                <option value="Administrator" {% if employee.role == "Administrator" %}selected{% endif %}>Administrator</option>
+                <option value="Manager" {% if employee.role == "Manager" %}selected{% endif %}>Manager</option>
+                <option value="Employee" {% if employee.role == "Employee" %}selected{% endif %}>Employee</option>
+              </select>
+            </div>
+
+
+        <!-- Department Dropdown -->
+              <div class="col-md-4">
+                  <label for="department">Department <span class="text-danger">*</span></label>
+                  <select class="form-control" id="department" name="Department">
+                      <option value="">Select Department</option>
+                      {% for dept in departments %}
+                          <option value="{{ dept.name }}" {% if employee.department and employee.department.id == dept.id %}selected{% endif %}>
+                              {{ dept.name }}
+                          </option>
+                      {% endfor %}
+                      <!-- Option for Adding New Department -->
+                      <option value="add_new" id="addNewDepartmentOption">Add New Department</option>
+                  </select>
+                  <!-- Input field for new department -->
+                  <div id="newDepartmentInput" style="display: none;">
+                      <label for="newDepartment">New Department</label>
+                      <input type="text" class="form-control" id="newDepartment" name="newDepartment" placeholder="Enter new department">
+                  </div>
+              </div>
+
+              <!-- Designation Dropdown -->
+              <div class="col-md-4">
+                  <label for="designation">Designation <span class="text-danger">*</span></label>
+                  <select class="form-control" id="designation" name="Designation">
+                      {% if not employee %}
+                          <option value="">Select Designation</option>
+                      {% endif %}
+                      {% for desig in designations %}
+                          <option value="{{ desig.title }}" data-dept="{{ desig.department.name }}"
+                              {% if employee.designation and employee.designation.id == desig.id %}selected{% endif %}>
+                              {{ desig.title }}
+                          </option>
+                      {% endfor %}
+                      <!-- Option for Adding New Designation -->
+                      <option value="add_new" id="addNewDesignationOption">Add New Designation</option>
+                  </select>
+                  <!-- Input field for new designation -->
+                  <div id="newDesignationInput" style="display: none;">
+                      <label for="newDesignation">New Designation</label>
+                      <input type="text" class="form-control" id="newDesignation" name="newDesignation" placeholder="Enter new designation">
+                  </div>
+              </div>
+
+
+<!--            <div class="col-md-4">-->
+<!--              <label for="permanentAddress">Permanent Address <span class="text-danger">*</span></label>-->
+<!--              <input type="text" class="form-control" id="permanentAddress" name="Per_Address"-->
+<!--                     value="{{ employee.permanent_address|default:'' }}" placeholder="Enter permanent address" >-->
+<!--            </div>-->
+
+
+            <div class="col-md-4">
+              <label for="doj">Date of Joining <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" id="doj" name="DOJ"
+                     value="{{ employee.date_of_join}}">
+            </div>
+
+            <div class="col-md-4">
+              <label for="workLocation">Work Location <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="workLocation" name="workloc"
+                     value="{{ employee.work_location|default:'' }}" placeholder="Enter work location">
+            </div>
+              <div class="col-md-4">
+              <label for="reportedTo">Reported To </label>
+              <select class="form-control" id="reportedTo" name="Reported_To">
+                <option value="">Select Reporting Manager</option>
+                {% for emp in employees %}
+                  {% if emp.role == 'Manager' %}
+                    <option value="{{ emp.id }}" {% if emp.id == employee.reported_to.id %}selected{% endif %}>
+                      {{ emp.name }} ({{ emp.role }})
+                    </option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+
+
+
+          </div>
+
+          <!--For Validation-->
+          {% if employee %}
+          <input type="hidden" name="update_id" value="{{ employee.id }}">
+          {% endif %}
+          <!--Action Button-->
+          <div class="row mt-4 justify-content-center">
+            <div class="col-md-6 col-12 d-flex flex-wrap justify-content-center gap-3">
+                <button type="submit" class="btn btn-primary flex-grow-1">
+                    {% if employee %} Update {% else %} Register {% endif %}
+                </button>
+                <a href="{% url 'Emplist' %}" class="btn btn-secondary flex-grow-1">
+                    Back
+                </a>
+            </div>
+        </div>
+
+        </form>
+      <!--Form End-->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Script for Show designation according Department-->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const departmentSelect = document.getElementById("department");
+  const designationSelect = document.getElementById("designation");
+
+  // Store all original options
+  const allDesignationOptions = Array.from(designationSelect.options);
+
+  // Store pre-selected designation from Django
+  const selectedDesignationId = "{{ employee.designation.id|default:'' }}";
+
+  function filterDesignationsByDepartment(deptId) {
+    // Reset the options to the "Select Designation" option
+    designationSelect.innerHTML = '<option value="">Select Designation</option>';
+
+    // Add designations that belong to the selected department
+    allDesignationOptions.forEach(option => {
+      if (!option.dataset.dept || option.dataset.dept === deptId) {
+        const cloned = option.cloneNode(true);
+        if (cloned.value === selectedDesignationId) {
+          cloned.selected = true;
+        }
+        designationSelect.appendChild(cloned);
+      }
+    });
+  }
+
+  // Trigger filter on change
+  departmentSelect.addEventListener("change", function () {
+    filterDesignationsByDepartment(this.value);
+  });
+
+  // Initial call (on page load)
+  if (departmentSelect.value) {
+    filterDesignationsByDepartment(departmentSelect.value);
+  }
+});
+
+</script>
+<!-- Script for Dynamically Add new Department and designation -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const departmentSelect = document.getElementById("department");
+    const designationSelect = document.getElementById("designation");
+
+    const newDepartmentInput = document.getElementById("newDepartmentInput");
+    const newDesignationInput = document.getElementById("newDesignationInput");
+    const newDepartment = document.getElementById("newDepartment");
+    const newDesignation = document.getElementById("newDesignation");
+
+    // Initially hide the input fields
+    newDepartmentInput.style.display = "none";
+    newDesignationInput.style.display = "none";
+
+    // Event listener for Department Dropdown
+    departmentSelect.addEventListener("change", function () {
+      if (this.value === "add_new") {
+        newDepartmentInput.style.display = "block"; // Show input field for new department
+      } else {
+        newDepartmentInput.style.display = "none"; // Hide input field for new department
+      }
+    });
+
+    // Event listener for Designation Dropdown
+    designationSelect.addEventListener("change", function () {
+      if (this.value === "add_new") {
+        newDesignationInput.style.display = "block"; // Show input field for new designation
+      } else {
+        newDesignationInput.style.display = "none"; // Hide input field for new designation
+      }
+    });
+
+    // Event listener to handle department input submission
+    newDepartment.addEventListener("blur", function() {
+      const departmentName = newDepartment.value.trim();
+      if (departmentName) {
+        submitNewDepartment(departmentName);
+      }
+    });
+
+    // Event listener to handle designation input submission
+    newDesignation.addEventListener("blur", function() {
+      const designationTitle = newDesignation.value.trim();
+      if (designationTitle) {
+        submitNewDesignation(designationTitle);
+      }
+    });
+
+    // Function to handle new department submission
+    function submitNewDepartment(departmentName) {
+      fetch('/add-department/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({ name: departmentName })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          alert('Department added successfully');
+          // Optionally, you can add the new department to the dropdown list dynamically
+          const newOption = document.createElement('option');
+          newOption.value = data.department_id;  // Assuming response contains the ID of the new department
+          newOption.text = departmentName;
+          departmentSelect.appendChild(newOption);
+          departmentSelect.value = data.department_id; // Optionally set the newly added department as selected
+
+            // Hide the input field for new department after success
+          newDepartmentInput.style.display = "none";
+          newDepartment.value = ""; // Clear the input field
+        } else {
+          alert('Error adding department: ' + data.message);
+        }
+      });
+    }
+
+    // Function to handle new designation submission
+    function submitNewDesignation(designationTitle) {
+      fetch('/add-designation/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({ title: designationTitle, department_id: departmentSelect.value })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          alert('Designation added successfully');
+          // Optionally, you can add the new designation to the dropdown list dynamically
+          const newOption = document.createElement('option');
+          newOption.value = data.designation_id;  // Assuming response contains the ID of the new designation
+          newOption.text = designationTitle;
+          designationSelect.appendChild(newOption);
+          designationSelect.value = data.designation_id; // Optionally set the newly added designation as selected
+           // Hide the input field for new designation after success
+          newDesignationInput.style.display = "none";
+          newDesignation.value = ""; // Clear the input field
+        } else {
+          alert('Error adding designation: ' + data.message);
+        }
+      });
+    }
+  });
+</script>
+
+<!--Script for dynamically populate Nationality Field-->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const addressInput = document.getElementById("currentAddress");
+    const nationalityInput = document.getElementById("nationality");
+
+    addressInput.addEventListener("blur", async function () {
+      const address = this.value;
+      const pincodeMatch = address.match(/\b\d{4,6}\b/); // Matches 4 or 6-digit postal codes
+
+      if (!pincodeMatch) return;
+
+      const postalCode = pincodeMatch[0];
+      const countryCodes = ["us", "in", "gb", "ca", "au"]; // Add more if needed
+
+      for (const code of countryCodes) {
+        try {
+          const response = await fetch(`https://api.zippopotam.us/${code}/${postalCode}`);
+          if (response.ok) {
+            const data = await response.json();
+            const country = data.country;
+
+            // Convert country name to nationality
+            const nationalityMap = {
+              "India": "Indian",
+              "United States": "American",
+              "United Kingdom": "British",
+              "Canada": "Canadian",
+              "Australia": "Australian"
+            };
+
+            nationalityInput.value = nationalityMap[country] || country;
+            break; // Stop after the first successful match
+          }
+        } catch (error) {
+          console.error("Error checking postal code:", error);
+        }
+      }
+    });
+  });
+</script>
+<!--Show Messages for Upload CSV File-->
+<script>
+  // Automatically fade out and remove alerts after 2 seconds
+  setTimeout(function () {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(function (alert) {
+      alert.classList.add('fade');
+      alert.style.opacity = '0';
+      setTimeout(() => alert.remove(), 500); // Remove from DOM after fade
+    });
+  }, 5000); // Delay before starting fade
+</script>
+
+  </div>
+{% endblock %}

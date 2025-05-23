@@ -1,0 +1,11 @@
+2025-05-23 14:31:21,487 | Action: CREATE_EMPLOYEE | By: apurvmalviya@gmail.com | Details: Employee 'Devrag' created with ID 64.
+2025-05-23 14:40:09,094 | Action: Employee Login | By: yash@gmail.com | Details: Employee 'Yash Anant Malviya' logged in with at time 2025-05-23 14:40:09.
+2025-05-23 14:42:00,684 | Action: Employee Login | By: Anonymous | Details: Employee 'None' logged in with at time 2025-05-23 14:42:00.
+2025-05-23 14:42:08,739 | Action: Employee Login | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged in with at time 2025-05-23 14:42:08.
+2025-05-23 14:44:35,453 | Action: Employee Logout | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged out with at time 2025-05-23 14:44:35.
+2025-05-23 14:45:49,572 | Action: Employee Login | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged in with at time 2025-05-23 14:45:49.
+2025-05-23 14:46:12,232 | Action: UPDATE_EMPLOYEE | By: apurvmalviya@gmail.com | Details: Employee 'Devrag' created with ID 64.
+2025-05-23 14:54:26,023 | Action: LEAVE STATUS CHANGE | By: apurvmalviya@gmail.com | Details: LEAVE 'Medical Leave' changed status is inactive.
+2025-05-23 14:59:12,014 | Action: LEAVE STATUS | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' leave is Approved.
+2025-05-23 15:01:49,713 | Action: LEAVE_APPLY | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' apply for leave of 1.
+2025-05-23 15:04:15,385 | Action: LEAVE_APPLY | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' apply for leave of 1 day

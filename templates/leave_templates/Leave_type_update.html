@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Update Leave Type{% endblock %}
+
+{% block content %}
+
+{% include 'Side_Navbar.html' %}
+
+<!-- Page Header -->
+<div class="content-wrapper">
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="#" class="text-primary">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Update Leave Type</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-sm-6 text-right">
+                    <a href="{% url 'LeaveDetail' %}" class="btn btn-primary">Back</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Update Leave Type</h5>
+        </div>
+        <div class="card-body">
+            <form id="leaveTypeForm" method="POST" action="{% url 'update_leave_type' leave_type.id %}">
+
+                {% csrf_token %}
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Leave Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="leave_name" value="{{ leave_type.name }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Code <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="code" value="{{ leave_type.code }}">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Leave Type <span class="text-danger">*</span></label>
+                        <select class="form-select" name="leave_type">
+                            <option value="Paid" {% if leave_type.leave_type == 'Paid' %}selected{% endif %}>Paid</option>
+                            <option value="Unpaid" {% if leave_type.leave_type == 'Unpaid' %}selected{% endif %}>Unpaid</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                        <div class="form-check me-4">
+                            <input class="form-check-input" type="radio" name="employee_type" value="all" id="allEmp" {% if  leave_type.gender != 'male' and leave_type.gender != 'female' %}checked{% endif %}>
+                            <label class="form-check-label" for="allEmp">All Employee</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="employee_type" value="individual" id="indEmp" {% if  leave_type.gender == 'male' or leave_type.gender == 'female' %}checked{% endif %}>
+                            <label class="form-check-label" for="indEmp">Individual Employee</label>
+                        </div>
+                    </div>
+                </div>
+
+                <ul class="nav nav-tabs mt-4" id="leaveTabs" role="tablist">
+                    <li class="nav-item" id="applicableTab">
+                        <a class="nav-link active" id="applicable-tab" data-bs-toggle="tab" href="#applicable" role="tab">Applicable</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="entitlement-tab" data-bs-toggle="tab" href="#entitlement" role="tab">Entitlement</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="restrictions-tab" data-bs-toggle="tab" href="#restrictions" role="tab">Restrictions</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content border border-top-0 p-4" id="leaveTabContent">
+                    <!-- Applicable Tab -->
+                    <div class="tab-pane fade show active" id="applicable" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label d-block">Gender:</label>
+                            <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="gender" id="genderMale" value="male"
+                                    {% if leave_type.gender == 'male' %}checked{% endif %}>
+                                    <label class="form-check-label" for="genderMale">Male</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="gender" id="genderFemale" value="female"
+                                    {% if leave_type.gender == 'female' %}checked{% endif %}>
+                                    <label class="form-check-label" for="genderFemale">Female</label>
+                                </div>
+
+                                {% if errors.gender %}
+                                    <div class="text-danger mt-1">{{ errors.gender }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label d-block">Marital Status:</label>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="marital_status" id="statusSingle" value="single" {% if leave_type.marital_status == 'single' %}checked{% endif %}>
+                                    <label class="form-check-label" for="statusSingle">Single</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="marital_status" id="statusMarried" value="married" {% if leave_type.marital_status == 'married' %}checked{% endif %}>
+                                    <label class="form-check-label" for="statusMarried">Married</label>
+                                </div>
+                                {% if errors.marital_status %}
+                                    <div class="text-danger mt-1">{{ errors.marital_status }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="department" class="form-label">Department:</label>
+                                <select id="department" name="department" class="form-select">
+                                    <option value="">Select Department</option>
+                                    {% for department in departments %}
+                                        <option value="{{ department.id }}" {% if leave_type.department.id == department.id %}selected{% endif %}>{{ department.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                               <label for="employee" class="form-label">Employee:</label>
+                                 <select id="employee" name="employee" class="form-select">
+                                    <option value="">Select Employee</option>
+                                    {% for employee in employees %}
+                                      {% if employee.status == 'active' %}
+                                        <option value="{{ employee.id }}" data-department="{{ employee.department.id }}"  {% if emp_lt.employee.id == employee.id %}selected{% endif %}>
+                                            {{ employee.name }}
+                                        </option>
+                                     {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Entitlement Tab -->
+                    <div class="tab-pane fade" id="entitlement" role="tabpanel">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Effective After</label>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <input type="number" class="form-control" name="effective_after" value="{{ leave_type.effective_after }}" min="0" placeholder="Enter duration">
+                                    </div>
+                                    <div class="col-6">
+                                        <select class="form-select" name="effective_after_unit">
+                                            <option value="Year" {% if leave_type.effective_after_value == 'Year' %}selected{% endif %}>Year(s)</option>
+                                            <option value="Month" {% if leave_type.effective_after_value == 'Month' %}selected{% endif %}>Month(s)</option>
+                                            <option value="Day" {% if leave_type.effective_after_value == 'Day' %}selected{% endif %}>Day(s)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">From</label>
+                                <select class="form-select" name="effective_from">
+                                    <option value="DOJ" {% if leave_type.effective_from == 'DOJ' %}selected{% endif %}>Date of Joining</option>
+                                    <option value="CONFIRMATION" {% if leave_type.effective_from == 'CONFIRMATION' %}selected{% endif %}>Date of Confirmation</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input" type="checkbox" name="accrual" id="accrualCheck" {% if leave_type.accrual %}checked{% endif %}>
+                            <label class="form-check-label" for="accrualCheck">Accrual</label>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Leave Time</label>
+                                <input type="number" class="form-control" name="leave_time" value="{{ leave_type.leave_time }}" min="0" placeholder="e.g., 12">
+                                {% if errors.leave_time %}
+                                    <div class="text-danger mt-1">{{ errors.leave_time }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Unit</label>
+                                <select class="form-select" name="leave_time_unit">
+                                    <option value="DAYS" {% if leave_type.leave_time_unit == 'DAYS' %}selected{% endif %}>Days</option>
+                                    <option value="HOURS" {% if leave_type.leave_time_unit == 'HOURS' %}selected{% endif %}>Hours</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Frequency</label>
+                                <select class="form-select" name="leave_time_frequency">
+                                    <option value="YEARLY" {% if leave_type.leave_time_frequency == 'YEARLY' %}selected{% endif %}>Yearly</option>
+                                    <option value="MONTHLY" {% if leave_type.leave_time_frequency == 'MONTHLY' %}selected{% endif %}>Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Restrictions Tab -->
+                    <div class="tab-pane fade" id="restrictions" role="tabpanel">
+                        <div class="mb-3">
+                            <strong>Weekends Between Leave Period:</strong><br>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="weekend_count" id="weekendCountYes" value="yes" {% if leave_type.count_weekends_as_leave  == 1 %}checked{% endif %}>
+                                <label class="form-check-label" for="weekendCountYes">Count as leave</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="weekend_count" id="weekendCountNo" value="no" {% if leave_type.count_weekends_as_leave   == 0 %}checked{% endif %}>
+                                <label class="form-check-label" for="weekendCountNo">Don't count as leave</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <strong>Holidays Between Leave Period:</strong><br>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="holiday_count" id="holidayCountYes" value="yes" {% if leave_type.count_holidays_as_leave == 1 %}checked{% endif %}>
+                                <label class="form-check-label" for="holidayCountYes">Count as leave</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="holiday_count" id="holidayCountNo" value="no" {% if leave_type.count_holidays_as_leave == 0 %}checked{% endif %}>
+                                <label class="form-check-label" for="holidayCountNo">Don't count as leave</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="leave_type_id" value="{{ leave_type.id }}">
+
+
+                <div class="text-end mt-4">
+                    <button type="submit" class="btn btn-primary">
+                       Update
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+<!--script for show employee based on department in leave type add module-->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const departmentSelect = document.getElementById('department');
+  const employeeSelect = document.getElementById('employee');
+  const selectedEmployee = employeeSelect.value;  // Save the current selection
+
+  departmentSelect.addEventListener('change', function () {
+    const selectedDept = this.value;
+
+    Array.from(employeeSelect.options).forEach(option => {
+      const empDept = option.getAttribute('data-department');
+      if (!selectedDept || empDept === selectedDept || option.value === '') {
+        option.style.display = 'block';
+      } else {
+        option.style.display = 'none';
+      }
+    });
+
+    // Reset only if the selected employee does not belong to the selected department
+    const selectedOption = employeeSelect.querySelector(`option[value="${selectedEmployee}"]`);
+    if (!selectedOption || selectedOption.getAttribute('data-department') !== selectedDept) {
+      employeeSelect.value = '';
+    } else {
+      employeeSelect.value = selectedEmployee;
+    }
+  });
+
+  // Trigger change on page load
+  departmentSelect.dispatchEvent(new Event('change'));
+});
+
+</script>
+
+{% endblock %}

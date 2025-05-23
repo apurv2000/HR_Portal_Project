@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Handbook{% endblock %}
+
+{% block content %}
+
+{% include 'Side_Navbar.html' %}
+  <div class="content-wrapper">
+
+    <!-- Page Header -->
+     <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+
+        </div>
+
+      </div>
+    </div>
+  </section>
+     <nav aria-label="breadcrumb">
+    <ol class="breadcrumb bg-light px-3 py-2">
+      <li class="breadcrumb-item"><a href="#" class="text-primary">Dashboard</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Handbook</li>
+    </ol>
+  </nav>
+<div class="container py-4">
+
+  {% if request.session.role == "Administrator" %}
+  <!-- Upload Section -->
+  <div class="card mb-4">
+    <div class="card-body">
+           {% if error_msg %}
+            <div id="error-message" class="alert alert-danger" role="alert">
+              {{ error_msg }}
+            </div>
+          {% endif %}
+      <h6 class="card-title">
+        Upload Latest Handbook PDF <span class="text-danger">(pdf file only)</span>
+      </h6>
+      <form method="POST" action="{% url 'uploadPDF' %}" enctype="multipart/form-data" class="row g-2 mt-2">
+        {% csrf_token %}
+        <div class="col-md-9 col-12">
+          <input type="file" name="pdf_file" accept="application/pdf" class="form-control" required>
+        </div>
+        <div class="col-md-3 col-12">
+          <button type="submit" class="btn btn-primary w-100">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- PDF List Section -->
+  <div class="card">
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>PDF</th>
+            <th>Status</th>
+            <th>Uploaded Date</th>
+            <th>Report</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pdf in pdf_list %}
+          <tr>
+            <td>
+
+              <a href="{{ pdf.file_url }}" target="_blank" class="text-decoration-none text-primary">{{ pdf.file_name }}</a>
+            </td>
+            <td>
+              {% if pdf.is_active %}
+                <span class="badge bg-success">Active</span>
+              {% else %}
+                <span class="badge bg-danger">Archive</span>
+              {% endif %}
+            </td>
+            <td>{{ pdf.uploaded_at|date:"M. j, Y, P" }}</td>
+            <td>
+              <a href="{% url 'handbookempreport' pdf.id %}" class="btn btn-primary btn-sm">Report</a>
+
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="text-center text-muted">No PDF uploaded yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+  </div>
+<!--Error Message remove after 2 sec-->
+<script>
+  window.addEventListener('DOMContentLoaded', function () {
+    const errorBox = document.getElementById('error-message');
+    if (errorBox) {
+      setTimeout(() => {
+        errorBox.style.display = 'none';
+      }, 2000); // 2 seconds
+    }
+  });
+</script>
+
+{% endblock %}

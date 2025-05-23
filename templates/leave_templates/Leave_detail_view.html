@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Leave Add{% endblock %}
+
+{% block content %}
+
+{% include 'Side_Navbar.html' %}
+
+<!-- Content Wrapper -->
+<div class="content-wrapper">
+
+  <!-- Page Header -->
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb ">
+              <li class="breadcrumb-item"><a href="#" class="text-primary">Dashboard</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Leave Details</li>
+            </ol>
+          </nav>
+        </div>
+        <div class="col-sm-6 text-right">
+          <a href="{% url 'LeaveTypeAdd' %}" class="btn btn-primary">Add Leave</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Container -->
+  <div class="container mt-5">
+    <div class="bg-white shadow rounded p-4"  style="overflow-x: auto; max-width: 100%;">
+      <h4 class="mb-4">Leave Record</h4>
+      <table class="table table-bordered">
+        <thead class="table-dark">
+          <tr>
+            <th>#</th>
+            <th>Leave</th>
+            <th>Code</th>
+            <th>Leave Type</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for leave_type, employee_leaves in leaves_by_type.items %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+           <td><a href="{% url 'update_leavetypepage' leave_type.id %}" class="text-decoration-none text-primary">{{ leave_type.name }}</a></td>
+            <td>{{ leave_type.code }}</td>
+            <td>{{ leave_type.leave_type }}</td>
+            <td>
+              <div class="dropdown">
+                {% if leave_type.status == "active" %}
+                <button class="btn btn-sm btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Active
+                </button>
+                {% elif leave_type.status == "inactive" %}
+                <button class="btn btn-sm btn-warning dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Inactive
+                </button>
+                {% elif leave_type.status == "hidden" %}
+                <button class="btn btn-sm btn-danger dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Hidden
+                </button>
+                {% endif %}
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item text-success" href="{% url 'change_leave_status' leave_type.id 'active' %}">Active</a></li>
+                  <li><a class="dropdown-item text-danger" href="{% url 'change_leave_status' leave_type.id 'inactive' %}">Inactive</a></li>
+                </ul>
+              </div>
+            </td>
+
+         <td class="text-center">
+        <button type="button" class="btn btn-primary toggle-btn" data-id="{{ leave.id }}" onclick="toggleCollapse('leaveDetails{{ forloop.counter }}')">
+            +
+        </button>
+    </td>
+          </tr>
+         <tr>
+                <td colspan="6" class="p-0 border-0">
+                        <div class="custom-collapse" id="leaveDetails{{ forloop.counter }}" style="display: none;">
+                            <div class="bg-light p-3"  style="overflow-x: auto; max-width: 100%;">
+                                <div class="table-responsive"> <!-- Add this div -->
+                                    <table id="example1" class="table table-bordered table-striped">
+                                        <thead class="table-secondary">
+                                            <tr>
+                                                <th>Employee</th>
+                                                <th>Leave Days</th>
+                                                <th>Reason</th>
+                                                <th>Comp Off</th>
+                                                <th>Weekend Leave</th>
+                                                <th>Holiday Leave</th>
+                                                <th>Half Day</th>
+                                                <th>Status</th>
+                                                <th>Uploaded On</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for leave in employee_leaves %}
+                                                <tr>
+                                                    <td>{{ leave.employee.name }}</td>
+                                                    <td>{{ leave.start_date|date:"M d, Y" }} - {{ leave.end_date|date:"M d, Y" }}</td>
+                                                    <td>{{ leave.reason }}</td>
+                                                    <td>{{ leave.comp_off|yesno:"Yes,No" }}</td>
+                                                    <td>{{ leave.leave_type.count_weekends_as_leave }}</td>
+                                                    <td>{{ leave.leave_type.count_holidays_as_leave }}</td>
+                                                    <td>{{ leave.is_half_day|yesno:"Yes,No" }}</td>
+                                                    <td>{{ leave.status }}</td>
+                                                    <td>{{ leave.created_at|date:"M d, Y, P" }}</td>
+                                                </tr>
+                                            {% empty %}
+                                                <tr>
+                                                    <td colspan="9" class="text-center">No employee leave data for this type.</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div> <!-- Close table-responsive -->
+                            </div>
+                        </div>
+                    </td>
+            </tr>
+
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

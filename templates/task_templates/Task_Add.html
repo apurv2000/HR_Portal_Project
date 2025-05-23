@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'Side_Navbar.html' %}
+
+<div class="content-wrapper">
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6"></div>
+        <div class="col-sm-6 position-fixed">
+
+        </div>
+      </div>
+    </div>
+  </section>
+     <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'Project:task_list' %}"  class="text-primary">Tasks</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Add Task</li>
+            </ol>
+          </nav>
+
+  <section class="content">
+    <div class="container-fluid px-4">
+      <div class="card shadow mt-3 w-100">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">Add Task</h4>
+        </div>
+        <div class="card-body">
+          <form id="taskForm" method="POST">
+            {% csrf_token %}
+
+            <div class="alert alert-success alert-dismissible fade show d-none" id="form-success">
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Task <span class="text-danger">*</span></label>
+                    <input type="text" name="task_title" class="form-control">
+                    <div class="text-danger" id="error-task_title"></div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Project <span class="text-danger">*</span></label>
+                    <select name="project" class="form-select form-control">
+                        <option value="" selected disabled>Select Project</option>
+                        {% for project in projects %}
+                        {% if project.status == 'active'%}
+                            <option value="{{ project.id }}">{{ project.project_name }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    <div class="text-danger" id="error-project"></div>
+                </div>
+
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Start Date <span class="text-danger">*</span></label>
+                <input type="date" name="start_date" class="form-control">
+                <div class="text-danger" id="error-start_date"></div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">End Date <span class="text-danger">*</span></label>
+                <input type="date" name="end_date" class="form-control">
+                <div class="text-danger" id="error-end_date"></div>
+                <div class="text-danger" id="error-dates"></div>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+                <!-- Status Field -->
+                <div class="col-md-4 col-sm-12 mb-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select form-control">
+                        <option value="Pending">Pending</option>
+                        <option value="Inprogress">In Progress</option>
+                        <option value="On Hold">On Hold</option>
+                    </select>
+                    <div class="text-danger" id="error-status"></div>
+                </div>
+
+                <!-- Priority Field -->
+                <div class="col-md-4 col-sm-12 mb-3">
+                    <label class="form-label">Priority</label>
+                    <select name="priority" class="form-select form-control">
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                    <div class="text-danger" id="error-priority"></div>
+                </div>
+
+                <!-- Assigned To Field -->
+                <div class="col-md-4 col-sm-12 mb-3">
+                    <label class="form-label">Assigned To <span class="text-danger">*</span></label>
+                    <select name="assigned_to" class="form-select form-control">
+                        <option value="" selected disabled>Select Employee</option>
+<!--                        {% for emp in employees %}-->
+<!--                         {% if emp.role != 'Administrator' and  emp.status == 'active' %}-->
+<!--                                <option value="{{ emp.id }}">{{ emp.name }}{% if emp.designation.title %} ({{ emp.designation.title }}){% endif %}</option>-->
+<!--                            {% endif %}-->
+<!--                        {% endfor %}-->
+                    </select>
+                    <div class="text-danger" id="error-assigned_to"></div>
+                </div>
+            </div>
+
+
+            <div class="mb-3">
+              <label class="form-label">Description <span class="text-danger">*</span></label>
+              <textarea name="description" class="form-control" rows="3"></textarea>
+              <div class="text-danger" id="error-description"></div>
+            </div>
+
+            <div class="text-end">
+              <button type="submit" class="btn btn-primary">Save Task</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!--Error Message for Task Add-->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('taskForm');
+
+  // Remove error message on input, select, or textarea change
+  form.querySelectorAll('input, select, textarea').forEach(input => {
+    input.addEventListener('input', () => {
+      const errorDiv = document.getElementById(`error-${input.name}`);
+      if (errorDiv) {
+        errorDiv.innerHTML = '';
+      }
+    });
+  });
+
+  // Handle form submit
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+
+    // Clear previous errors and success message
+    document.querySelectorAll('.text-danger').forEach(div => div.innerHTML = '');
+    const successDiv = document.getElementById('form-success');
+    successDiv.classList.add('d-none');
+    successDiv.innerHTML = '';
+
+    fetch("{% url 'Project:add_task' %}", {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+      },
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === 'error') {
+        for (const field in data.errors) {
+          const errorDiv = document.getElementById(`error-${field}`);
+          if (errorDiv) {
+            errorDiv.innerHTML = data.errors[field];
+          }
+        }
+      } else {
+        successDiv.innerHTML = `
+          ${data.message}
+          <button type="button" class="btn-close float-end" aria-label="Close" onclick="this.parentElement.classList.add('d-none')"></button>
+        `;
+        successDiv.classList.remove('d-none');
+
+        // Auto-hide after 2 seconds
+        setTimeout(() => {
+           window.location.href = "{% url 'Project:task_list' %}";;
+        }, 2000);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  });
+});
+</script>
+
+<!--Script  for show assigned employee according to project in add task module-->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const projectSelect = document.querySelector('select[name="project"]');
+    const assignedToSelect = document.querySelector('select[name="assigned_to"]');
+
+    projectSelect.addEventListener('change', function () {
+        const projectId = this.value;
+        assignedToSelect.innerHTML = '<option selected disabled>Loading...</option>';
+
+        const url = "{% url 'Project:get_project_employees' 0 %}".replace('0', projectId);
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                assignedToSelect.innerHTML = '<option value="" selected disabled>Select Employee</option>';
+
+                if (data.status === 'success') {
+                    data.employees.forEach(emp => {
+                        const opt = document.createElement('option');
+                        opt.value = emp.id;
+                        opt.textContent = emp.designation ? `${emp.name} (${emp.designation})` : emp.name;
+                        assignedToSelect.appendChild(opt);
+                    });
+                } else {
+                    assignedToSelect.innerHTML = '<option disabled>No team members found</option>';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                assignedToSelect.innerHTML = '<option disabled>Error loading employees</option>';
+            });
+    });
+});
+</script>
+
+{% endblock %}

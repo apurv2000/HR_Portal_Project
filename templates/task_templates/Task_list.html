@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'Side_Navbar.html' %}
+<div class="content-wrapper">
+
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1 class="h4 text-primary">List Of Task</h1>
+        </div>
+        <div class="col-sm-6 text-end">
+          {% if request.session.role == "Administrator"  %}
+           <a href="{% url 'Project:Task_History' %}" class="btn btn-primary">History</a>
+            {% endif %}
+          {% if request.session.role == "Administrator" or request.session.role == "Manager" %}
+          <a href="{% url 'Project:task_add' %}" class="btn btn-primary">Add Task</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container my-5">
+    <div class="card shadow-lg rounded-4">
+      <div class="card-header bg-primary text-white fw-semibold">
+        Task List
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table id="taskTable" class="table table-bordered table-striped align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>#</th>
+                <th>Task</th>
+                <th>Project</th>
+                <th>StartDate</th>
+                <th>EndDate</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>AssignedTo</th>
+                {% if request.session.role == "Administrator" %}
+                <th>Actions</th>
+                {% endif %}
+              </tr>
+            </thead>
+            <tbody>
+            {% for task in tasks %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td><a href="{% url 'Project:task_detail' task.id %}" class="text-decoration-none text-primary">{{task.task_title}}</a></td>
+                <td>{{task.project.project_name}}</td>
+                <td>{{task.start_date}}</td>
+                <td>{{task.end_date}}</td>
+                <td>
+                      <span class="badge
+                        {% if task.status == 'Pending' %}bg-danger
+                        {% elif task.status == 'Inprogress' %}bg-primary
+                        {% elif task.status == 'Claimed Completed' %}bg-info
+                        {% elif task.status == 'Completed' %}bg-success
+                        {% else %}bg-secondary
+                        {% endif %}
+                      ">
+                        {{ task.status }}
+                      </span>
+                    </td>
+                <td>
+                  <span class="badge
+                {% if task.priorrity == 'Low' %}bg-danger{%elif task.priority == 'Medium' %}bg-primary {% elif task.priority == 'High' %}bg-success{% else %}bg-secondary{% endif %}">{{task.priority}}
+                  </span>
+                </td>
+                <td>{{task.assigned_to.name}}</td>
+                 {% if request.session.role == "Administrator" %}
+                <td class="text-center"><a href="{% url 'Project:task_update_page' task.id %}"><span class="badge bg-success ">Edit</span></a></td>
+                 {% endif %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Learning Video{% endblock %}
+
+{% block content %}
+<script>
+  .section-card {
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
+
+  .section-card .card-header {
+    background-color: #007bff;
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+
+  .video-card {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .video-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .video-card video {
+    height: 200px;
+    object-fit: cover;
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
+
+  .video-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #343a40;
+  }
+
+  .video-icon {
+    color: #6c757d;
+  }
+</script>
+{% include 'Side_Navbar.html' %}
+
+<div class="content-wrapper">
+
+  <!-- Breadcrumb -->
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-light px-3 py-2">
+              <li class="breadcrumb-item"><a href="#" class="text-primary">Dashboard</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Learning Video</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Section -->
+  <section>
+    <div class="content-header pt-0">
+      <div class="row">
+        <div class="col-12 m-auto">
+          <div class="card">
+             <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0"><b>Learning Video</b></h3>
+            {% if is_admin %}
+            <button class="btn btn-success ml-auto" data-toggle="modal" data-target="#addVideoModal">
+              + Add Video
+            </button>
+            {% endif %}
+          </div>
+
+           <div class="card-body container">
+
+  <!-- Project Management -->
+  <div class="row mb-5">
+    <div class="col-sm-12">
+      <div class="card section-card">
+        <div class="card-header d-flex align-items-center">
+          <i class="fas fa-project-diagram mr-2"></i> Project Management
+        </div>
+        <div class="card-body">
+          <div class="row project-management-videos">
+            {% for video in project_videos %}
+            <div class="col-sm-12 col-md-6 col-lg-4 mb-4">
+              <div class="card video-card">
+                <video controls class="card-img-top">
+                  <source src="{{ video.video.url }}" type="video/mp4">
+                </video>
+                <div class="card-body text-center">
+                  <div class="video-title"><i class="fas fa-video video-icon mr-1"></i> {{ video.title }}</div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timesheet Management -->
+  <div class="row mb-5">
+    <div class="col-sm-12">
+      <div class="card section-card">
+        <div class="card-header d-flex align-items-center">
+          <i class="fas fa-clock mr-2"></i> Timesheet Management
+        </div>
+        <div class="card-body">
+          <div class="row timesheet-management-videos">
+            {% for video in timesheet_videos %}
+            <div class="col-sm-12 col-md-6 col-lg-4 mb-4">
+              <div class="card video-card">
+                <video controls class="card-img-top">
+                  <source src="{{ video.video.url }}" type="video/mp4">
+                </video>
+                <div class="card-body text-center">
+                  <div class="video-title"><i class="fas fa-video video-icon mr-1"></i> {{ video.title }}</div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Handbook Management -->
+  <div class="row mb-5">
+    <div class="col-sm-12">
+      <div class="card section-card">
+        <div class="card-header d-flex align-items-center">
+          <i class="fas fa-book mr-2"></i> Handbook Management
+        </div>
+        <div class="card-body">
+          <div class="row handbook-management-videos">
+            {% for video in handbook_videos %}
+            <div class="col-sm-12 col-md-6 col-lg-4 mb-4">
+              <div class="card video-card">
+                <video controls class="card-img-top">
+                  <source src="{{ video.video.url }}" type="video/mp4">
+                </video>
+                <div class="card-body text-center">
+                  <div class="video-title"><i class="fas fa-video video-icon mr-1"></i> {{ video.title }}</div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leave Management -->
+  <div class="row mb-5">
+    <div class="col-sm-12">
+      <div class="card section-card">
+        <div class="card-header d-flex align-items-center">
+          <i class="fas fa-calendar-alt mr-2"></i> Leave Management
+        </div>
+        <div class="card-body">
+          <div class="row leave-management-videos">
+            {% for video in leave_videos %}
+            <div class="col-sm-12 col-md-6 col-lg-4 mb-4">
+              <div class="card video-card">
+                <video controls class="card-img-top">
+                  <source src="{{ video.video.url }}" type="video/mp4">
+                </video>
+                <div class="card-body text-center">
+                  <div class="video-title"><i class="fas fa-video video-icon mr-1"></i> {{ video.title }}</div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Modal Form -->
+<div class="modal fade" id="addVideoModal" tabindex="-1" role="dialog" aria-labelledby="addVideoModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form id="modal-upload-form" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Upload New Video</h5>
+          <button type="button" class="close" data-dismiss="modal">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+
+          <div class="form-group">
+            <label>Video Title</label>
+            <input type="text" name="title" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label>Section</label>
+            <select name="section" class="form-control" required>
+              <option value="">Select Section</option>
+              <option value="Project Management">Project Management</option>
+              <option value="Timesheet Management">Timesheet Management</option>
+              <option value="Leave Management">Leave Management</option>
+              <option value="Handbook Management">Handbook Management</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Video File</label>
+            <input type="file" name="video" accept="video/*" class="form-control" required>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Save Video</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- CSRF Meta Tag -->
+<meta name="csrf-token" content="{{ csrf_token }}">
+
+<!-- JavaScript -->
+<script>
+document.getElementById('modal-upload-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  const form = this;
+  const formData = new FormData(form);
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+  fetch("{% url 'upload_learning_video' %}", {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': csrfToken
+    },
+    body: formData
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        const sectionClass = data.section.toLowerCase().replace(/\s/g, '-') + '-videos';
+        const container = document.querySelector(`.${sectionClass}`);
+        const newCard = `
+          <div class="col-sm-12 col-md-6 col-lg-4">
+            <div class="card text-center font-weight-bold">
+              <video controls class="card-img-top" style="border:1px solid;padding:10px;">
+                <source src="${data.video_url}" type="video/mp4">
+              </video>
+              <div class="card-body">${data.title}</div>
+            </div>
+          </div>`;
+        container.insertAdjacentHTML('beforeend', newCard);
+        $('#addVideoModal').modal('hide');
+        form.reset();
+      } else {
+        alert(data.message || 'Upload failed');
+      }
+    });
+});
+</script>
+
+{% endblock %}

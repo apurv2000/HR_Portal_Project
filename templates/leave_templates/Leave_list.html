@@ -1,0 +1,170 @@
+{% extends 'base.html' %} <!-- Extends the base template -->
+{% load static %} <!-- Loads static files for images, CSS, etc. -->
+
+{% block title %}Leave List{% endblock %} <!-- Sets the page title -->
+
+{% block content %}
+
+  <!-- Sidebar -->
+  {% include 'Side_Navbar.html' %}
+
+  <!-- Content Wrapper -->
+  <div class="content-wrapper">
+
+    <!-- Page Header -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="h4 text-primary">Leave Records</h1>
+          </div>
+          <div class="col-sm-6 text-right">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Display messages (e.g., success, error) -->
+    {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+         {{ message }}
+        <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      {% endfor %}
+    {% endif %}
+    <!-- End messages -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <!-- Card Header -->
+              <div class="card-header">
+                <h3 class="card-title">Record</h3>
+              </div>
+              <!-- /.card-header -->
+
+              <!-- Card Body -->
+              <div class="card-body" style="overflow-x: auto;">
+              <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                      <th>Leave Type</th>
+                      <th>Leave Days</th>
+                      <th>Reason</th>
+                      <th>Status</th>
+                      <th>Apply Date</th>
+                      <th>Start Date</th>
+                      <th>End Date</th>
+                      <th>Action By</th>
+                    </tr>
+
+                </thead>
+                <tbody>
+                {% for employee in employees %}
+                  {% for leave in employee.leave_set.all %}
+                    <tr>
+                      <td>{{ leave.leave_type.name }}</td>
+                      <td>{{ leave.leave_days  }}</td>
+                      <td>
+                           {{ leave.reason|truncatewords:3 }}
+                        {% if leave.reason|wordcount > 3 %}
+                          <a href="#" data-bs-toggle="modal" data-bs-target="#reasonModal{{ leave.id }}" class="text-decoration-none text-primary">more</a>
+                        {% endif %}
+
+                      </td>
+                       <!-- Modal for Full Reason -->
+                          <div class="modal fade" id="reasonModal{{ leave.id }}" tabindex="-1" aria-labelledby="reasonModalLabel{{ leave.id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-sm">
+                              <div class="modal-content border-0 shadow-sm rounded-3">
+                                <div class="modal-header bg-light">
+                                  <div class="w-100 text-center">
+                                  <h6 class="modal-title fw-semibold m-0" id="reasonModalLabel{{ leave.id }}">Full Reason</h6>
+                                  </div>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body small">
+                                  {{ leave.reason }}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                     <td class="text-center">
+                      <div class="dropdown">
+                        <button class="btn btn-sm dropdown-toggle
+                          {% if leave.status == 'Pending' %} bg-warning text-dark
+                          {% elif leave.status == 'Approved' %} bg-success
+                          {% elif leave.status == 'Rejected' %} bg-danger
+                          {% else %} bg-secondary
+                          {% endif %}
+                        " type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          {{ leave.status }}
+                        </button>
+
+                        <ul class="dropdown-menu">
+                          {% if leave.status != 'Withdrawn' %}
+                            <li>
+                              <a class="dropdown-item text-danger" href="{% url 'withdraw_leave' leave.id %}" onclick="return confirm('Are you sure you want to withdraw this leave?');">
+                                <i class="fas fa-user-slash"></i>  Withdraw
+                              </a>
+                            </li>
+                          {% else %}
+                            <li>
+                              <span class="dropdown-item text-muted">Already Withdrawn</span>
+                            </li>
+                          {% endif %}
+                        </ul>
+                      </div>
+                      {% if leave.status == 'Rejected' and leave.reject_reason %}
+                          <a href="#"
+                                   data-bs-toggle="tooltip"
+                                   title="{{ leave.reject_reason }}"
+                                   data-bs-placement="left">
+                                   Reason
+                           </a>
+                      {% endif %}
+                    </td>
+
+                      <td>{{leave.apply_date}}</td>
+                      <td>{{ leave.start_date }}</td>
+                      <td>{{ leave.end_date }}</td>
+                      <td>
+                            {% if leave.approved_by %}
+                                {{ leave.approved_by.name }}
+                            {% else %}
+
+                            {% endif %}
+                        </td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="12" class="text-center">No leave records for {{ employee.name }}</td>
+                    </tr>
+                  {% endfor %}
+                {% endfor %}
+                </tbody>
+              </table>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </div>
+      <!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+
+</div>
+<!-- ./wrapper -->
+{% endblock %}

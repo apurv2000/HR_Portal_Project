@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'Side_Navbar.html' %}
+
+<div class="content-wrapper">
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+            <h1 class="h4 text-primary">Timesheet Record</h1>
+        </div>
+        <div class="col-sm-6 text-end">
+        </div>
+      </div>
+    </div>
+  </section>
+
+<div class="container mt-5">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">Timesheet Record</h4>
+    </div>
+    <div class="card-body">
+
+        <table id="example1" class="table table-bordered table-striped">
+
+                <thead>
+                  <tr>
+                    <th>Project</th>
+                    <th>Task</th>
+                    <th>Date</th>
+                    <th>Start time</th>
+                    <th>End time</th>
+                    <th>Hours</th>
+                    <th>Description</th>
+                    <th>Attachment</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for record in records %}
+                    <tr>
+                      <td>{{ record.task.project.project_name }}</td>
+                      <td>{{ record.task.task_title }}</td>
+                      <td>{{ record.date }}</td>
+                      <td>{{ record.start_time }}</td>
+                      <td>{{ record.end_time }}</td>
+                      <td>{{ record.hours }}</td>
+                      <td> {{ record.record_name|truncatewords:3 }}
+                      {% if record.record_name|wordcount > 3 %}
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#DescModal{{ record.id }}" class="text-decoration-none text-primary">..more</a>
+                      {% endif %}
+                     </td>
+                        <!-- Modal for Full Description -->
+                          <div class="modal fade" id="DescModal{{ record.id  }}" tabindex="-1" aria-labelledby="descModalLabel{{ record.id  }}" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-sm">
+                              <div class="modal-content border-0 shadow-sm rounded-3">
+                                <div class="modal-header bg-light">
+                                  <div class="w-100 text-center">
+                                  <h6 class="modal-title fw-semibold m-0" id="descModalLabel{{ record.id  }}">Full Description</h6>
+                                  </div>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body small">
+                                  {{ record.record_name }}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                      {% if record.attachment %}
+                      <td>{{ record.attachment }}</td>
+                      {% else %}
+                      <td>No Attachment</td>
+                      {% endif %}
+
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}

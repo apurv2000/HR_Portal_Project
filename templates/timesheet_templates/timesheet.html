@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'Side_Navbar.html' %}
+<div class="content-wrapper">
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1 class="h4 text-primary">Timesheet</h1>
+        </div>
+      </div>
+    </div>
+
+    <div class="container timesheet-container">
+
+
+
+
+      {% if already_filled_entire_week %}
+        <div class="alert alert-info">
+          You have already submitted the timesheet for this week.
+        </div>
+      {% else %}
+      <p class="description-required">Description is mandatory for sending the timesheet.  <div id="general-error"  class="text-danger mb-2 font-weight-bold "></div></p>
+
+      <form id="form" method="POST" enctype="multipart/form-data" action="{% url 'Timesheet:timesheet_add' %}">
+        {% csrf_token %}
+        <table class="table table-bordered">
+          <thead class="thead-light">
+            <tr>
+              <th>Day</th>
+              <th>Date</th>
+              <th>Project</th>
+              <th>Task</th>
+              <th>Start Time</th>
+              <th>End Time</th>
+              <th>Description <span class="text-danger">*</span></th>
+              <th>Attach File</th>
+            </tr>
+          </thead>
+          <tbody>
+           {% for day in week_data %}
+            <tr>
+              <td>{{ day.day }}</td>
+               <td>
+                <input type="date" class="form-control" name="date_{{ forloop.counter }}" value="{{ day.date }}">
+                <div class="text-danger error-msg" data-error-for="date_{{ forloop.counter }}"></div>
+              </td>
+
+              <td>
+                <select class="form-control project-select" name="project_{{ forloop.counter }}" data-counter="{{ forloop.counter }}">
+                  <option selected disabled>Select Project</option>
+                  {% for project in projects %}
+                    <option value="{{ project.id }}">{{ project.project_name }}</option>
+                  {% endfor %}
+                </select>
+                <div class="text-danger error-msg" data-error-for="project_{{ forloop.counter }}"></div>
+              </td>
+
+              <td>
+                <select class="form-control task-select" name="task_{{ forloop.counter }}" data-counter="{{ forloop.counter }}">
+                  <option selected disabled>Select Task</option>
+                  {% for task in tasks %}
+                    <option value="{{ task.id }}" data-project="{{ task.project.id }}">{{ task.task_title }} ({{ task.project.project_name }})</option>
+                  {% endfor %}
+                </select>
+                <div class="text-danger error-msg" data-error-for="task_{{ forloop.counter }}"></div>
+              </td>
+              <td><input type="time" class="form-control" name="start_{{ forloop.counter }}" value="{{ existing_records.day.date.start_time|default:'11:00'  }}">
+              <div class="text-danger error-msg" data-error-for="start_{{ forloop.counter }}"></div>
+              </td>
+              <td><input type="time" class="form-control" name="end_{{ forloop.counter }}" value="{{ existing_records.day.date.end_time|default:'20:00'  }}">
+                <div class="text-danger error-msg" data-error-for="end_{{ forloop.counter }}"></div>
+              </td>
+              <td><textarea  class="form-control" name="description_{{ forloop.counter }}">{{ existing_records.day.date.description }}</textarea>
+                 <div class="text-danger error-msg" data-error-for="description_{{ forloop.counter }}"></div>
+              </td>
+              <td>
+                {% if existing_records.day.date.attachment %}
+                  <a href="{{ existing_records.day.date.attachment }}" target="_blank">View</a>
+                {% endif %}
+                <input type="file" class="form-control" name="file_{{ forloop.counter }}">
+                <div class="text-danger error-msg" data-error-for="file_{{ forloop.counter }}"></div>
+              </td>
+            </tr>
+          {% endfor %}
+
+               <tr id="sunday-row" style="display: none;">
+            <td>Sunday</td>
+            <td>
+              <input type="date" class="form-control" name="date_8" id="sunday-date">
+              <div class="text-danger error-msg" data-error-for="date_8"></div>
+            </td>
+            <td>
+              <select class="form-control project-select" name="project_8" data-counter="8">
+                <option selected disabled>Select Project</option>
+                {% for project in projects %}
+                <option value="{{ project.id }}">{{ project.project_name }}</option>
+                {% endfor %}
+              </select>
+              <div class="text-danger error-msg" data-error-for="project_8"></div>
+            </td>
+            <td>
+              <select class="form-control task-select" name="task_8" data-counter="8">
+                <option selected disabled>Select Task</option>
+                {% for task in tasks %}
+                <option value="{{ task.id }}" data-project="{{ task.project.id }}">{{ task.task_title }} ({{ task.project.project_name }})</option>
+                {% endfor %}
+              </select>
+              <div class="text-danger error-msg" data-error-for="task_8"></div>
+            </td>
+            <td>
+              <input type="time" class="form-control" name="start_8" value="11:00">
+              <div class="text-danger error-msg" data-error-for="start_8"></div>
+            </td>
+            <td>
+              <input type="time" class="form-control" name="end_8" value="20:00">
+              <div class="text-danger error-msg" data-error-for="end_8"></div>
+            </td>
+            <td>
+              <textarea class="form-control" name="description_8"></textarea>
+              <div class="text-danger error-msg" data-error-for="description_8"></div>
+            </td>
+            <td>
+              <input type="file" class="form-control" name="file_8">
+            </td>
+          </tr>
+          </tbody>
+        </table>
+
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" id="sundayCheckbox">
+          <label class="form-check-label" for="sundayCheckbox">Click on checkbox for Sunday entry.</label>
+        </div>
+
+        <div class="clearfix my-3">
+          <h4 class="float-left">Add Weekly Record</h4>
+          <button type="submit" class="btn btn-primary btn-top">Send</button>
+
+
+
+        </div>
+      </form>
+      {% endif %}
+      <div class="clearfix my-3">
+         {% if request.GET.last_week == "1" %}
+              <button type="button" class="btn btn-primary btn-top" onclick="location.href='.'">
+                This Week Timesheet
+              </button>
+            {% else %}
+              <button type="button" class="btn btn-primary btn-top" onclick="location.href='?last_week=1'">
+                Last Week Timesheet
+              </button>
+            {% endif %}
+      </div>
+    </div>
+  </section>
+</div>
+
+<!--Add Sunday-->
+<script>
+document.getElementById('sundayCheckbox').addEventListener('change', function () {
+  const sundayRow = document.getElementById('sunday-row');
+  const sundayDateInput = document.querySelector('[name="date_8"]');
+
+
+  if (this.checked) {
+    sundayRow.style.display = '';
+
+    // Get Saturday's date (assumed name="date_6")
+    const saturdayDateInput = document.querySelector('[name="date_6"]');
+    if (saturdayDateInput && saturdayDateInput.value) {
+      const saturday = new Date(saturdayDateInput.value);
+      const sunday = new Date(saturday);
+      sunday.setDate(saturday.getDate() + 1);
+
+
+      const formattedSunday = sunday.toISOString().split('T')[0];
+      sundayDateInput.value = formattedSunday;  // Set value, not placeholder
+    } else {
+      // fallback to today's Sunday
+      const today = new Date();
+      const sunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() + (7 - today.getDay()));
+      sundayDateInput.value = sunday.toISOString().split('T')[0];
+
+    }
+
+  } else {
+    sundayRow.style.display = 'none';
+
+    // Clear values completely (not just reset placeholder)
+    ['project_8', 'task_8', 'date_8', 'start_8', 'end_8', 'description_8', 'file_8'].forEach(name => {
+      const el = document.querySelector(`[name="${name}"]`);
+      if (el) {
+        if (el.tagName === 'SELECT') {
+          el.selectedIndex = 0;
+        } else {
+          el.value = '';
+        }
+      }
+    });
+  }
+});
+</script>
+
+{% endblock %}

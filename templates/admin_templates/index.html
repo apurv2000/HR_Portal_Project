@@ -1,0 +1,193 @@
+{% extends '../base.html' %}  <!-- Extends the base template -->
+{% load static %}  <!-- Loads static files for images, CSS, etc. -->
+{% block title%} Admin  Panel {% endblock %} <!-- Sets the page title -->
+
+{% block content %}
+<div class="wrapper">
+
+  {% include 'Side_Navbar.html' %}
+
+{% if latest_pdf and  acknowledgement.status != "Acknowledge" %}
+
+<!-- Bootstrap Toast - Top Right Notification -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+  <div id="acknowledgeToast" class="toast show align-items-center bg-light border border-warning shadow-sm" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="10000">
+    <div class="d-flex">
+      <div class="toast-body text-dark">
+
+        <strong><a href="{% url 'handbookemployee' %}">📘 Handbook:</a></strong> Please acknowledge the latest Employee Handbook.
+      </div>
+      <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
+
+{% endif %}
+
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+        <h5 class="mt-4 mb-2"></h5>
+        <div class="row">
+          <div class="col-md-3 col-sm-6 col-12">
+            <div class="info-box bg-gradient-info">
+              <span class="info-box-icon"><i class="far fa-bookmark"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Total Employee</span>
+                <span class="info-box-number">{{total_employee}}</span>
+
+
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+
+          <div class="col-md-3 col-sm-6 col-12">
+              <a href="{% url 'holiday' %}">
+            <div class="info-box bg-gradient-purple ">
+              <span class="info-box-icon"><i class="fas fa-umbrella-beach"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Total Holiday</span>
+                 <span class="info-box-number">{{total_holiday}}</span>
+
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+                      </a>
+            <!-- /.info-box -->
+          </div>
+
+             <!-- /.col -->
+
+          <div class="col-md-3 col-sm-6 col-12">
+            <div class="info-box bg-gradient-secondary">
+              <span class="info-box-icon"><i class="far fa-calendar-alt"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Total Leave</span>
+                <span class="info-box-number">{{leave_totals.total_leave_sum }}</span>
+
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+          <div class="col-md-3 col-sm-6 col-12">
+            <div class="info-box bg-gradient-success">
+              <span class="info-box-icon"><i class="fas fa-umbrella-beach"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Remaining Leave</span>
+                <span class="info-box-number">{{leave_totals.remaining_leave_sum}}</span>
+
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+                <div class="col-md-3 col-sm-6 col-12">
+            <div class="info-box bg-gradient-dark">
+              <span class="info-box-icon"><i class="far fa-calendar-alt"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Availed Leave</span>
+                 <span class="info-box-number">{{leave_totals.availed_leave_sum}}</span>
+
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!--  col-->
+                  <div class="col-md-3 col-sm-6 col-12">
+            <div class="info-box bg-gradient-primary">
+              <span class="info-box-icon"><i  class="fas fa-project-diagram"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Project</span>
+                <span class="info-box-number">{{total_projects}}</span>
+
+
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+           <!--  col-->
+
+          <!--  col-->
+          <div class="col-md-3 col-sm-6 col-12">
+            <div class="info-box bg-gradient-warning">
+              <span class="info-box-icon"><i class="fas fa-tasks"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Task</span>
+                <span class="info-box-number">{{total_tasks}}</span>
+
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+                   {% if resignation >= 1 %}
+          <div class="col-md-3 col-sm-6 col-12">
+            <a href="{% url 'resignation_details' %}">
+
+            <div class="info-box bg-gradient-danger">
+              <span class="info-box-icon"><i  class="fas fa-project-diagram"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">View Resignation Details</span>
+
+
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+              </a>
+            <!-- /.info-box -->
+          </div>
+          {% endif %}
+        </div>
+        <!-- /.row -->
+      <!--Add Cards For Different functionality-->
+      {% include 'admin_templates/Statistics.html' %}
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here -->
+  </aside>
+  <!-- /.control-sidebar -->
+</div>
+<!-- ./wrapper -->
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const toastEl = document.getElementById('acknowledgeToast');
+    const toast = new bootstrap.Toast(toastEl, { delay: 8000 });
+    toast.show();
+  });
+</script>
+{% endblock %}

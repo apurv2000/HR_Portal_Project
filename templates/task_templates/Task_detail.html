@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'Side_Navbar.html' %}
+
+<div class="content-wrapper">
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+
+                <div class="col-sm-6">
+                    <h1 class="h4 text-primary">Task Detail</h1>
+
+                </div>
+                <div class="col-sm-6 text-right">
+                     <form method="POST" action="{% url 'Project:update_task_status' %}" id="statusForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="task_id" value="{{ task.id }}">
+                        <input type="hidden" name="status" id="statusInput">
+
+                        <div class="dropdown">
+                            <button class="btn dropdown-toggle text-white bg-primary" type="button"
+                                    id="statusDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span id="statusLabel">{{ task.status }}</span>
+                                <span id="statusEmoji">
+                                    {% if task.status == 'Pending' %}🔴
+                                    {% elif task.status == 'Inprogress' %}🟡
+                                    {% elif task.status == 'Claimed Completed' %}🔵
+                                    {% elif task.status == 'On Hold' %}🟠
+                                    {% endif %}
+                                </span>
+                            </button>
+
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item text-danger" href="#" onclick="submitStatus('Pending')" {% if task.status == 'Completed' %}style="display: none;"{% endif %}>🔴 Pending</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-primary" href="#" onclick="submitStatus('Inprogress')" {% if task.status == 'Completed' %}style="display: none;"{% endif %}>🟡 Inprogress</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-info" href="#" onclick="submitStatus('Claimed Completed')" {% if task.status == 'Completed' %}style="display: none;"{% endif %}>🔵 Claimed Completed</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-success" href="#" onclick="submitStatus('On Hold')" {% if task.status == 'Completed' %}style="display: none;"{% endif %}>🟠 On Hold</a>
+                                </li>
+
+                                {% if request.session.role == 'Administrator' %}
+                                    <li>
+                                        <a class="dropdown-item text-success" href="#" onclick="submitStatus('Completed')"{% if task.status == 'Completed' %}style="pointer-events: none; color: #ccc;"{% endif %} >🟢 Completed</a>
+                                    </li>
+                                {% else %}
+
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </form>
+
+                    </div>
+                </div>
+            </div>
+    </section>
+      <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'Project:task_list' %}" class="text-primary">Task</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Task Detail</li>
+                        </ol>
+      </nav>
+
+    <div class="container mt-4">
+
+        <div class="card shadow-lg rounded p-4">
+
+          <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-primary mb-0">Task : {{ task.task_title }}</h2>
+                <span class="badge badge-pill {{ task.get_status_badge_class }}">{{ task.get_status_display }}</span>
+            </div>
+
+            <!-- Task Details with Icons in Shadowed Div -->
+            <div class="card shadow-sm rounded p-4 mb-4">
+                   <div class="row mb-4">
+                <div class="col-md-6">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Project:</strong> {{ task.project.project_name }}</li>
+                        <li class="list-group-item"><strong>Start Date:</strong> {{ task.start_date|date:"F d, Y" }}</li>
+                        <li class="list-group-item"><strong>End Date:</strong> {{ task.end_date|date:"F d, Y" }}</li>
+                        <li class="list-group-item">
+                            <strong>Completed On:</strong>
+                            {% if task.status == 'Completed' %}
+                                Task Completed
+                            {% else %}
+                                <span class="text-muted">Not completed yet</span>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Last Updated:</strong> {{ task.created_at|date:"F d, Y h:i A" }}</li>
+                        <li class="list-group-item"><strong>Billable Status:</strong> {{ task.project.rate_status }}</li>
+                        <li class="list-group-item"><strong>Assigned To:</strong> {{ task.assigned_to.name }}</li>
+                        <li class="list-group-item d-flex align-items-center">
+                            <img src="{{ task.project.leader.profile_picture.url }}" class="rounded-circle me-2" width="30" height="30" alt="Leader">
+                            <strong class="me-1">Task Leader:</strong> {{ task.project.leader.name }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Task Detail Section with Blue Color and Icon -->
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold text-blue-600 mb-2 d-flex align-items-center">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Task Detail
+                </h3>
+                <span class="badge rounded-pill d-inline-flex align-items-center
+                            {% if task.status == 'Pending' %} bg-danger text-light
+                            {% elif task.status == 'Inprogress' %} bg-warning text-dark
+                            {% elif task.status == 'Claimed Completed' %} bg-info text-dark
+                            {% elif task.status == 'Completed' %} bg-success text-light
+                            {% elif task.status == 'On Hold' %} bg-secondary text-light
+                            {% endif %}">
+                    {{ task.get_status_display }}
+                </span>
+                <!-- Add a gap here with a margin-bottom on the badge -->
+                <div class="card shadow-sm rounded p-4 mb-4 mt-3">
+                    <h3 class="text-primary mb-3"><i class="fas fa-file-alt"></i> Task Description</h3>
+                    <p class="text-gray-800" style="line-height: 1.6; font-size: 1rem; font-weight: 400;">
+                        {{ task.description }}
+                    </p>
+                </div>
+            </div>
+
+            <div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Task Records</h3>
+
+{% if page_obj.object_list %}
+    <table class="table table-bordered table-striped">
+        <thead class="thead-light">
+            <tr>
+                <th>Record Name</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in page_obj.object_list %}
+                <tr>
+                    <td>{{ record.record_name }}</td>
+                    <td>{{ record.date|date:"F d, Y" }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination Controls with Bootstrap Styling -->
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1" aria-label="First">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+
+            <!-- Page Numbers -->
+            <li class="page-item disabled">
+                <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            </li>
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+
+{% else %}
+    <div class="bg-gray-50 rounded-md p-4">
+        <p class="text-gray-600">No records available</p>
+    </div>
+{% endif %}
+
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+{% endblock %}

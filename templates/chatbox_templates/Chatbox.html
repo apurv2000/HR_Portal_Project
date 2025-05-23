@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% include 'Side_Navbar.html' %}
+<div class="content-wrapper">
+
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1>Team Chat</h1>
+        </div>
+        <div class="col-sm-6 text-end">
+          <button class="btn btn-primary">Add Team Member</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container mt-4">
+    <script>
+      const currentUserId = {{ request.session.employee_id }};
+      const projectId = "{{ project.id }}"; // Pass from Django context
+    </script>
+
+    <div class="card direct-chat direct-chat-warning">
+      <div class="card-header">
+        <h3 class="card-title">Project Team Chat</h3>
+
+        <div class="card-tools">
+          <span title="3 New Messages" class="badge badge-warning">3</span>
+          <button type="button" class="btn btn-tool" data-card-widget="collapse">
+            <i class="fas fa-minus"></i>
+          </button>
+          <button type="button" class="btn btn-tool" title="Contacts" data-widget="chat-pane-toggle">
+            <i class="fas fa-comments"></i>
+          </button>
+          <button type="button" class="btn btn-tool" data-card-widget="remove">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="direct-chat-messages">
+          <div id="chat-box"></div>
+        </div>
+
+        <div class="direct-chat-contacts">
+          <ul class="contacts-list">
+            <!-- Contacts list (can be populated dynamically) -->
+            <li>
+              <a href="#">
+                <img class="contacts-list-img" src="dist/img/user1-128x128.jpg" alt="User Avatar">
+                <div class="contacts-list-info">
+                  <span class="contacts-list-name">Sarah Doe</span>
+                  <span class="contacts-list-msg">Hello, how are you?</span>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <div class="input-group">
+          <input type="text" id="message" class="form-control" placeholder="Type your message..."
+                 onkeypress="if(event.key==='Enter') sendMessage();">
+          <span class="input-group-append">
+            <button type="button" class="btn btn-warning" onclick="sendMessage()">Send</button>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let last_id = 0;
+
+  function fetchMessages() {
+    fetch("{% url 'Chatbox:get_messages' %}?last_id=" + last_id + "&project_id=" + projectId)
+      .then(res => res.json())
+      .then(data => {
+        const box = document.getElementById("chat-box");
+        data.messages.forEach(msg => {
+          const imageUrl = msg.user.profile_picture ? msg.user.profile_picture.url : '/path/to/default-image.jpg';
+            const line = `
+              <div class="direct-chat-msg ${msg.user_id === currentUserId ? 'right' : ''}">
+                <div class="direct-chat-infos clearfix">
+                  <span class="direct-chat-name float-${msg.user_id === currentUserId ? 'right' : 'left'}">${msg.user}</span>
+                  <span class="direct-chat-timestamp float-${msg.user_id === currentUserId ? 'left' : 'right'}">${msg.timestamp}</span>
+                </div>
+                <img class="direct-chat-img" src="${imageUrl}" alt="message user image">
+                <div class="direct-chat-text">${msg.content}</div>
+              </div>`;
+
+          box.innerHTML += line;
+          last_id = msg.id;
+        });
+        box.scrollTop = box.scrollHeight;
+      });
+  }
+
+  function sendMessage() {
+    const input = document.getElementById("message");
+    const formData = new FormData();
+    formData.append("message", input.value);
+    formData.append("project_id", projectId);
+
+    fetch("{% url 'Chatbox:send_message' %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken")
+      },
+      body: formData
+    }).then(() => {
+      input.value = "";
+      fetchMessages();
+    });
+  }
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let cookie of cookies) {
+        if (cookie.trim().startsWith(name + '=')) {
+          cookieValue = decodeURIComponent(cookie.trim().substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  setInterval(fetchMessages, 3000);
+  window.onload = fetchMessages;
+</script>
+
+{% endblock %}

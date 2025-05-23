@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'Side_Navbar.html' %}
+
+
+
+<div class="content-wrapper">
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+            <h1 class="h4 text-primary">Historylist Of Project</h1>
+        </div>
+        <div class="col-sm-6 text-end">
+          {% if request.session.role == "Administrator"%}
+          <a href="{% url 'Project:project_list' %}" class="btn btn-primary">Back</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container mt-4">
+    <div class="card shadow rounded-3">
+      <div class="card-header bg-primary text-white fw-semibold">
+        Project List
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table id="projectTable" class="table table-bordered table-striped align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>#</th>
+                <th>Project</th>
+                <th>Created Date</th>
+                <th>Update Date</th>
+                <th>Project Leader</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              {% for project in Pro %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>
+
+                  <a href="{% url 'Project:projecthistory_detail' project.id %}" class="text-decoration-none text-primary">
+                    {{ project.project_name }}
+                  </a>
+
+                </td>
+                <td>{{ project.created_at}}</td>
+                <td>{{ project.timestamp}}</td>
+                <td>{{ project.leader.name }}</td>
+
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="7" class="text-center">No records found.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

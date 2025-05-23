@@ -1,0 +1,128 @@
+{% extends 'base.html' %} <!-- Extends the base template -->
+{% load static %} <!-- Loads static files for images, CSS, etc. -->
+
+{% block title %}Inactive Employee List{% endblock %} <!-- Sets the page title -->
+
+{% block content %}
+
+
+  <!-- Sidebar -->
+  {% include 'Side_Navbar.html' %}
+
+  <!-- Content Wrapper -->
+  <div class="content-wrapper">
+
+    <!-- Page Header -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+           <h1 class="h4 text-primary">List Of Inactive Employee</h1>
+          </div>
+          <div class="col-sm-6 text-right">
+                <a href="{% url 'Emplist' %}" class="btn btn-primary">Back</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Display messages (e.g., success, error) -->
+    {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      {% endfor %}
+    {% endif %}
+    <!-- End messages -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <!-- Card Header -->
+              <div class="card-header">
+                <h3 class="card-title">Employee List</h3>
+              </div>
+              <!-- /.card-header -->
+
+              <!-- Card Body -->
+              <div class="card-body" style="overflow-x: auto;">
+                <table id="example1" class="table table-bordered table-striped">
+                  <thead>
+                    <tr>
+                      <th>Profile Image</th>
+                      <th>Name</th>
+                      <th>Role</th>
+                      <th>Department</th>
+                      <th>Designation</th>
+                      <th>Email</th>
+                      <th>Register Date</th>
+                      <th>Last Date</th>
+                      <th>Address</th>
+                      <th>Date Of Joining</th>
+                      <th>Work Location</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for employee in Emp %}
+                    <tr>
+                      <!-- Employee Profile Image -->
+                      <td>
+                        {% if employee.profile_picture %}
+                        <img src="{{ employee.profile_picture.url  }}"
+                             class="img-circle elevation-3"
+                             style="width: 50px; height: 50px; object-fit: cover;"
+                             alt="User Profile Picture">
+                      {% else %}
+                        <img src="{% static 'img/Damy.webp' %}"
+                             class="img-circle elevation-3"
+                             style="width: 50px; height: 50px; object-fit: cover;"
+                             alt="Default Profile Picture">
+                      {% endif %}
+                      </td>
+                      <td>{{ employee.name }}</td>
+                      <td>{{employee.role}}</td>
+                      <td>{{ employee.department.name }}</td>
+                      <td>{{ employee.designation.title }}</td>
+                      <td>{{ employee.email }}</td>
+                      <td>{{ employee.created_at }}</td>
+                      <td>{{ employee.timestamp }}</td>
+                      <td>{{ employee.current_address }}</td>
+                      <td>{{ employee.date_of_join }}</td>
+                      <td>{{ employee.work_location }}</td>
+                      <!-- Action Buttons -->
+                      <td>
+                        <div class="d-flex gap-3">
+                          <a href="{% url 'active_employee' employee.id %}" class="btn btn-danger" onclick="return confirm('Are you sure?');">Active</a>
+                        </div>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </div>
+      <!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+
+</div>
+<!-- ./wrapper -->
+{% endblock %}

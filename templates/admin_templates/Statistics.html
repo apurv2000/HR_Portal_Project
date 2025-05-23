@@ -1,0 +1,749 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<!--For Team Member Modal-->
+<style>
+
+
+  #viewTeamBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    font-size: 22px;
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(145deg, #3b82f6, #2563eb);
+    border: none;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s ease, transform 0.2s;
+  }
+
+  #viewTeamBtn:hover {
+    background: linear-gradient(145deg, #2563eb, #1d4ed8);
+    transform: scale(1.05);
+  }
+
+  #viewTeamBtn:active {
+    transform: scale(0.95);
+  }
+
+  /* Modal enhancements for 2025 look */
+  .modal-content {
+    border-radius: 1rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    animation: fadeInUp 0.4s ease-in-out;
+  }
+
+  .modal-header {
+    border-bottom: none;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    background: #f0f2f5;
+    cursor: move;
+  }
+
+  .modal-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: #2c3e50;
+  }
+
+  .modal-body {
+    background-color: #fff;
+    padding: 1.5rem;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .list-group-item {
+    border: none;
+    padding: 0.75rem 1rem;
+    transition: background 0.3s;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .list-group-item:hover {
+    background-color: #f9fafb;
+  }
+
+  .list-group-item img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 0.75rem;
+    border: 2px solid #dee2e6;
+  }
+
+  .team-info small {
+    color: #6c757d;
+  }
+
+  .modal-footer {
+    background: #f9f9f9;
+    border-bottom-left-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+    border-top: none;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+<!--For Cards-->
+<style>
+    .card {
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .progress {
+        height: 20px;
+    }
+    .status-dot.red { background-color: #ffc107; }       /* Pending -> Warning */
+    .status-dot.green { background-color: #28a745; }      /* Completed -> Success */
+    .status-dot.purple { background-color: #dc3545; }     /* On Hold -> Danger */
+    .status-dot.orange { background-color: #17a2b8; }     /* Inprogress -> Info */
+    .status-dot.blue { background-color: #007bff; }       /* Claimed Completed -> Primary */
+
+<!--    .progress-bar {-->
+<!--    position: relative;-->
+<!--    font-size: 12px;-->
+<!--    overflow: visible;  /* Allow text to overflow */-->
+<!--    white-space: nowrap;-->
+<!--    color: #000;-->
+<!--    padding-left: 4px;-->
+<!--}-->
+
+
+    .status-dot {
+        height: 10px;
+        width: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+    }
+    .red { background-color: #dc3545; }
+    .green { background-color: #28a745; }
+    .purple { background-color: #6f42c1; }
+    .orange { background-color: #fd7e14; }
+    .blue { background-color: #007bff; }
+
+    .table th, .table td {
+        font-size: 14px;
+        }
+    .card h5 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+    .chatbox-container {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 0;
+    margin: 0;
+}
+
+.chatbox-message {
+    width: 95%;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1rem;
+    border-radius: 10px;
+}
+
+
+.chatbox-message-header {
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.chatbox-message-body {
+    font-size: 14px;
+    color: #333;
+}
+
+.chatbox-actions {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+.chatbox-message.pending {
+    background-color: #f9e8e8;  /* Light red for pending */
+}
+
+.chatbox-message.approved {
+    background-color: #e8f9e8;  /* Light green for approved */
+}
+
+.chatbox-message.rejected {
+    background-color: #f8e8e8;  /* Light gray for rejected */
+}
+
+.chatbox-message .btn {
+    font-size: 12px;
+    padding: 5px 10px;
+}
+
+.chatbox-message .modal-content {
+    font-size: 14px;
+}
+
+.text-muted {
+    font-size: 12px;
+    color: #6c757d !important;
+}
+.text-dark {
+   font-size: 12px;
+}
+
+
+.text-muted small {
+    font-size: 10px;
+}
+
+hr {
+    border-top: 1px solid #ccc;
+}
+
+</style>
+
+<div class="container-fluid mt-4">
+    <div class="row align-items-stretch">
+        <!-- Task Statistics -->
+        {% if request.session.role != 'Administrator'%}
+        <div class="col-md-4 mb-4 d-flex">
+            <div class="card p-3 h-100 w-100">
+                <h5>Task Statistics</h5>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <div class="w-50 ">
+                        Total: {{ total_tasks }}
+                    </div>
+                    <div class="w-50 text-right">
+                        Overdue: {{ overdue_tasks }}
+                    </div>
+                </div>
+              <div class="progress" style="height: 25px;">
+                        {% for status, percent in status_percentages.items %}
+                            <div class="progress-bar
+                                {% if status == 'Completed' %}bg-success
+                                {% elif status == 'Pending' %}bg-warning
+                                {% elif status == 'Inprogress' %}bg-info
+                                {% elif status == 'Claimed Completed' %}bg-primary
+                                {% elif status == 'On Hold' %}bg-danger
+                                {% else %}bg-secondary{% endif %}"
+                                role="progressbar" style="width: {{ percent }}%;"
+                                title="{{ status }}: {{ percent }}%">
+                                {% if percent > 10 %}{{ status }} ({{ percent }}%) {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                <br>
+                <ul class="mt-3 list-unstyled">
+                    <li><span class="status-dot red"></span> Pending Tasks <span class="float-right">{{ status_counts.Pending|default:0 }}</span></li><br>
+                    <li><span class="status-dot green"></span> Completed Tasks <span class="float-right">{{ status_counts.Completed|default:0  }}</span></li><br>
+                    <li><span class="status-dot purple"></span> On Hold Tasks <span class="float-right">{{status_counts.On_Hold|default:0 }}</span></li><br>
+                    <li><span class="status-dot orange"></span> Inprogress Tasks <span class="float-right">{{ status_counts.Inprogress|default:0  }}</span></li><br>
+                    <li><span class="status-dot blue"></span> Claimed Completed Tasks <span class="float-right">{{ status_counts.Claimed_Completed|default:0}}</span></li><br>
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <!--For Leave Request-->
+        {% if request.session.role == 'Administrator'  %}
+          <!-- Employee's Leave Application -->
+          <div class="col-md-4 mb-4 d-flex">
+            <div class="card p-3 h-100 w-100">
+              <h5>Leave Request</h5>
+              <hr>
+
+              {% if employee_leaves %}
+                <div class="chatbox-container" style="width: 100%;">
+                  {% for leave in employee_leaves %}
+                    <div class="chatbox-message mb-3 {% if leave.status == 'Pending' %} pending {% elif leave.status == 'Approved' %} approved {% elif leave.status == 'Rejected' %} rejected {% endif %}">
+                          <!-- Left content: Employee and leave info -->
+                          <div style="flex: 1;">
+                            <strong>{{ leave.employee.name }}</strong>
+                            <small class="text-muted">({{ leave.employee.designation.title }}, {{ leave.employee.department.name }})</small><br>
+                            <strong>{{ leave.leave_type.name }}</strong>: {{ leave.start_date|date:"F j" }} to {{ leave.end_date|date:"F j" }} <br>
+                            <span class="text-muted">Reason:</span><span class="text-dark"> {{ leave.reason|truncatechars:50 }}</span><br>
+                            {% if leave.approved_by.name %}
+                            <span class="text-muted">Approved By:</span> {{ leave.approved_by.name|truncatechars:50 }}
+                            {% endif %}
+                          </div>
+
+                          <!-- Right content: Status form -->
+                          <div class="chatbox-status-form">
+                            <form method="POST" action="{% url 'update_leave_status_dashboard' leave.id %}" id="status-form-{{ leave.id }}">
+                              {% csrf_token %}
+                              <div class="dropdown mb-2">
+                                <button class="btn btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                                  {% if leave.status == 'Approved' %}
+                                    style="background-color: green; color: white;"
+                                  {% elif leave.status == 'Rejected' %}
+                                    style="background-color: red; color: white;"
+                                  {% elif leave.status == 'Withdrawn' %}
+                                    style="background-color: grey; color: white;"
+                                  {% else %}
+                                    style="background-color: yellow; color: black;"
+                                  {% endif %}>
+                                  {{ leave.status }}
+                                </button>
+                                {% if leave.status != 'Rejected' %}
+                                <ul class="dropdown-menu">
+                                  {% if leave.status != 'Withdrawn' %}
+                                    {% if leave.status != 'Approved' %}
+                                      <li><a class="dropdown-item text-success" href="#" onclick="submitStatusForm('{{ leave.id }}', 'Approved')">Approve</a></li>
+                                    {% endif %}
+                                    {% if leave.status != 'Rejected' %}
+                                      <li><a class="dropdown-item text-danger" href="#" onclick="showRejectBox('{{ leave.id }}')">Reject</a></li>
+                                    {% endif %}
+                                  {% else %}
+                                    <li><span class="dropdown-item text-muted">Approve</span></li>
+                                    <li><span class="dropdown-item text-muted">Reject</span></li>
+                                  {% endif %}
+                                </ul>
+                                {% endif %}
+                              </div>
+
+                              <input type="hidden" name="status" id="status-input-{{ leave.id }}">
+                              <div class="reject-box" id="reject-box-{{ leave.id }}" style="display: none;">
+                                <textarea class="form-control mb-1" name="rejection_reason" rows="2" placeholder="Reason for rejection" required></textarea>
+                                <button type="submit" name="status" value="Rejected" class="btn btn-sm btn-danger">Submit Rejection</button>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+
+                  {% endfor %}
+                </div>
+              {% else %}
+                <p class="text-muted small mb-0">No leave records found.</p>
+              {% endif %}
+                <!-- Horizontal Line -->
+                <hr class="mt-auto">
+                  <div class="text-center mt-2">
+                        <a href="{% url 'LeavelistApproved' %}">View all</a>
+                 </div>
+            </div>
+          </div>
+        {% endif %}
+
+
+            <!--For Role Employee only-->
+          {% if request.session.role == 'Employee' %}
+        <div class="col-md-4 mb-4 d-flex">
+            <div class="card p-3 h-100 w-100">
+                <h5>Latest Activity</h5>
+                <hr>
+
+                <!-- Scrollable Wrapper -->
+                <div style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+                    {% for activity in latest_activities %}
+                        {% if activity.activity_type == 'Task' %}
+                            <div class="mb-2">
+                                <strong class="text-primary">📝 Task:</strong>
+                                <a href="{% url 'Project:task_detail' activity.id %}" class="text-decoration-none">{{ activity.task_title }}</a>
+                                <div class="text-muted small">Project: {{ activity.project.project_name }} | {{ activity.created_at|date:"M d, Y H:i" }}</div>
+                                <div class="text-muted small">Assigned by :  <span class="text-dark small">{{ activity.project.admin.name }} </span></div>
+                                <span class="badge
+                                    {% if activity.status == 'Pending' %}bg-warning
+                                    {% elif activity.status == 'Inprogress' %}bg-info
+                                    {% elif activity.status == 'Claimed Completed' %}bg-primary
+                                    {% elif activity.status == 'Completed' %}bg-success
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ activity.status }}
+                                </span>
+                            </div>
+                        {% elif activity.activity_type == 'ProjectCom' %}
+                            <div class="mb-2">
+                                <strong class="text-info">📁 Project Assigned:</strong>
+                                <a href="{% url 'Project:project_detail' activity.id %}" class="text-decoration-none text-primary">
+                                {{ activity.project_name}}
+                              </a>
+                                <div class="text-muted small">Assigned by : {{ activity.admin.name}}</div>
+                                <div class="badge bg-warning">Completed</div>
+                            </div>
+
+                      {% elif activity.activity_type == 'Handbook' %}
+                      <div class="mb-2">
+                            <a href="{% url 'handbookemployee' %}"><strong class="text-primary">📘 Handbook:</strong></a>
+                               {{ activity.employee.name }}
+                               <div class="badge bg-danger"> Not Acknowledged </div>
+
+                      </div>
+
+                        {% elif activity.activity_type == 'Leave' %}
+                            <div class="mb-2">
+                                <strong class="text-success">🌿 Leave:</strong> {{ activity.leave_type.name }}
+                                <div class="text-muted small">{{ activity.start_date|date:"M d" }} → {{ activity.end_date|date:"M d, Y" }}</div>
+                                   {% if activity.status == 'Approved' or activity.status == 'Rejected' %}
+                                    {% if activity.approved_by %}
+                                <div class="text-muted small">Approved by: <span class="text-dark small">{{ activity.approved_by.name }}</span></div>
+                                    {% endif %}
+                                {% endif %}
+                                <span class="badge
+                                    {% if activity.status == 'Pending' %}bg-warning
+                                    {% elif activity.status == 'Approved' %}bg-success
+                                    {% elif activity.status == 'Rejected' %}bg-danger
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ activity.status }}
+                                </span>
+                            </div>
+                        {% elif activity.activity_type == 'Project' %}
+                            <div class="mb-2">
+                                <strong class="text-info">📁 Project Assigned:</strong>
+                                <a href="{% url 'Project:project_detail' activity.id %}" class="text-decoration-none text-primary">
+                                {{ activity.project_name}}
+                              </a>
+                                <div class="text-muted small">Assigned by : {{ activity.admin.name}}</div>
+                            </div>
+
+                        {% endif %}
+                        <hr>
+                    {% empty %}
+                        <p class="text-muted">No recent activity found.</p>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+        {% endif %}
+
+
+        <!--For Administration and Manager-->
+         {% if request.session.role == 'Administrator' or request.session.role == 'Manager' %}
+            <!-- Latest Activity -->
+        <div class="col-md-4 mb-4 d-flex">
+            <div class="card p-3 h-100 w-100">
+                <h5>Latest Activity</h5>
+                <hr>
+                 <!-- Scrollable Wrapper -->
+                <div style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+                    {% for activity in latest_activities %}
+                        {% if activity.activity_type == 'Task' %}
+                            <div class="mb-2">
+                                <strong class="text-primary">📝 Task:</strong>
+                                <a href="{% url 'Project:task_detail' activity.id %}" class="text-decoration-none">{{ activity.task_title }}</a>
+                                <div class="text-muted small">Project:  <span class="text-dark small">{{ activity.project.project_name }} | {{ activity.created_at|date:"M d, Y H:i" }}</span></div>
+                                <div class="text-muted small">Assigned to :  <span class="text-dark small">{{ activity.assigned_to.name }} </span></div>
+
+                                <span class="badge
+                                    {% if activity.status == 'Pending' %}bg-warning
+                                    {% elif activity.status == 'Inprogress' %}bg-info
+                                    {% elif activity.status == 'Claimed Completed' %}bg-primary
+                                    {% elif activity.status == 'Completed' %}bg-success
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ activity.status }}
+                                </span>
+                            </div>
+                            {% elif  activity.activity_type == 'TaskSelf' %}
+                            <div class="mb-2">
+                                <strong class="text-primary">📝 Task:</strong>
+                                <a href="{% url 'Project:task_detail' activity.id %}" class="text-decoration-none">{{ activity.task_title }}</a>
+                                <div class="text-muted small">Project:  <span class="text-dark small">{{ activity.project.project_name }} | {{ activity.created_at|date:"M d, Y H:i" }}</span></div>
+                                <div class="text-muted small">Assigned to :  <span class="text-dark small">{{ activity.assigned_to.name }} </span></div>
+
+                                <span class="badge
+                                    {% if activity.status == 'Pending' %}bg-warning
+                                    {% elif activity.status == 'Inprogress' %}bg-info
+                                    {% elif activity.status == 'Claimed Completed' %}bg-primary
+                                    {% elif activity.status == 'Completed' %}bg-success
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ activity.status }}
+                                </span>
+                            </div>
+                         {% elif  activity.activity_type == 'Resignation' %}
+                          <a href="{% url 'resign_emp' activity.id %}">
+                            <div class="mb-2">
+
+                              <strong class="text-danger">✍️ Resignation</strong>
+                              {% if activity.employee.name %}
+                                <span class="text-dark small">
+
+                                  ({{ activity.employee.name }})
+
+                                </span>
+                                {% endif %}
+
+                              <div class="text-muted small">
+                                Applied On: <time>{{ activity.resignation_apply_date|date:"M d, Y" }}</time><br>
+                                Last Working: <time>{{ activity.last_working_date|date:"M d, Y" }}</time>
+                              </div>
+                              {% if activity.reason %}
+                                <div class="mt-1"><em>Reason:</em> {{ activity.reason }}</div>
+                              {% endif %}
+                              <span class="badge bg-secondary mt-2">Submitted</span>
+
+                            </div>
+                              </a>
+                        {% elif activity.activity_type == 'ProjectCom' %}
+                            <div class="mb-2">
+                                <strong class="text-info">📁 Project Assigned:</strong>
+                                <a href="{% url 'Project:project_detail' activity.id %}" class="text-decoration-none text-primary">
+                                {{ activity.project_name}}
+                              </a>
+                                <div class="text-muted small">Assigned by : {{ activity.admin.name}}</div>
+                                <div class="badge bg-warning">Completed</div>
+                            </div>
+
+                          {% elif activity.activity_type == 'Handbook' %}
+                      <div class="mb-2">
+                            <strong class="text-primary">📘 Handbook:</strong>
+                               {{ activity.employee.name }}
+                               <div class="text-muted small"> Acknowledged on :  <span class="text-dark small"> {{ activity.activity_datetime|date:"d M Y, h:i A" }} </span></div>
+
+                      </div>
+
+                        {% elif activity.activity_type == 'Leave' %}
+                            <div class="mb-2">
+                                <strong class="text-success">🌿 Leave:</strong> {{ activity.leave_type.name }}
+                                <div class="text-muted small">Apply by : <span class="text-dark small">{{activity.employee.name}} ({{ activity.start_date|date:"M d" }} → {{ activity.end_date|date:"M d, Y" }})</span></div>
+                                {% if activity.status == 'Approved' or activity.status == 'Rejected' %}
+                                    {% if activity.approved_by %}
+                                <div class="text-muted small">Approved by: <span class="text-dark small">{{ activity.approved_by.name }}</span></div>
+                                    {% endif %}
+                                {% endif %}
+                                <span class="badge
+                                    {% if activity.status == 'Pending' %}bg-warning
+                                    {% elif activity.status == 'Approved' %}bg-success
+                                    {% elif activity.status == 'Rejected' %}bg-danger
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ activity.status }}
+                                </span>
+                            </div>
+                        {% elif activity.activity_type == 'Project' %}
+                            <div class="mb-2">
+                                <strong class="text-info">📁 Project Assigned:</strong>
+                                 <a href="{% url 'Project:project_detail' activity.id %}" class="text-decoration-none text-primary">
+                                {{ activity.project_name}}
+                              </a>
+                                <div class="text-muted small">Assigned by : <span class="text-dark small">{{ activity.admin.name}}</span></div>
+                            </div>
+                        {% endif %}
+                        <hr>
+                    {% empty %}
+                        <p class="text-muted">No recent activity found.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+           {% endif %}
+
+          <!--For Administration and Manager for Team Members list-->
+         {% if request.session.role == 'Administrator' or request.session.role == 'Manager' %}
+            <!-- Team Member List -->
+        <div class="col-md-4 mb-4 d-flex">
+            <div class="card p-3 h-100 w-100">
+
+                    <div class="card-header">
+                    <h3 class="card-title">Team Members</h3>
+
+                    <div class="card-tools">
+                      <span class="badge badge-danger">{{ team_employees|length }} Total Members</span>
+                    </div>
+                  </div>
+                  <!-- /.card-header -->
+
+                  <div class="card-body p-0">
+
+                    <ul class="users-list clearfix">
+                        {% for member in team_employees %}
+                        {% if request.session.employee_name != member.name %}
+                     <li class="text-center" style="width: 90px; display: inline-block;">
+                      <a href="{% url 'Profile_team' member.id %}">
+                            {% if member.profile_picture %}
+                                <img src="{{ member.profile_picture.url }}" alt="{{ member.name }}"
+                                     class="rounded-circle mb-2 shadow"
+                                     style="width: 60px; height: 60px; object-fit: cover; border: 2px solid #007bff;">
+                            {% else %}
+                                <img src="{% static 'img/Damy.webp' %}" alt="{{ member.name }}"
+                                     class="rounded-circle mb-2 shadow"
+                                     style="width: 60px; height: 60px; object-fit: cover; border: 2px solid #007bff;">
+                            {% endif %}
+                        </a>
+
+                      <a class="users-list-name text-dark fw-semibold d-block" href="#" style="text-decoration: none;">
+                        {{ member.name|truncatechars:14 }}
+                      </a>
+                    </li>
+                       {% endif %}
+                        {% endfor %}
+                    </ul>
+                    <!-- /.users-list -->
+
+                  </div>
+
+                  <!-- Horizontal Line -->
+<!--                    <hr class="mt-auto">-->
+
+<!--                    &lt;!&ndash; View all projects link fixed at the bottom &ndash;&gt;-->
+<!--                    <div class="text-center mt-2">-->
+<!--                        <a href="javascript:">View all </a>-->
+<!--                    </div>-->
+                  <!-- /.card-footer -->
+                </div>
+                <!--/.card -->
+            </div>
+        </div>
+           {% endif %}
+            <!-- Recent Projects -->
+            <div class="col-md-4 mb-4 d-flex">
+                <div class="card p-3 h-100 w-100 d-flex flex-column">
+                    <h5>Recent Projects</h5>
+                    <table class="table table-sm mb-2">
+                        <thead>
+                            <tr>
+                                <th>Project Name</th>
+                                <th>Rate Status</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for project in projects|slice:":10" %}
+                                <tr>
+                                    <td>{{ project.project_name }}</td>
+                                    <td>{{ project.rate_status }}</td>
+                                    {% if project.project_name != None %}
+                                    <td class="text-center">
+                                         <a href="{% url 'Project:project_detail' project.id %}"><i class="fas fa-ellipsis-v text-primary" style="cursor:pointer;"></i></a>
+                                    </td>
+                                    {% endif %}
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3">No recent projects</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <!-- Horizontal Line -->
+                    <hr class="mt-auto">
+                    <!-- View all projects link fixed at the bottom -->
+                    <div class="text-center mt-2">
+                        <a href="{% url 'Project:project_list' %}">View all </a>
+                    </div>
+                </div>
+            </div>
+
+            <!--For Administration and Manager for Team Members list-->
+            {% if request.session.role == 'Administrator' or request.session.role == 'Manager' %}
+            <!-- Floating "View All Team" Button -->
+            <button id="viewTeamBtn" class="btn btn-primary rounded-circle shadow" title="View Team">
+              <i class="fas fa-users"></i>
+            </button>
+
+
+            <!-- Movable Modal -->
+            <div class="modal fade" id="teamModal" tabindex="-1" aria-labelledby="teamModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered modal-md">
+                <div class="modal-content">
+                  <div class="modal-header d-flex justify-content-between align-items-center w-100">
+                      <!-- Team Members Title -->
+                      <h5 class="modal-title" id="teamModalLabel">Team Members</h5>
+                      <!-- Total Members Badge with margin -->
+                      <span class="badge bg-primary ms-3">{{ team_employees|length }} Total Members</span>
+                    </div>
+
+                <div class="modal-body">
+                      {% if team_employees %}
+                      <div class="row g-3">
+                        {% for member in team_employees %}
+                        <div class="col-6 col-md-4 col-lg-3 d-flex">
+                          <div class="card w-100 shadow-sm border-0">
+                            <div class="card-body d-flex flex-column justify-content-center align-items-center p-3">
+                              <!-- Profile Picture -->
+                        <a href="{% url 'Profile_team' member.id %}">
+                                {% if member.profile_picture %}
+                                    <img src="{{ member.profile_picture.url }}" alt="{{ member.name }}"
+                                         class="rounded-circle mb-2 shadow"
+                                         style="width: 60px; height: 60px; object-fit: cover; border: 2px solid #007bff;">
+                                {% else %}
+                                    <img src="{% static 'img/Damy.webp' %}" alt="{{ member.name }}"
+                                         class="rounded-circle mb-2 shadow"
+                                         style="width: 60px; height: 60px; object-fit: cover; border: 2px solid #007bff;">
+                                {% endif %}
+                            </a>
+
+
+                              <!-- Name -->
+                              <h6 class="mb-1 text-center">{{ member.name }}</h6>
+
+                              <!-- Designation -->
+                              <small class="text-muted text-center">{{ member.designation.title }}</small>
+                            </div>
+                          </div>
+                        </div>
+                        {% endfor %}
+                      </div>
+                      {% else %}
+                      <p class="text-muted text-center">No team members found.</p>
+                      {% endif %}
+                    </div>
+
+
+                  <div class="modal-footer">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+            <!-- Team Member Modal end-->
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Show reject box when 'Reject' is clicked-->
+<script>
+
+  function showRejectBox(leaveId) {
+    document.getElementById('reject-box-' + leaveId).style.display = 'block';
+  }
+
+  // Submit form with selected status
+  function submitStatusForm(leaveId, status) {
+    document.getElementById('status-input-' + leaveId).value = status;
+    document.getElementById('status-form-' + leaveId).submit();
+  }
+</script>
+
+<!--For Team Member Modal Button -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const teamModal = new bootstrap.Modal(document.getElementById("teamModal"));
+    const viewTeamBtn = document.getElementById("viewTeamBtn");
+
+    // Open modal on button click
+    viewTeamBtn.addEventListener("click", function () {
+      teamModal.show();
+    });
+
+    // Make the button draggable using jQuery UI
+    $("#viewTeamBtn").draggable();
+  });
+</script>
+
+{% endblock %}

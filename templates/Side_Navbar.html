@@ -1,0 +1,490 @@
+{% load static %} <!-- Loads static files for images, CSS, etc. -->
+
+<div class="wrapper">
+
+  <!-- Preloader -->
+  <div class="preloader flex-column justify-content-center align-items-center">
+    <img class="animation__shake" src="{% static 'img/BISP-BG.png' %}" alt="AdminLTELogo" height="180" width="180">
+  </div>
+
+  <!-- Navbar -->
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+      </li>
+      <li class="nav-item d-none d-sm-inline-block">
+            {% if request.session.role == "Administrator" %}
+           <a href="{% url 'Hrpanel' %}" class="nav-link" >Home</a>
+           {% elif request.session.role == "Employee" %}
+           <a href="{% url 'Emppanel' %}" class="nav-link" >Home</a>
+            {% elif request.session.role == "Manager" %}
+           <a href="{% url 'Adminpanel' %}" class="nav-link" >Home</a>
+          {% endif %}
+      </li>
+    </ul>
+
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+        <a class="nav-link" data-widget="navbar-search" href="#" role="button">
+          <i class="fas fa-search"></i>
+        </a>
+        <div class="navbar-search-block">
+          <form class="form-inline">
+            <div class="input-group input-group-sm">
+              <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
+              <div class="input-group-append">
+                <button class="btn btn-navbar" type="submit">
+                  <i class="fas fa-search"></i>
+                </button>
+                <button class="btn btn-navbar" type="button" data-widget="navbar-search">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </li>
+
+      <li class="nav-item dropdown">
+        <a class="nav-link" data-toggle="dropdown" href="{% url 'Chatbox:chat'  %}">
+          <i class="far fa-comments"></i>
+          <span class="badge badge-danger navbar-badge">3</span>
+        </a>
+        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+          <a href="#" class="dropdown-item">
+            <div class="media">
+              <img src="{% static 'img/user1-128x128.jpg' %}" alt="User Avatar" class="img-size-50 mr-3 img-circle">
+              <div class="media-body">
+                <h3 class="dropdown-item-title">
+                  Brad Diesel
+                  <span class="float-right text-sm text-danger"><i class="fas fa-star"></i></span>
+                </h3>
+                <p class="text-sm">Call me whenever you can...</p>
+                <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
+              </div>
+            </div>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="#" class="dropdown-item">
+            <div class="media">
+              <img src="{% static 'img/user8-128x128.jpg' %}" alt="User Avatar" class="img-size-50 img-circle mr-3">
+              <div class="media-body">
+                <h3 class="dropdown-item-title">
+                  John Pierce
+                  <span class="float-right text-sm text-muted"><i class="fas fa-star"></i></span>
+                </h3>
+                <p class="text-sm">I got your message bro</p>
+                <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
+              </div>
+            </div>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="#" class="dropdown-item">
+            <div class="media">
+              <img src="{% static 'img/user3-128x128.jpg' %}" alt="User Avatar" class="img-size-50 img-circle mr-3">
+              <div class="media-body">
+                <h3 class="dropdown-item-title">
+                  Nora Silvester
+                  <span class="float-right text-sm text-warning"><i class="fas fa-star"></i></span>
+                </h3>
+                <p class="text-sm">The subject goes here</p>
+                <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
+              </div>
+            </div>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
+        </div>
+      </li>
+
+      <li class="nav-item dropdown">
+        <a class="nav-link" data-toggle="dropdown" href="#">
+          <i class="far fa-bell"></i>
+          <span class="badge badge-warning navbar-badge">15</span>
+        </a>
+        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+          <span class="dropdown-item dropdown-header">15 Notifications</span>
+          <div class="dropdown-divider"></div>
+          <a href="#" class="dropdown-item">
+            <i class="fas fa-envelope mr-2"></i> 4 new messages
+            <span class="float-right text-muted text-sm">3 mins</span>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="#" class="dropdown-item">
+            <i class="fas fa-users mr-2"></i> 8 friend requests
+            <span class="float-right text-muted text-sm">12 hours</span>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="#" class="dropdown-item">
+            <i class="fas fa-file mr-2"></i> 3 new reports
+            <span class="float-right text-muted text-sm">2 days</span>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
+        </div>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+          <i class="fas fa-expand-arrows-alt"></i>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
+          <i class="fas fa-th-large"></i>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+<!-- Main Sidebar Container -->
+
+  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="{% url 'Adminpanel' %}" class="brand-link">
+      <img src="{% static 'img/logo.png' %}" alt="AdminLTE Logo" height="180" width="180"   style="opacity: .8">
+
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Sidebar user panel (optional) -->
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+        <div class="image">
+         {% if request.session.ProfileImage %}
+          <img src="{{ request.session.ProfileImage }}"
+               class="img-circle elevation-3"
+               style="width: 50px; height: 50px; object-fit: cover;"
+               alt="User Profile Picture">
+        {% else %}
+          <img src="{% static 'img/Damy.webp' %}"
+               class="img-circle elevation-3"
+               style="width: 50px; height: 50px; object-fit: cover;"
+               alt="Default Profile Picture">
+        {% endif %}
+        </div>
+        <div class="info">
+          <a href="{% url 'Profile' %}" class="d-block">{{request.session.employee_name}}</a>
+          <a href="{% url 'Profile' %}" class="d-block">{{request.session.designation.title}}</a>
+        </div>
+      </div>
+
+      <!-- SidebarSearch Form -->
+      <div class="form-inline">
+        <div class="input-group" data-widget="sidebar-search">
+          <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
+          <div class="input-group-append">
+            <button class="btn btn-sidebar">
+              <i class="fas fa-search fa-fw"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar Menu -->
+   <nav class="mt-2">
+  <ul class="nav nav-pills nav-sidebar flex-column " data-widget="treeview" role="menu" data-accordion="false">
+
+    {# Dashboard link varies based on ROLE #}
+    {% if request.session.role == "Administrator" %}
+      <li class="nav-item">
+        <a href="{% url 'Hrpanel' %}" class="nav-link">
+          <i class="nav-icon fas fa-tachometer-alt"></i>
+          <p>Dashboard</p>
+        </a>
+      </li>
+    {% elif request.session.role == "Employee" %}
+      <li class="nav-item">
+        <a href="{% url 'Emppanel' %}" class="nav-link">
+          <i class="nav-icon fas fa-tachometer-alt"></i>
+          <p>Dashboard</p>
+        </a>
+      </li>
+    {% elif request.session.role == "Manager" %}
+      <li class="nav-item">
+        <a href="{% url 'Adminpanel' %}" class="nav-link">
+          <i class="nav-icon fas fa-tachometer-alt"></i>
+          <p>Dashboard</p>
+        </a>
+      </li>
+    {% endif %}
+
+    {# Common navigation items that appear for all users #}
+      <!--Project and Task-->
+    <li class="nav-item">
+      <a href="{% url 'Project:project_list' %}" class="nav-link">
+        <i class="nav-icon fas fa-th"></i>
+        <p>Project</p>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'Project:task_list' %}" class="nav-link">
+        <i class="nav-icon fas fa-copy"></i>
+        <p>Task</p>
+      </a>
+    </li>
+     <!--Timesheet-->
+    <li class="nav-item">
+      <a href="#" class="nav-link">
+          <i class="nav-icon fas fa-tree"></i>
+          <p>
+              Timesheet
+              <i class="fas fa-angle-left right"></i>
+          </p>
+      </a>
+      <ul class="nav nav-treeview">
+          <!-- Team Record -->
+          {% if request.session.role == "Administrator"%}
+          <li class="nav-item">
+              <a href="#" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>
+                      Team Record
+                      <i class="fas fa-angle-left right"></i>
+                  </p>
+              </a>
+              <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                      <a href="{% url 'Timesheet:timesheet_record_all' %}" class="nav-link">
+                          <i class="fas fa-arrow-right"></i>
+                          <p>Timesheet</p>
+                      </a>
+                  </li>
+                  <li class="nav-item">
+                      <a href="{% url 'Timesheet:timesheet_record_image' %}" class="nav-link">
+                          <i class="fas fa-arrow-right"></i>
+                          <p>Image Timesheet</p> <!-- Now under Team Record -->
+                      </a>
+                  </li>
+              </ul>
+          </li>
+        {% endif%}
+          <!-- Other Timesheet Items -->
+          <li class="nav-item">
+              <a href="{% url 'Timesheet:timesheet_record'%}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Record</p>
+              </a>
+          </li>
+          <li class="nav-item">
+              <a href="{% url 'Timesheet:timesheet_add' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Add Weekly Record</p>
+              </a>
+          </li>
+          <li class="nav-item">
+              <a href="{% url 'Timesheet:timesheet_daily' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Add Daily Record</p>
+              </a>
+          </li>
+            <li class="nav-item">
+              <a href="{% url 'Timesheet:timesheet_image' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Add Image Record</p>
+              </a>
+          </li>
+
+       </ul>
+   </li>
+    <!--Leave-->
+      <li class="nav-item">
+      <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-calendar"></i>
+        <p>
+         Leave
+          <i class="fas fa-angle-left right"></i>
+        </p>
+      </a>
+      <ul class="nav nav-treeview">
+        <li class="nav-item">
+          <a href="{% url 'Leavelist' %}" class="nav-link">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Leave Record</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'leaveAdd' %}" class="nav-link">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Apply Leave</p>
+          </a>
+      </li>
+          {% if request.session.role != "Employee"  %}
+            <li class="nav-item">
+             <a href="{% url 'LeavelistApproved' %}" class="nav-link">
+            <i class="far fa-circle nav-icon"></i>
+                <p>Team Leave Record</p>
+             </a>
+            </li>
+            {% endif %}
+      </ul>
+      </li>
+
+
+      <!--Report-->
+    {# Additional sections can be controlled similarly #}
+    {% if request.session.role == "Administrator"%}
+    <li class="nav-item">
+      <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-bars"></i>
+        <p>
+          Report
+          <i class="fas fa-angle-left right"></i>
+        </p>
+      </a>
+      <ul class="nav nav-treeview">
+        <li class="nav-item">
+          <a href="{% url 'Emplist' %}" class="nav-link">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Leave Report</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="pages/tables/data.html" class="nav-link">
+            <i class="far fa-circle nav-icon"></i>
+            <p>WFH Report</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="pages/tables/jsgrid.html" class="nav-link">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Attandence Report</p>
+          </a>
+        </li>
+         <li class="nav-item">
+          <a href="{% url 'handbookreport' %}" class="nav-link">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Handbook Report</p>
+          </a>
+        </li>
+         <li class="nav-item">
+          <a href="pages/tables/jsgrid.html" class="nav-link">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Employee Report</p>
+          </a>
+        </li>
+         <li class="nav-item">
+          <a href="{% url 'exit_emp_list' %}" class="nav-link">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Exit Report</p>
+          </a>
+        </li>
+         <li class="nav-item">
+          <a href="pages/tables/jsgrid.html" class="nav-link">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Investment Report</p>
+          </a>
+        </li>
+         <li class="nav-item">
+          <a href="pages/tables/jsgrid.html" class="nav-link">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Sabbatical Report</p>
+          </a>
+        </li>
+      </ul>
+    </li>
+     {% endif %}
+
+
+      <!--Configuration-->
+    {# Additional sections can be controlled similarly #}
+    {% if request.session.role == "Administrator" or request.session.role == "Manager"   %}
+    <li class="nav-item">
+      <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-gear"></i>
+        <p>
+          Configuration
+          <i class="fas fa-angle-left right"></i>
+        </p>
+      </a>
+      <ul class="nav nav-treeview">
+        <li class="nav-item">
+          <a href="{% url 'Emplist' %}" class="nav-link">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Employee</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'LeaveDetail' %}" class="nav-link">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Leave</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="pages/tables/jsgrid.html" class="nav-link">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Payroll Setting</p>
+          </a>
+        </li>
+          <li class="nav-item">
+          <a href="pages/tables/jsgrid.html" class="nav-link">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Employee Salary</p>
+          </a>
+        </li>
+          <li class="nav-item">
+          <a href="{% url 'holiday' %}" class="nav-link">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Holiday</p>
+          </a>
+        </li>
+          <li class="nav-item">
+          <a href="{% url 'handbook' %}" class="nav-link">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Upload Handbook</p>
+          </a>
+        </li>
+         <li class="nav-item">
+          <a href="pages/tables/jsgrid.html" class="nav-link">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Assets</p>
+          </a>
+        </li>
+      </ul>
+    </li>
+    <li class="nav-item mt-auto">
+      <a href="{% url 'Logout' %}" class="nav-link">
+        <i class="nav-icon fas fa-user"></i>
+        <p>Employee Salary</p>
+      </a>
+    </li>
+     {% endif %}
+
+      {# Common #}
+      <li class="nav-item mt-auto">
+      <a href="{% url 'handbookemployee' %}" class="nav-link">
+        <i class="nav-icon fas fa-file-alt"></i>
+        <p>Handbook PDF</p>
+      </a>
+    </li>
+     <li class="nav-item mt-auto">
+      <a href="{% url 'learningvideo' %}" class="nav-link">
+        <i class="nav-icon fab fa-youtube"></i>
+        <p>Learning Video</p>
+      </a>
+    </li>
+     <li class="nav-item mt-auto">
+      <a href="{% url 'exit_management' %}" class="nav-link">
+        <i class="nav-icon far fa-file mr-1"></i>
+        <p style="display:inline-block;">Exit Management</p> <p>System</p>
+
+      </a>
+    </li>
+
+    {# Logout button added at the bottom #}
+    <li class="nav-item mt-auto">
+      <a href="{% url 'Logout' %}" class="nav-link">
+        <i class="nav-icon fas fa-sign-out-alt"></i>
+        <p>Logout</p>
+      </a>
+    </li>
+
+
+  </ul>
+</nav>
+
+    </div>
+  </aside>
+</div>

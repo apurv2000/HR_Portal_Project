@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'Side_Navbar.html' %}
+<div class="content-wrapper">
+
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1 class="h4 text-primary">Historylist Of Task</h1>
+        </div>
+        <div class="col-sm-6 text-end">
+          {% if request.session.role == "Administrator"  %}
+          <a href="{% url 'Project:task_list' %}" class="btn btn-primary">Back</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container my-5">
+    <div class="card shadow-lg rounded-4">
+      <div class="card-header bg-primary text-white fw-semibold">
+        Task List
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table id="taskTable" class="table table-bordered table-striped align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>#</th>
+                <th>Task</th>
+                <th>Project</th>
+                <th>Assigned Date</th>
+                <th>Update Date</th>
+                <th>AssignedTo</th>
+
+              </tr>
+            </thead>
+            <tbody>
+            {% for task in Task %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{task.task_title}}</td>
+                <td>{{task.project.project_name}}</td>
+                <td>{{task.created_at}}</td>
+                <td>{{task.timestamp}}</td>
+                <td>{{task.assigned_to.name}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

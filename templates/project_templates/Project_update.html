@@ -1,0 +1,226 @@
+{% extends 'base.html' %}  <!-- Assuming you use a base template -->
+{% load static %}
+
+{% block content %}
+ <style>
+        .dropdown-menu .form-check-label {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: block;
+          width: 100%;
+        }
+
+        .dropdown-menu {
+          max-width: 100%;
+          width: auto;
+          max-height: 250px;
+          overflow-y: auto;
+        }
+
+        /* Ensure button fits well within its container */
+        .dropdown-toggle {
+          white-space: nowrap;        /* Prevents text from wrapping */
+          overflow: hidden;           /* Hides overflow */
+          text-overflow: ellipsis;    /* Adds ellipsis for long text */
+          width: 100%;                /* Ensures button takes up the full width */
+        }
+
+
+ </style>
+{% include 'Side_Navbar.html' %}
+<div class="content-wrapper">
+
+       <!-- Page Header -->
+<section class="content-header">
+    <div class="container-fluid">
+       <div class="row mb-2">
+              <div class="col-sm-6">
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                      <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="{% url 'Project:project_list' %}" class="text-primary">Project</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Edit Project</li>
+                                </ol>
+                      </nav>
+                <section class="content">
+                <div class="container mt-4">
+                    <div class="card shadow">
+                        <div class="card-header bg-primary text-white">
+                            <h4 class="mb-0">Edit Project</h4>
+                        </div>
+                             <div class="card-body">
+                          <form id="addProjectForm" method="POST" action="{% url 'Project:Update_Project' project.id %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+
+                            <div class="row mb-3">
+                              <div class="col-md-6">
+                                <label for="project_name" class="form-label">Project Name <span class="text-danger">*</span></label>
+                                <input type="text" name="project_name" class="form-control" value="{{ project.project_name|default:'' }}">
+                              </div>
+                              <div class="col-md-6">
+                                <label for="client_name" class="form-label">Client Name <span class="text-danger">*</span></label>
+                                <input type="text" name="client_name" class="form-control" value="{{ project.client_name|default:'' }}">
+                              </div>
+                            </div>
+
+                            <div class="row mb-3">
+                              <div class="col-md-6">
+                                <label for="start_date" class="form-label">Start Date <span class="text-danger">*</span></label>
+                                <input type="date" name="start_date" class="form-control" value="{{ project.start_date|date:'Y-m-d' }}">
+                              </div>
+                              <div class="col-md-6">
+                                <label for="end_date" class="form-label">End Date <span class="text-danger">*</span></label>
+                                <input type="date" name="end_date" class="form-control" value="{{ project.end_date|date:'Y-m-d' }}">
+                              </div>
+                            </div>
+
+                            <div class="row mb-3">
+                              <div class="col-md-4">
+                                <label class="form-label">Rate Status</label>
+                                <select name="rate_status" class="form-select form-control">
+                                  <option {% if project.rate_status == "Non Billable" %}selected{% endif %}>Non Billable</option>
+                                  <option {% if project.rate_status == "Billable" %}selected{% endif %}>Billable</option>
+                                </select>
+                              </div>
+                              <div class="col-md-4">
+                                <label class="form-label">Rate</label>
+                                <div class="input-group">
+                                  <select class="form-select form-control" name="rate_currency" style="max-width: 80px;">
+                                    <option {% if project.rate_currency == "Rs" %}selected{% endif %}>Rs</option>
+                                    <option {% if project.rate_currency == "USD" %}selected{% endif %}>USD</option>
+                                  </select>
+                                  <input type="text" class="form-control" name="rate_amount" placeholder="Rate" value="{{ project.rate_amount|default:'' }}">
+                                </div>
+                                  <small class="text-danger"></small>
+                              </div>
+                              <div class="col-md-4">
+                                <label class="form-label">Priority <span class="text-danger">*</span></label>
+                                <select name="priority" class="form-select form-control">
+                                  <option {% if project.priority == "Low" %}selected{% endif %}>Low</option>
+                                  <option {% if project.priority == "Medium" %}selected{% endif %}>Medium</option>
+                                  <option {% if project.priority == "High" %}selected{% endif %}>High</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div class="row mb-3">
+                              <div class="col-md-4">
+                                <label class="form-label">Project Leader <span class="text-danger">*</span></label>
+                                <select name="leader" class="form-select form-control">
+                                  <option disabled selected>Select a Project Leader</option>
+                                  {% for emp in employees %}
+                                    {% if emp.role != 'Employee' and emp.status == 'active' %}
+                                      <option value="{{ emp.id }}" {% if emp.id == project.leader_id %}selected{% endif %}>
+                                        {{ emp.name }}{% if emp.role %} ({{ emp.role }}){% endif %}{% if emp.department %} - {{ emp.department }}{% endif %}
+                                      </option>
+                                    {% endif %}
+                                  {% endfor %}
+                                </select>
+                              </div>
+
+                              <div class="col-md-4">
+                                <label class="form-label">Admin <span class="text-danger">*</span></label>
+                                <select name="admin" class="form-select form-control">
+                                  <option disabled selected>Select Admin</option>
+                                  {% for emp in admin_employees %}
+                                    {% if emp.status == 'active' %}
+                                    <option value="{{ emp.id }}" {% if emp.id == project.admin_id %}selected{% endif %}>{{ emp.name }}</option>
+                                  {% endif %}
+                                    {% endfor %}
+                                </select>
+                              </div>
+
+                        <div class="col-md-4" id="teamMembersWrapper">
+                              <label class="form-label">Team Members <span class="text-danger">*</span></label>
+                              <div class="dropdown w-100">
+                                <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button"
+                                        id="teamMembersBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                                  Select team members
+                                </button>
+                                <div class="dropdown-menu w-100 p-2" id="teamMembersDropdown" style="max-height: 250px; overflow-y: auto;">
+                                  {% for emp in employees %}
+                                    {% if emp.role == 'Employee' and emp.status == 'active'  %}
+                                      <div class="form-check">
+                                        <input class="form-check-input team-member-option" type="checkbox"
+                                               value="{{ emp.id }}" id="emp_{{ emp.id }}"
+                                               name="team_members"
+                                               {% if emp.id in team_member_ids %}checked{% endif %}>
+                                        <label class="form-check-label" for="emp_{{ emp.id }}">
+                                          {{ emp.name }} ({{ emp.role }}){% if emp.department %} - {{ emp.department }}{% endif %}
+                                        </label>
+                                      </div>
+                                    {% endif %}
+                                  {% endfor %}
+                                </div>
+                              </div>
+                            </div>
+
+                            </div>
+
+                            <div class="mb-3">
+                              <label class="form-label">Description <span class="text-danger">*</span></label>
+                              <textarea name="description" class="form-control" rows="3">{{ project.description|default:'' }}</textarea>
+                            </div>
+
+                            <div class="mb-3">
+                              <label class="form-label">Upload File <span class="text-danger small">(file size: Max 2MB)</span></label>
+                              <input type="file" name="upload_file" class="form-control">
+                            </div>
+
+                            <div class="text-end">
+                              <button type="submit" class="btn btn-primary">Update</button>
+                            </div>
+                          </form>
+        </div>
+    </div>
+</div>
+</section>
+</div>
+
+<!--Script for Team member dropdown in Project Add-->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    function updateTeamMembersButton() {
+      let selectedNames = [];
+
+      // Log the checkboxes selected
+      document.querySelectorAll('.team-member-option:checked').forEach((checkbox) => {
+        const label = document.querySelector(`label[for="${checkbox.id}"]`);
+        if (label) {
+          selectedNames.push(label.textContent.trim());
+        } else {
+          console.log(`Label not found for checkbox: ${checkbox.id}`);
+        }
+      });
+
+      // Log the selected names
+      console.log(selectedNames);
+
+      const btn = document.getElementById('teamMembersBtn');
+      if (btn) {
+        if (selectedNames.length > 0) {
+          btn.textContent = selectedNames.join(', ');
+        } else {
+          btn.textContent = "Select team members";
+        }
+      }
+    }
+
+    // Attach event listeners inside DOMContentLoaded
+    document.querySelectorAll('.team-member-option').forEach((checkbox) => {
+      checkbox.addEventListener('change', updateTeamMembersButton);
+    });
+
+    // Run once on load
+    updateTeamMembersButton();
+  });
+</script>
+
+
+
+
+{% endblock %}

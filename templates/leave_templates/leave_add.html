@@ -1,0 +1,195 @@
+{% extends 'base.html' %}  <!-- Extends the base template -->
+{% load static %}  <!-- Loads static files for images, CSS, etc. -->
+{% block title  %} Leave Apply {% endblock %}  <!-- Sets the page title -->
+
+{% block content %}
+
+  {% include 'Side_Navbar.html' %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="h4 text-primary">Apply Leave</h1>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#" class="text-primary">Home</a></li>
+              <li class="breadcrumb-item active">Leave</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+   <section class="content">
+  <div class="container">
+    <div class="row">
+
+      <!-- Left Column: Leave Detail -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">Leave Detail</div>
+          <div class="card-body">
+            <div style="overflow-x: auto;">
+                 <table class="table table-bordered table-striped text-center" style="min-width: 100%;">
+                <thead class="table-dark">
+                  <tr>
+                    <th>Type</th>
+                    {% for type in leave_data %}
+                      <th>{{ type.name }}</th>
+                    {% endfor %}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Total Leave</td>
+                    {% for type in leave_data %}
+                      <td>{{ type.total_leave }}</td>
+                    {% endfor %}
+                  </tr>
+                  <tr>
+                    <td>Remaining Leave</td>
+                    {% for type in leave_data %}
+                      <td>{{ type.remaining_leave }}</td>
+                    {% endfor %}
+                  </tr>
+                  <tr>
+                    <td>Availed Leave</td>
+                    {% for type in leave_data %}
+                      <td>{{ type.availed_leave }}</td>
+                    {% endfor %}
+                  </tr>
+                </tbody>
+              </table>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Leave Form -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">Leave Form</div>
+          <div class="card-body">
+            <form method="post" action="{% url 'applyleave' %}" enctype="multipart/form-data" id="leave-form">
+              {% csrf_token %}
+
+              <!-- Name -->
+              <div class="mb-3">
+                <label>Name:</label>
+                <input type="text" class="form-control" name="name" value="{{ request.session.employee_name }}" readonly>
+                <div id="error-name" class="text-danger"></div>
+              </div>
+
+              <!-- Apply Date -->
+              <div class="mb-3">
+                <label>Apply Date:</label>
+                <input type="text" class="form-control" name="applydate" value="{{ request.session.Currenttime }}" readonly>
+                <div id="error-applydate" class="text-danger"></div>
+              </div>
+
+              <!-- Leave Type -->
+              <div class="mb-3">
+                <label>Leave Type:<span class="text-danger">*</span></label>
+                <select class="form-control" name="leavetype" id="leavetype" onchange="updateRemainingLeave()">
+                  <option value="" disabled selected>Select Leave</option>
+                  {% for leave in leave_data %}
+                    <option value="{{ leave.name }}" data-remaining="{{ leave.remaining_leave }}">{{ leave.name }}</option>
+                  {% endfor %}
+                </select>
+                <div id="error-leavetype" class="text-danger"></div>
+              </div>
+
+              <!-- Remaining Leave -->
+              <div class="mb-3">
+                <label>Remaining Leave:</label>
+                <input type="text" class="form-control" id="remainleave" name="remainleave" value="" readonly>
+              </div>
+              <!-- From Date -->
+              <div class="mb-3">
+                <label>From Date:<span class="text-danger">*</span></label>
+                <input type="date" id="fromDate" name="fromdate" class="form-control">
+                <div id="error-fromdate" class="text-danger"></div>
+              </div>
+
+              <!-- Till Date -->
+              <div class="mb-3">
+                <label>Till Date:<span class="text-danger">*</span></label>
+                <input type="date" id="tillDate" name="tilldate" class="form-control">
+                <div id="error-date" class="text-danger"></div>
+              </div>
+
+              <!-- Half Day / Compensatory -->
+              <div class="mb-3">
+                <input type="checkbox" id="halfDayCheckbox" name="halfday"> Half Day
+                <input type="checkbox" id="compensatoryCheckbox" name="compensatory_off"> Compensatory Off
+              </div>
+
+              <!-- Compensatory Reason -->
+              <div id="compensatoryReasonContainer" class="mb-3" style="display: none;">
+                <label for="compensatoryReason">Compensatory Reason:</label>
+                <textarea id="compensatoryReason" name="compensatory_reason" class="form-control" rows="3"></textarea>
+              </div>
+
+              <!-- Half Day Table -->
+              <div id="halfDayTableContainer" style="display: none;">
+                <table class="table table-bordered table-sm text-center">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Date</th>
+                      <th>Day</th>
+                      <th>Half Day Option</th>
+                    </tr>
+                  </thead>
+                  <tbody id="halfDayTableBody"></tbody>
+                </table>
+              </div>
+
+              <!-- Reason -->
+              <div class="mb-3">
+                <label>Reason:<span class="text-danger">*</span></label>
+                <textarea name="reason" class="form-control"></textarea>
+                <div id="error-reason" class="text-danger"></div>
+              </div>
+
+              <!-- File -->
+              <div class="mb-3">
+                <label>Attachment:</label>
+                <input type="file" class="form-control" name="file">
+                <small class="text-danger">(Only PDF, JPEG, PNG, max 2MB)</small>
+              </div>
+
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+            <div id="error-messages" class="d-none"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+  </div>
+
+
+
+</div>
+{% endblock %}

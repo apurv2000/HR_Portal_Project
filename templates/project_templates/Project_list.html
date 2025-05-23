@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'Side_Navbar.html' %}
+
+
+
+<div class="content-wrapper">
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+            <h1 class="h4 text-primary">List Of Project</h1>
+        </div>
+        <div class="col-sm-6 text-end">
+          {% if request.session.role == "Administrator" %}
+          <a href="{% url 'Project:Project_History' %}" class="btn btn-primary">History</a>
+           {% endif %}
+          {% if request.session.role == "Administrator" or request.session.role == "Manager" %}
+          <a href="{% url 'Project:project_add' %}" class="btn btn-primary">Add Project</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container mt-4">
+    <div class="card shadow rounded-3">
+      <div class="card-header bg-primary text-white fw-semibold">
+        Project List
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table id="projectTable" class="table table-bordered table-striped align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>#</th>
+                <th>Project</th>
+                <th>Deadline</th>
+                <th>Rate Status</th>
+                <th>Project Leader</th>
+                <th>Team Member</th>
+                {% if request.session.role == "Administrator" %}
+                <th>Actions</th>
+                {% endif %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for project in projects %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>
+                  <a href="{% url 'Project:project_detail' project.id %}" class="text-decoration-none text-primary">
+                    {{ project.project_name }}
+                  </a>
+                </td>
+                <td>{{ project.end_date|date:"Y,F-d" }}</td>
+                <td>{{ project.rate_status }}</td>
+                <td>{{ project.leader.name }}</td>
+                <td>
+                  <div class="d-flex flex-wrap gap-1">
+                    {% for member in project.team_members.all %}
+                    {% if member.status == 'active' %}
+                         {% if member.profile_picture %}
+                                <img src="{{ member.profile_picture.url }}" alt="{{ member.name }}"
+                                     class="rounded-circle mb-2 shadow"
+                                     style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #007bff;">
+                            {% else %}
+                                <img src="{% static 'img/Damy.webp' %}" alt="{{ member.name }}"
+                                     class="rounded-circle mb-2 shadow"
+                                     style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #007bff;">
+                            {% endif %}
+                    {% endif %}
+                    {% endfor %}
+                  </div>
+                </td>
+                <!--Only For Administrator-->
+                {% if request.session.role == "Administrator" %}
+                <td class="text-center"><a href="{% url 'Project:project_update_page' project.id %}"><span class="badge bg-success ">Edit</span></a></td>
+                  {% endif %}
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="7" class="text-center">No records found.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Handbook Report{% endblock %}
+
+{% block content %}
+{% include 'Side_Navbar.html' %}
+
+<div class="content-wrapper">
+
+    <!-- Page Header -->
+     <section class="content-header">
+          <div class="container-fluid">
+            <div class="row mb-2">
+              <div class="col-sm-6">
+
+        </div>
+      </div>
+    </div>
+      </section>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb bg-light px-3 py-2">
+            <li class="breadcrumb-item"><a href="#" class="text-primary">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Handbook Report</li>
+          </ol>
+        </nav>
+    <div class="container py-3">
+     <div class="d-flex justify-content-end">
+    <a href="{% url 'export_to_excel' %}" class="btn btn-primary mb-3">Download Report (Excel)</a>
+        </div>
+
+      <div class="card">
+        <div class="card-body">
+          <table class="table align-middle table-hover">
+            <thead>
+            <tr>
+              <th>#</th>
+              <th>Employee</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+         <tbody>
+            {% if acknowledgements %}
+              {% for ack in acknowledgements %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div>
+                      <strong>{{ ack.employee.name }}</strong><br>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ ack.employee.email }}</td>
+                <td>{{ ack.employee.role }}</td>
+                <td>
+                  {% if ack.status == "Acknowledge" %}
+                    <span class="badge bg-success">Acknowledged</span>
+                  {% else %}
+                    <span class="badge bg-danger">Not Acknowledge</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="5" class="text-center text-muted">No acknowledgements for this PDF.</td></tr>
+              {% endfor %}
+
+            {% elif employees %}
+              {% for employee in employees %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div>
+                      <strong>{{ employee.name }}</strong><br>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ employee.email }}</td>
+                <td>{{ employee.role }}</td>
+                <td>
+                  {% if employee.id in acknowledged_ids %}
+                    <span class="badge bg-success">Acknowledged</span>
+                  {% else %}
+                    <span class="badge bg-danger">Not Acknowledge</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="5" class="text-center text-muted">No employees found.</td></tr>
+              {% endfor %}
+            {% else %}
+              <tr><td colspan="5" class="text-center text-muted">No data available.</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  </div>
+  {% endblock %}
