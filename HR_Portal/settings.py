@@ -115,6 +115,10 @@ LOGGING = {
             'format': '{asctime} | Action: {action} | By: {user} | Details: {message}',
             'style': '{',
         },
+        'error_format': {
+            'format': '{asctime} | Level: {levelname} | Module: {module} | Line: {lineno} | Message: {message}',
+            'style': '{',
+        },
     },
 
     'handlers': {
@@ -125,6 +129,18 @@ LOGGING = {
             'formatter': 'audit_format',
             'encoding': 'utf-8',
         },
+        'error_file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'error.log'),
+            'formatter': 'error_format',
+            'encoding': 'utf-8',
+        },
+        'console': {
+            'level': 'ERROR',
+            'class': 'logging.StreamHandler',
+            'formatter': 'error_format',
+        },
     },
 
     'loggers': {
@@ -133,9 +149,13 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
+        'django': {
+            'handlers': ['error_file', 'console'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
     },
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

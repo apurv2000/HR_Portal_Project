@@ -832,39 +832,24 @@
                       <table class="table table-bordered table-striped" id="assetsTable">
                         <thead class="thead-light">
                           <tr>
-                            <th>Asset Name</th>
-                            <th>Asset Type</th>
-                            <th>Assigned To</th>
-                            <th>Condition</th>
-                            <th>Acquisition Date</th>
-                            <th>Status</th>
+                            <th>Asset Class</th>
+                              <th>Asset ID</th>
+                              <th>Asset Name</th>
+                              <th>Cost</th>
+                              <th>Purchase Date</th>
+                              <th>Given Date</th>
+
                           </tr>
                         </thead>
                         <tbody>
                           {% for asset in assets %}
                           <tr>
-                            <td>{{ asset.name }}</td>
-                            <td>{{ asset.asset_type }}</td>
-                            <td>{{ asset.assigned_to.name }}</td>
-                            <td>
-                              <span class="badge
-                                {% if asset.condition == 'New' %} bg-success
-                                {% elif asset.condition == 'Good' %} bg-info
-                                {% elif asset.condition == 'Fair' %} bg-warning
-                                {% else %} bg-danger {% endif %}">
-                                {{ asset.condition }}
-                              </span>
-                            </td>
-                            <td>{{ asset.acquisition_date }}</td>
-                            <td>
-                              <span class="badge
-                                {% if asset.status == 'Active' %} bg-success
-                                {% elif asset.status == 'Inactive' %} bg-secondary
-                                {% elif asset.status == 'Under Maintenance' %} bg-warning
-                                {% else %} bg-danger {% endif %}">
-                                {{ asset.status }}
-                              </span>
-                            </td>
+                       <td>{{ asset.asset_class|default:"-" }}</td>
+                        <td>{{ asset.asset_id|default:"-" }}</td>
+                        <td>{{ asset.asset_name|default:"-" }}</td>
+                        <td>{{ asset.asset_cost|default:"0.00" }}</td>
+                        <td>{{ asset.purchase_date|date:"M d, Y"|default:"N/A" }}</td>
+                        <td>{{ asset.given_date|date:"M d, Y"|default:"N/A" }}</td>
                           </tr>
                           {% empty %}
                           <tr>

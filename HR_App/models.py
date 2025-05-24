@@ -428,3 +428,24 @@ class ExitDocument(models.Model):
 
     def __str__(self):
         return self.document.name
+
+class Asset(models.Model):
+    # ForeignKey to the employee/user the asset is allocated to
+    allocated_to = models.ForeignKey(
+    EmployeeBISP, on_delete=models.CASCADE, related_name='assets'
+    )
+
+    asset_class = models.CharField(max_length=100)
+    asset_name = models.CharField(max_length=200)
+    asset_id = models.CharField(max_length=100, unique=True)
+    given_date = models.DateField()
+    purchase_date = models.DateField(null=True, blank=True)
+    asset_cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    asset_detail = models.TextField(blank=True)
+
+    status = models.CharField(max_length=20, default="active")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.asset_name} ({self.asset_id})"

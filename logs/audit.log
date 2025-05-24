@@ -9,3 +9,11 @@
 2025-05-23 14:59:12,014 | Action: LEAVE STATUS | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' leave is Approved.
 2025-05-23 15:01:49,713 | Action: LEAVE_APPLY | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' apply for leave of 1.
 2025-05-23 15:04:15,385 | Action: LEAVE_APPLY | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' apply for leave of 1 day
+2025-05-24 12:07:44,141 | Action: UPDATE_EMPLOYEE | By: apurvmalviya@gmail.com | Details: Employee 'Chandresh Srivas' update with ID 62.
+2025-05-24 17:04:06,413 | Action: Employee Logout | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged out with at time 2025-05-24 17:04:06.
+2025-05-24 17:04:11,622 | Action: Employee Login | By: yash@gmail.com | Details: Employee 'Yash Anant Malviya' logged in with at time 2025-05-24 17:04:11.
+2025-05-24 17:05:56,699 | Action: LEAVE_APPLY | By: yash@gmail.com | Details: Employee 'Yash Anant Malviya' apply for leave of 1 day
+2025-05-24 17:27:57,103 | Action: Employee Logout | By: yash@gmail.com | Details: Employee 'Yash Anant Malviya' logged out with at time 2025-05-24 17:27:57.
+2025-05-24 17:29:05,549 | Action: Employee Login | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged in with at time 2025-05-24 17:29:05.
+2025-05-24 17:33:56,581 | Action: LEAVE_APPLY | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' apply for leave of 3 day
+2025-05-24 17:39:40,191 | Action: LEAVE_APPLY | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' apply for leave of 1 day

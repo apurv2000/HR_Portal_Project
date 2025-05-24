@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Assets List{% endblock %}
+
+{% block content %}
+<style>
+      .table td, .table th {
+    font-size: 14px;
+    vertical-align: middle;
+  }
+
+  .card-header {
+    font-size: 18px;
+  }
+
+  .table thead th {
+    background-color: #0d6efd;
+    color: white;
+  }
+
+  .btn-outline-primary:hover,
+  .btn-outline-danger:hover {
+    transform: scale(1.05);
+    transition: 0.2s ease-in-out;
+  }
+
+  .table tbody tr:hover {
+    background-color: #f9f9f9;
+  }
+        .user-card { border-left: 3px solid #007bff; padding-left: 10px; }
+        .action-icons i { margin: 0 5px; cursor: pointer; }
+</style>
+<!-- Sidebar -->
+{% include 'Side_Navbar.html' %}
+<div class="content-wrapper">
+
+  <!-- Page Header -->
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+        </div>
+        <div class="col-sm-6 text-right">
+        </div>
+      </div>
+    </div>
+  </section>
+<div class="container mt-4">
+  <div class="card shadow-sm border-0 rounded-3">
+  <div class="card-header bg-primary text-white fw-semibold">
+    <i class="fas fa-boxes me-2"></i> Asset Allocation List
+  </div>
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle mb-0">
+      <thead class="table-primary text-center">
+        <tr>
+          <th>Employee</th>
+          <th>Asset Class</th>
+          <th>Asset ID</th>
+          <th>Asset Name</th>
+          <th>Cost</th>
+          <th>Purchase Date</th>
+          <th>Given Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for employee, assets in grouped_assets.items %}
+          <tr>
+                <td rowspan="{{ assets|length }}" class="bg-light text-primary text-center align-middle">
+                  <div class="d-flex align-items-center justify-content-center gap-2">
+                    {% if employee.profile_picture %}
+                      <img src="{{ employee.profile_picture.url }}" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #dee2e6;">
+                    {% else %}
+                      <i class="fas fa-user-circle fa-2x text-secondary"></i>
+                    {% endif %}
+                    <span class="fw-bold">{{ employee.name }}</span>
+                  </div>
+                </td>
+            <td>{{ assets.0.asset_class }}</td>
+            <td>{{ assets.0.asset_id }}</td>
+            <td>{{ assets.0.asset_name }}</td>
+            <td>₹{{ assets.0.asset_cost|default:"—" }}</td>
+            <td>{{ assets.0.purchase_date|date:"M d, Y"|default:"—" }}</td>
+            <td>{{ assets.0.given_date|date:"M d, Y" }}</td>
+            <td class="text-center">
+              <a href="{% url 'assets_edit_page' assets.0.id %}" class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                <i class="fas fa-pen"></i>
+              </a>
+              <a href="{% url 'assets_delete' assets.0.id%}"  class="btn btn-sm btn-outline-danger" title="Delete">
+                <i class="fas fa-trash"></i>
+              </a>
+            </td>
+          </tr>
+          {% for asset in assets|slice:"1:" %}
+          <tr>
+            <td>{{ asset.asset_class }}</td>
+            <td>{{ asset.asset_id }}</td>
+            <td>{{ asset.asset_name }}</td>
+            <td>₹{{ asset.asset_cost|default:"—" }}</td>
+            <td>{{ asset.purchase_date|date:"M d, Y"|default:"—" }}</td>
+            <td>{{ asset.given_date|date:"M d, Y" }}</td>
+            <td class="text-center">
+              <a href="{% url 'assets_edit_page' assets.0.id %}" class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                <i class="fas fa-pen"></i>
+              </a>
+              <a href="{% url 'assets_delete' assets.0.id%}" class="btn btn-sm btn-outline-danger" title="Delete">
+                <i class="fas fa-trash"></i>
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+</div>
+</div>
+
+{% endblock %}

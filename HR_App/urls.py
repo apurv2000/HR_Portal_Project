@@ -60,6 +60,7 @@ urlpatterns = [
       path('exit_management/email/', views.Exit_management_email, name='exit_mail_send'),
       path('exit_management/details/Emp/<int:id>/', views.Resign_emp, name='resign_emp'),
       path('test-log/', views.test_log_view),
+      path('error-log/', views.test_error_view),
       path('holiday/', views.holiday, name='holiday'),
       path("exit-management/checklist/store/", views.save_checklist, name="checklist_store"),
       path('exit/document/emp/',views.upload_exit_document,name="upload_exit_doc"),
@@ -69,6 +70,11 @@ urlpatterns = [
            name='update_HR_approval'),
       path('finish/process/<int:id>',views.finish_process,name="finish"),
       path('exit/employee/list/',views.exit_emp_list,name='exit_emp_list'),
-      path('withdraw/resign/<int:id>',views.withdraw_resign,name='withdraw_Resign')
+      path('withdraw/resign/<int:id>',views.withdraw_resign,name='withdraw_Resign'),
+      path('assets/list/', views.assets_list, name='assets_list'),
+      path('assets/add/', views.add_asset, name='assets-add'),
+      path('assets/edit/', views.assets_edit, name='assets_edit'),
+      path('assets/edit/page/<int:id>', views.assets_edit_page, name='assets_edit_page'),
+      path('assets/delete/<int:id>', views.assets_delete, name='assets_delete'),
 
 ]

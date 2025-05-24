@@ -5,6 +5,7 @@ import os
 import random
 import re
 import string
+from collections import defaultdict
 from itertools import chain
 from operator import attrgetter
 from django.utils.timezone import localtime, make_aware
@@ -38,7 +39,7 @@ from .models import EmployeeBISP, Leave, LeaveType, Designation, Department, Han
     HandbookAcknowledgement, EmpLeaveType, EmployeeBISPHistory, LeaveTypeHistory, \
     LearningVideo, EmployeePersonalDetails, EmployeeEmergencyContact, EmployeeBankDetails, \
     EmployeeEducation, EmployeeExperience, EmployeeDocument, ResignationApplication, \
-    Holiday, ExitEmail, EmployeeChecklist, ExitDocument  # Import your Employee model
+    Holiday, ExitEmail, EmployeeChecklist, ExitDocument, Asset  # Import your Employee model
 from openpyxl import Workbook
 from datetime import date, timedelta
 
@@ -492,6 +493,12 @@ def Employee(request):
         activity_type=Value('Task', output_field=CharField())
     )
 
+    latest_Assets = Asset.objects.filter(
+        allocated_to=employee
+    ).annotate(
+        activity_type=Value('Assets', output_field=CharField())
+    )
+
     latest_leaves = Leave.objects.filter(employee=employee).annotate(
         activity_type=Value('Leave', output_field=CharField())
     )
@@ -517,8 +524,10 @@ def Employee(request):
         activity_datetime=F('uploaded_at')  # Set the activity_datetime to uploaded_at
     ).order_by('-uploaded_at')  # Order by the most recent uploaded handbooks first
 
+
+
     # Attach normalized datetime (prefer updated_at or fallback)
-    for item in chain(latest_tasks, latest_leaves, latest_projects,latest_acknowledgements,latest_projectCom):
+    for item in chain(latest_tasks, latest_leaves, latest_projects,latest_acknowledgements,latest_projectCom,latest_Assets ):
         if hasattr(item, 'timestamp'):
             item.activity_datetime = item.timestamp
         elif hasattr(item, 'created_at'):
@@ -532,7 +541,7 @@ def Employee(request):
 
     # Combine and get latest 10
     combined_activities = sorted(
-        chain(latest_tasks, latest_leaves, latest_projects, latest_acknowledgements,latest_projectCom),
+        chain(latest_tasks, latest_leaves, latest_projects, latest_acknowledgements,latest_projectCom,latest_Assets ),
         key=lambda x: x.activity_datetime,
         reverse=True
     )[:10]
@@ -692,7 +701,12 @@ def Profile(request):
     except  EmployeeExperience.DoesNotExist:
         experiences=None
 
-    return render(request,'admin_templates/profile.html',{'employee':employee,'records': records,'projects': projects.distinct(),'tasks': tasks,'employees': [current_employee],'personalDetails':personalDetails,'primary_contact': primary_contact,'secondary_contact':secondary_contact,'bank_details':bank_details,'Edu':Edu,'experiences':experiences,'Document':Document,'total_leave':aggregated_leave})
+    try:
+        assets=Asset.objects.filter(allocated_to=employee)
+    except  Asset.DoesNotExist:
+        assets= None
+
+    return render(request,'admin_templates/profile.html',{'employee':employee,'records': records,'projects': projects.distinct(),'tasks': tasks,'employees': [current_employee],'personalDetails':personalDetails,'primary_contact': primary_contact,'secondary_contact':secondary_contact,'bank_details':bank_details,'Edu':Edu,'experiences':experiences,'Document':Document,'total_leave':aggregated_leave,'assets':assets})
 
 #Profile of team member for administrator and manager
 def Team_profile(request,id):
@@ -817,8 +831,13 @@ def Team_profile(request,id):
     except EmployeeDocument.DoesNotExist:
         Document = None
 
+    try:
+        assets = Asset.objects.filter(allocated_to=employee)
+    except  Asset.DoesNotExist:
+        assets = None
 
-    return render(request, 'admin_templates/profile.html', {'employee':employee,'records': records,'projects': projects.distinct(),'tasks': tasks,'employees': [current_employee],'personalDetails':personalDetails,'primary_contact': primary_contact,'secondary_contact':secondary_contact,'bank_details':bank_details,'Edu':Edu,'PriExperience':PriExperience,'SecExperience':SecExperience,'Document':Document,'total_leave':aggregated_leave})
+
+    return render(request, 'admin_templates/profile.html', {'employee':employee,'records': records,'projects': projects.distinct(),'tasks': tasks,'employees': [current_employee],'personalDetails':personalDetails,'primary_contact': primary_contact,'secondary_contact':secondary_contact,'bank_details':bank_details,'Edu':Edu,'PriExperience':PriExperience,'SecExperience':SecExperience,'Document':Document,'total_leave':aggregated_leave,'assets':assets})
 
 
 def Forget_pwd(request):
@@ -1562,10 +1581,12 @@ def register_user(request):
 
         # Validate Role (check if valid)
         if not role:
+            logger.error("Role is required.")
             errors["role"] = "Role is required."
 
         # Validate Email
         if not email:
+            logger.error("Email is required.")
             errors.setdefault("Email", []).append("Email is required.")
         else:
             try:
@@ -1583,10 +1604,12 @@ def register_user(request):
                     errors.setdefault("Email", []).append("This email address is already in use.")
 
             except ValidationError:
+                logger.error("Invalid email format.")
                 errors.setdefault("Email", []).append("Invalid email format.")
 
         # Validate Password Confirmation
         if password != confirm_password:
+            logger.error("Passwords do not match.")
             errors["RPWD"] = "Passwords do not match."
 
         # Validate password strength
@@ -1604,6 +1627,7 @@ def register_user(request):
 
         # Validate Date of Joining (DOJ)
         if not doj:
+            logger.error("DOJ is required.")
             errors.setdefault("DOJ", []).append("DOJ is required.")
         else:
             try:
@@ -1611,28 +1635,18 @@ def register_user(request):
                 doj_date = datetime.strptime(doj, "%Y-%m-%d").date()
                 four_months_future = (datetime.today() + timedelta(days=120)).date()
                 if doj_date.year < today.year:
+                    logger.error("Date of Joining cannot be from a previous year.")
                     errors["DOJ"] = "Date of Joining cannot be from a previous year."
                 elif doj_date > four_months_future:
+                    logger.error("Date of Joining cannot be more than 4 months from today.")
                     errors["DOJ"] = "Date of Joining cannot be more than 4 months from today."
             except ValueError:
+                logger.error( "Invalid Date of Joining format. Use YYYY-MM-DD.")
                 errors["DOJ"] = "Invalid Date of Joining format. Use YYYY-MM-DD."
-
-        # Validate Date of Birth (DOB) for profile
-        # if not dob:
-        #     errors.setdefault("DOB", []).append("DOB is required.")
-        # else:
-        #     try:
-        #         dob_date = datetime.strptime(dob, "%Y-%m-%d").date()
-        #         min_dob = datetime(1980, 1, 1).date()
-        #         if dob_date < min_dob:
-        #             errors["DOB"] = "Date of Birth must be on or after January 1, 1980"
-        #         elif dob_date > datetime.now().date():
-        #             errors["DOB"] = "Date of Birth must be less than present date"
-        #     except ValueError:
-        #         errors["DOB"] = "Invalid Date of Birth format. Use YYYY-MM-DD."
 
         # Validate Department and Designation
         if not department:
+            logger.error("Department is required.")
             errors.setdefault("Department", []).append("Department is required.")
         else:
             try:
@@ -1641,12 +1655,14 @@ def register_user(request):
                 errors["Department"] = f"{department} does not exist."
 
         if not designation:
+            logger.error("Designation is required.")
             errors.setdefault("Designation", []).append("Designation is required.")
         else:
             try:
                 designation_obj, created = Designation.objects.get_or_create(title=designation,
                                                                              department=department_obj)
             except Exception:
+                logger.error(f"Designation '{designation}' does not exist in department '{department}'")
                 errors["Designation"] = f"Designation '{designation}' does not exist in department '{department}'."
 
         # # Validate profile picture format and size
@@ -3730,6 +3746,14 @@ def test_log_view(request):
         return HttpResponse(f"<pre>{content}</pre>")
     return HttpResponse("Log file not found.")
 
+def test_error_view(request):
+    log_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logs', 'error.log')
+    if os.path.exists(log_path):
+        with open(log_path, 'r') as file:
+            content = file.read()
+        return HttpResponse(f"<pre>{content}</pre>")
+    return HttpResponse("Log file not found.")
+
 
 # For Holiday
 def holiday(request):
@@ -3776,3 +3800,185 @@ def withdraw_resign(request, id):
 
     return redirect('Emppanel')
 
+# Assets Add
+def add_asset(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+    if request.method == 'POST':
+        errors = {}
+
+        allocated_to_id = request.POST.get('allocated_to')
+        asset_class = request.POST.get('asset_class', '').strip()
+        asset_name = request.POST.get('asset_name', '').strip()
+        asset_id = request.POST.get('asset_id', '').strip()
+        given_date = request.POST.get('given_date')
+        purchase_date = request.POST.get('purchase_date')
+        asset_cost = request.POST.get('asset_cost')
+        asset_detail = request.POST.get('asset_detail', '')
+
+        # Validate each field manually
+        if not allocated_to_id:
+            errors['allocated_to'] = "Employee selection is required."
+        else:
+            try:
+                allocated_to = EmployeeBISP.objects.get(id=allocated_to_id)
+            except EmployeeBISP.DoesNotExist:
+                errors['allocated_to'] = "Selected employee does not exist."
+
+        if not asset_class:
+            errors['asset_class'] = "Asset class is required."
+
+        if not asset_name:
+            errors['asset_name'] = "Asset name is required."
+
+        if not asset_id:
+            errors['asset_id'] = "Asset ID is required."
+        elif Asset.objects.filter(asset_id=asset_id).exists():
+            errors['asset_id'] = "Asset ID already exists."
+
+        if not given_date:
+            errors['given_date'] = "Given date is required."
+        else:
+            given_date = parse_date(given_date)
+            if not given_date:
+                errors['given_date'] = "Invalid given date format."
+
+
+        if purchase_date:
+            purchase_date = parse_date(purchase_date)
+            if not purchase_date:
+                errors['purchase_date'] = "Invalid purchase date format."
+        else:
+            purchase_date = None
+
+        # If there are errors, return them as JSON
+        if errors:
+            return JsonResponse({'status': 'error', 'errors': errors}, status=400)
+
+        # Convert asset_cost to a decimal safely
+        asset_cost = float(asset_cost) if asset_cost else None
+
+        # Create the asset if no errors
+        Asset.objects.create(
+            allocated_to=allocated_to,
+            asset_class=asset_class,
+            asset_name=asset_name,
+            asset_id=asset_id,
+            given_date=given_date,
+            purchase_date=purchase_date,
+            asset_cost=asset_cost,
+            asset_detail=asset_detail
+        )
+
+        return JsonResponse({'status': 'success', 'message': 'Asset created successfully'})
+
+    # If GET, render the form
+    employees = EmployeeBISP.objects.all()
+    return render(request, 'assets_templates/Assets_add.html', {'employees': employees})
+
+# Assets List
+def assets_list(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+    # assets = Asset.objects.all().order_by('-given_date')
+    assets = Asset.objects.select_related('allocated_to').filter(status='active').order_by('-given_date')
+    grouped_assets = defaultdict(list)
+
+    for asset in assets:
+        grouped_assets[asset.allocated_to].append(asset)
+
+    grouped_assets = dict(grouped_assets)
+    return render(request, 'assets_templates/assets_list.html', {'grouped_assets': grouped_assets})
+
+# Assests edit
+def assets_edit(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        errors = {}
+        asset_id = request.POST.get('id')
+        asset = get_object_or_404(Asset, id=asset_id)
+
+        allocated_to_id = request.POST.get('allocated_to')
+        asset_class = request.POST.get('asset_class', '').strip()
+        asset_name = request.POST.get('asset_name', '').strip()
+        asset_id = request.POST.get('asset_id', '').strip()
+        given_date = request.POST.get('given_date')
+        purchase_date = request.POST.get('purchase_date')
+        asset_cost = request.POST.get('asset_cost')
+        asset_detail = request.POST.get('asset_detail', '')
+
+        # Validate each field manually
+        if not allocated_to_id:
+            errors['allocated_to'] = "Employee selection is required."
+        else:
+            try:
+                allocated_to = EmployeeBISP.objects.get(id=allocated_to_id)
+            except EmployeeBISP.DoesNotExist:
+                errors['allocated_to'] = "Selected employee does not exist."
+
+        if not asset_class:
+            errors['asset_class'] = "Asset class is required."
+
+        if not asset_name:
+            errors['asset_name'] = "Asset name is required."
+
+        if not asset_id:
+            errors['asset_id'] = "Asset ID is required."
+
+
+        if not given_date:
+            errors['given_date'] = "Given date is required."
+        else:
+            given_date = parse_date(given_date)
+            if not given_date:
+                errors['given_date'] = "Invalid given date format."
+
+        if purchase_date:
+            purchase_date = parse_date(purchase_date)
+            if not purchase_date:
+                errors['purchase_date'] = "Invalid purchase date format."
+        else:
+            purchase_date = None
+
+        # If there are errors, return them as JSON
+        if errors:
+            return JsonResponse({'status': 'error', 'errors': errors}, status=400)
+
+        try:
+            asset.allocated_to_id = request.POST.get('allocated_to')
+            asset.asset_class = request.POST.get('asset_class')
+            asset.asset_name = request.POST.get('asset_name')
+            asset.asset_id = request.POST.get('asset_id')
+            asset.given_date = request.POST.get('given_date')
+            asset.purchase_date = request.POST.get('purchase_date') or None
+            asset.asset_cost = request.POST.get('asset_cost') or None
+            asset.asset_detail = request.POST.get('asset_detail')
+
+            asset.save()
+            return JsonResponse({'success': True, 'message': 'Asset updated successfully'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'errors': {'non_field_errors': str(e)}})
+    return JsonResponse({'success': False, 'errors': {'method': 'Invalid request method'}})
+
+def assets_edit_page(request,id):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+    asset = get_object_or_404(Asset, id=id)
+    employees = EmployeeBISP.objects.all()
+    return render(request,'assets_templates/assets_edit.html',{'asset':asset,'employees':employees})
+
+
+def assets_delete(request, id):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+
+    asset = get_object_or_404(Asset, id=id)
+
+    try:
+        asset.status = 'Inactive'
+        asset.save()
+    except Exception as e:
+        logger.error(f"Error occurred while deleting asset: {str(e)}")
+
+    return redirect('assets_list')

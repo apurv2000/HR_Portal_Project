@@ -384,6 +384,15 @@ hr {
                                 <div class="badge bg-warning">Completed</div>
                             </div>
 
+                    {% elif activity.activity_type == 'Assets' %}
+                          <div class="mb-2">
+                            <strong class="text-success">💻 Asset Assigned:</strong>
+                            <span class="text-dark fw-semibold">
+                              {{ activity.asset_name }} ({{ activity.asset_class }})
+                            </span>
+                            <div class="text-muted small">Given on: {{ activity.given_date|date:"M d, Y" }}</div>
+                            <div class="badge bg-primary">New</div>
+                          </div>
                       {% elif activity.activity_type == 'Handbook' %}
                       <div class="mb-2">
                             <a href="{% url 'handbookemployee' %}"><strong class="text-primary">📘 Handbook:</strong></a>

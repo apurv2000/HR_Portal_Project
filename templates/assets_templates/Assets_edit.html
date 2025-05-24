@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Allocate Assets{% endblock %}
+
+{% block content %}
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f6f8fa;
+    padding: 20px;
+  }
+  .container {
+    max-width: 900px;
+    margin: auto;
+    background: white;
+    padding: 25px 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.07);
+  }
+  h2 {
+    margin-bottom: 18px;
+    font-weight: 600;
+    color: #333;
+  }
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  select, input, textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1.5px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.3s ease;
+  }
+  select:focus, input:focus, textarea:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+  label {
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: block;
+    font-size: 14px;
+    color: #222;
+  }
+  .required::after {
+    content: "*";
+    color: red;
+    margin-left: 4px;
+  }
+  .form-row {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  .form-group {
+    flex: 1 1 30%;
+    min-width: 150px;
+    display: flex;
+    flex-direction: column;
+  }
+  /* Full width for asset detail textarea */
+   .form-group.allocate-to {
+  max-width: 320px;   /* smaller width */
+  margin: 0 auto 15px; /* center horizontally and add bottom margin */
+}
+  .form-footer {
+    text-align: right;
+    margin-top: 20px;
+  }
+  button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 26px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+  }
+  button:hover {
+    background-color: #0056b3;
+  }
+
+</style>
+
+{% include 'Side_Navbar.html' %}
+<div class="content-wrapper">
+  <section class="content-header"></section>
+
+  <div class="container">
+    <h2>Add Assets</h2>
+   <form action="{% url 'assets_edit' %}" method="POST" id="edit-asset-form">
+  {% csrf_token %}
+  <input type="hidden" name="id" value="{{ asset.id }}">
+
+  <!-- Similar structure, but with pre-filled values -->
+  <div class="form-group">
+    <label class="required">Allocate To</label>
+    <select name="allocated_to">
+      <option value="" disabled>Select Employee</option>
+      {% for emp in employees %}
+        <option value="{{ emp.id }}" {% if emp.id == asset.allocated_to.id %}selected{% endif %}>{{ emp.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <!-- Fill other fields with asset data -->
+  <div class="form-row">
+    <div class="form-group">
+      <label class="required">Asset Class</label>
+      <input type="text" name="asset_class" value="{{ asset.asset_class }}">
+    </div>
+    <div class="form-group">
+      <label class="required">Asset Name</label>
+      <input type="text" name="asset_name" value="{{ asset.asset_name }}">
+    </div>
+    <div class="form-group">
+      <label class="required">Asset ID</label>
+      <input type="text" name="asset_id" value="{{ asset.asset_id }}">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label class="required">Given Date</label>
+      <input type="date" name="given_date" value="{{ asset.given_date|date:'Y-m-d' }}">
+    </div>
+    <div class="form-group">
+      <label>Purchase Date</label>
+      <input type="date" name="purchase_date" value="{{ asset.purchase_date|date:'Y-m-d' }}">
+    </div>
+    <div class="form-group">
+      <label>Asset Cost</label>
+      <input type="number" name="asset_cost" value="{{ asset.asset_cost }}">
+    </div>
+  </div>
+
+  <div class="form-group full-width">
+    <label>Asset Detail</label>
+    <textarea name="asset_detail" rows="3">{{ asset.asset_detail }}</textarea>
+  </div>
+
+  <div class="form-footer">
+    <button type="submit">Update</button>
+  </div>
+</form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form[action="{% url 'assets_edit' %}"]');
+    const errorFields = {};
+
+    // Function to clear previous errors
+    function clearErrors() {
+      Object.values(errorFields).forEach(el => el.textContent = '');
+    }
+
+    // Function to show errors next to fields
+    function showErrors(errors) {
+      clearErrors();
+      for (const field in errors) {
+        if (errorFields[field]) {
+          errorFields[field].textContent = errors[field];
+        }
+      }
+    }
+
+    // Insert small error elements dynamically if not present
+    ['allocated_to', 'asset_class', 'asset_name', 'asset_id', 'given_date', 'purchase_date', 'asset_cost'].forEach(field => {
+      const input = form.querySelector(`[name="${field}"]`);
+      if (input) {
+        let errElem = input.parentNode.querySelector('.error-text');
+        if (!errElem) {
+          errElem = document.createElement('small');
+          errElem.classList.add('error-text');
+          errElem.style.color = 'red';
+          errElem.style.display = 'block';
+          input.parentNode.appendChild(errElem);
+        }
+        errorFields[field] = errElem;
+      }
+    });
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      clearErrors();
+
+      const formData = new FormData(form);
+
+      fetch(form.action, {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) return response.json().then(data => {throw data;});
+        return response.json();
+      })
+      .then(data => {
+        alert(data.message || 'Asset created successfully');
+        form.reset();
+      })
+      .catch(data => {
+        if (data.errors) {
+          showErrors(data.errors);
+        } else {
+          alert('An unexpected error occurred');
+          console.error(data);
+        }
+      });
+    });
+  });
+</script>
+
+{% endblock %}
