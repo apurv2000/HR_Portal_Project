@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-
+import logging
 from django.core.paginator import Paginator
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -8,7 +8,7 @@ from .models import Project, Task, ProjectHistory, TaskHistory
 from HR_App.models import EmployeeBISP
 from django.contrib import messages
 from django.utils import timezone
-
+from HR_Portal.utils.logging_utils import get_user_logger
 # Create your views here.
 
 
@@ -363,6 +363,24 @@ def update_task_status(request):
             task.status = status
             task.created_at=timezone.now()
             task.save()
+
+            employee_id = request.session['employee_id']
+            try:
+                employeeM = EmployeeBISP.objects.get(id=employee_id)
+            except EmployeeBISP.DoesNotExist:
+                employeeM = None
+
+            loggers = get_user_logger(employee_id)
+
+            # User-specific Log file
+            loggers.info(
+                f"Employee Update Task Status ",
+                extra={
+                    'action': f"Employee  {employeeM.name} Update Task Status",
+                    'details': f"Task '{task.task_title}' status was change to {task.status}."
+                }
+            )
+
             return redirect('Project:task_detail', id=task_id)
         except Task.DoesNotExist:
             return redirect('Project:task_list')  # or handle error better
@@ -452,6 +470,23 @@ def add_Task(request):
             priority=priority,
             assigned_to=assigned_to,
             description=description
+        )
+
+        employee_id = request.session['employee_id']
+        try:
+            employeeM = EmployeeBISP.objects.get(id=employee_id)
+        except EmployeeBISP.DoesNotExist:
+            employeeM = None
+
+        loggers = get_user_logger(employee_id)
+
+        # User-specific Log file
+        loggers.info(
+            f"Employee Added Task ",
+            extra={
+                'action': f"Employee  {employeeM.name} Create New Task",
+                'details': f"Employee '{assigned_to.name}' with ID {assigned_to.id} have this task {task_title}."
+            }
         )
 
         return JsonResponse({"status": "success", "message": "Task added successfully!"})
@@ -584,6 +619,24 @@ def add_project(request):
         )
 
         project.team_members.set(team_members)
+
+        employee_id = request.session['employee_id']
+        try:
+            employeeM = EmployeeBISP.objects.get(id=employee_id)
+        except EmployeeBISP.DoesNotExist:
+            employeeM = None
+
+        loggers = get_user_logger(employee_id)
+
+        # User-specific Log file
+        loggers.info(
+            f"Employee Added Project ",
+            extra={
+                'action': f"Employee  {employeeM.name} Create New Project",
+                'details': f"Employee '{leader.name}' with ID {leader.id} have this Project {project_name} as leader."
+            }
+        )
+
         return JsonResponse({"status": "success", "message": "Project added successfully!"})
 
     return render(request, 'project_templates/Project_add.html', {'employees': employees})

@@ -17,3 +17,54 @@
 2025-05-24 17:29:05,549 | Action: Employee Login | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged in with at time 2025-05-24 17:29:05.
 2025-05-24 17:33:56,581 | Action: LEAVE_APPLY | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' apply for leave of 3 day
 2025-05-24 17:39:40,191 | Action: LEAVE_APPLY | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' apply for leave of 1 day
+2025-05-26 13:46:01,036 | Action: Employee Logout | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged out with at time 2025-05-26 13:46:01.
+2025-05-26 13:46:06,519 | Action: Employee Login | By: yash@gmail.com | Details: Employee 'Yash Anant Malviya' logged in with at time 2025-05-26 13:46:06.
+2025-05-26 14:10:44,884 | Action: Employee Logout | By: yash@gmail.com | Details: Employee 'Yash Anant Malviya' logged out with at time 2025-05-26 14:10:44.
+2025-05-26 14:11:14,900 | Action: Employee Login | By: yash@gmail.com | Details: Employee 'Yash Anant Malviya' logged in with at time 2025-05-26 14:11:14.
+2025-05-26 14:11:53,682 | Action: Employee Logout | By: yash@gmail.com | Details: Employee 'Yash Anant Malviya' logged out with at time 2025-05-26 14:11:53.
+2025-05-26 14:21:57,532 | Action: Employee Login | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged in with at time 2025-05-26 14:21:57.
+2025-05-26 14:49:16,983 | Action: Employee Logout | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged out with at time 2025-05-26 14:49:16.
+2025-05-26 14:49:24,939 | Action: Employee Login | By: yash@gmail.com | Details: Employee 'Yash Anant Malviya' logged in with at time 2025-05-26 14:49:24.
+2025-05-26 14:49:41,773 | Action: Employee Logout | By: yash@gmail.com | Details: Employee 'Yash Anant Malviya' logged out with at time 2025-05-26 14:49:41.
+2025-05-26 14:49:47,674 | Action: Employee Login | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged in with at time 2025-05-26 14:49:47.
+2025-05-26 16:01:18,628 | Action: UPDATE_EMPLOYEE | By: apurvmalviya@gmail.com | Details: Employee 'Gaurav Singh Bhandari' update with ID 5.
+2025-05-26 16:03:40,298 | Action: UPDATE_EMPLOYEE | By: apurvmalviya@gmail.com | Details: Employee 'Gaurav Singh Bhandari' update with ID 5.
+2025-05-27 14:29:45,091 | Action: Employee Logout | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged out with at time 2025-05-27 14:29:45.
+2025-05-27 14:29:49,950 | Action: Employee Login | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged in at 2025-05-27 14:29:49.
+2025-05-27 14:29:52,523 | Action: Employee Logout | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged out with at time 2025-05-27 14:29:52.
+2025-05-27 14:29:56,844 | Action: Employee Login | By: chandresh@gmail.com | Details: Employee 'Chandresh Srivas' logged in at 2025-05-27 14:29:56.
+2025-05-27 14:29:59,326 | Action: Employee Logout | By: chandresh@gmail.com | Details: Employee 'Chandresh Srivas' logged out with at time 2025-05-27 14:29:59.
+2025-05-27 14:30:11,638 | Action: Employee Logout | By: Anonymous | Details: Employee 'None' logged out with at time 2025-05-27 14:30:11.
+2025-05-27 14:30:54,344 | Action: Employee Login | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged in at 2025-05-27 14:30:54.
+2025-05-27 14:30:57,486 | Action: Employee Logout | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged out with at time 2025-05-27 14:30:57.
+2025-05-27 14:34:05,366 | Action: Employee Login | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged in at 2025-05-27 14:34:05.
+2025-05-27 15:52:17,539 | Action: ACTIVATE_EMPLOYEE | By: apurvmalviya@gmail.com | Details: Employee 'Devrag' with ID 64.
+2025-05-27 15:53:52,325 | Action: ACTIVATE_EMPLOYEE | By: apurvmalviya@gmail.com | Details: Employee 'Devrag' with ID 64.
+2025-05-27 15:56:38,075 | Action: ACTIVATE_EMPLOYEE | By: apurvmalviya@gmail.com | Details: Employee 'Devrag' with ID 64.
+2025-05-27 15:57:58,849 | Action: ACTIVATE_EMPLOYEE | By: apurvmalviya@gmail.com | Details: Employee 'Devrag' with ID 64.
+2025-05-27 15:59:34,868 | Action: ACTIVATE_EMPLOYEE | By: apurvmalviya@gmail.com | Details: Employee 'Devrag' with ID 64.
+2025-05-27 16:00:30,963 | Action: ACTIVATE_EMPLOYEE | By: apurvmalviya@gmail.com | Details: Employee 'Devrag' with ID 64.
+2025-05-27 16:02:02,960 | Action: UPDATE_EMPLOYEE | By: apurvmalviya@gmail.com | Details: Employee 'Chandresh Srivas' update with ID 62.
+2025-05-27 16:04:23,518 | Action: Employee Logout | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged out with at time 2025-05-27 16:04:23.
+2025-05-27 16:04:27,211 | Action: Employee Login | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged in at 2025-05-27 16:04:27.
+2025-05-27 16:06:35,806 | Action: LEAVE_APPLY | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' apply for leave of 1 day
+2025-05-27 16:11:16,121 | Action: Employee Logout | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged out with at time 2025-05-27 16:11:16.
+2025-05-27 16:27:10,410 | Action: Employee Logout | By: Anonymous | Details: Employee 'None' logged out with at time 2025-05-27 16:27:10.
+2025-05-27 16:29:17,669 | Action: Employee Login | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged in at 2025-05-27 16:29:17.
+2025-05-27 16:29:47,138 | Action: LEAVE_APPLY | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' apply for leave of 1 day
+2025-05-27 17:26:28,385 | Action: Employee Logout | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged out with at time 2025-05-27 17:26:28.
+2025-05-27 17:26:33,278 | Action: Employee Login | By: chandresh@gmail.com | Details: Employee 'Chandresh Srivas' logged in at 2025-05-27 17:26:33.
+2025-05-27 17:26:36,062 | Action: Employee Logout | By: chandresh@gmail.com | Details: Employee 'Chandresh Srivas' logged out with at time 2025-05-27 17:26:36.
+2025-05-27 17:26:45,376 | Action: Employee Login | By: chandresh@gmail.com | Details: Employee 'Chandresh Srivas' logged in at 2025-05-27 17:26:45.
+2025-05-27 17:27:13,506 | Action: Employee Logout | By: chandresh@gmail.com | Details: Employee 'Chandresh Srivas' logged out with at time 2025-05-27 17:27:13.
+2025-05-27 17:27:18,031 | Action: Employee Login | By: nischal@gmail.com | Details: Employee 'Nischal Katara' logged in at 2025-05-27 17:27:18.
+2025-05-27 17:27:30,967 | Action: Employee Logout | By: nischal@gmail.com | Details: Employee 'Nischal Katara' logged out with at time 2025-05-27 17:27:30.
+2025-05-27 17:27:34,508 | Action: Employee Login | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged in at 2025-05-27 17:27:34.
+2025-05-27 17:55:04,500 | Action: Employee Logout | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged out with at time 2025-05-27 17:55:04.
+2025-05-27 17:55:09,385 | Action: Employee Login | By: gaurav@gmail.com | Details: Employee 'Gaurav Singh Bhandari' logged in at 2025-05-27 17:55:09.
+2025-05-27 18:24:00,409 | Action: Employee Logout | By: gaurav@gmail.com | Details: Employee 'Gaurav Singh Bhandari' logged out with at time 2025-05-27 18:24:00.
+2025-05-27 18:24:46,336 | Action: Employee Login | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged in at 2025-05-27 18:24:46.
+2025-05-27 18:24:56,409 | Action: ACTIVATE_EMPLOYEE | By: apurvmalviya@gmail.com | Details: Employee 'Chandresh Srivas' with ID 62.
+2025-05-27 18:24:58,035 | Action: Employee Logout | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged out with at time 2025-05-27 18:24:58.
+2025-05-27 18:25:39,860 | Action: Employee Logout | By: Anonymous | Details: Employee 'None' logged out with at time 2025-05-27 18:25:39.
+2025-05-27 18:25:58,076 | Action: Employee Logout | By: Anonymous | Details: Employee 'None' logged out with at time 2025-05-27 18:25:58.

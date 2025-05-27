@@ -8,7 +8,7 @@ import string
 from collections import defaultdict
 from itertools import chain
 from operator import attrgetter
-from django.utils.timezone import localtime, make_aware
+from django.utils.timezone import localtime, make_aware, now
 
 from .mark import mark_resigned_employees_inactive
 
@@ -44,6 +44,9 @@ from openpyxl import Workbook
 from datetime import date, timedelta
 
 from HR_App.utils.audit_log import log_audit_event
+
+from HR_Portal.utils.logging_utils import get_user_logger
+logger = logging.getLogger('django')
 
 # Create your views here.
 def Manager(request):
@@ -588,6 +591,11 @@ def Profile(request):
     employee = EmployeeBISP.objects.get(id=employee_id)
     # Leave Summary for each leave type
     emp_leave_types = EmpLeaveType.objects.filter(employee=employee,leave_type__status = 'active')
+
+
+
+
+
 
     leave_summary = [
         {
@@ -1311,9 +1319,22 @@ def delete_employee(request, id):
     # Save current state to history and soft delete
     employee.soft_delete()
 
-    # For log file
-    log_audit_event(request.user, 'DELETE_EMPLOYEE',
-                    f"Employee '{employee.name}' with ID {employee.id}.")
+    employee_id = request.session['employee_id']
+    try:
+        employeeM = EmployeeBISP.objects.get(id=employee_id)
+    except EmployeeBISP.DoesNotExist:
+        employeeM= None
+
+    loggers = get_user_logger(employee_id)
+
+    # User-specific Log file
+    loggers.info(
+        "Employee Inactive",
+        extra={
+            'action': f"Employee Inactive by {employeeM.name}",
+            'details': f"Employee '{employee.name}' with ID {employee.id} was soft-deleted."
+        }
+    )
 
     return redirect('Emplist')
 
@@ -1496,6 +1517,23 @@ def update_employee(request, id):
         # Save the updated employee data
         employee.save()  # This will increment the version and update the timestamp
 
+
+        employee_id = request.session['employee_id']
+        try:
+            employeeM = EmployeeBISP.objects.get(id=employee_id)
+        except EmployeeBISP.DoesNotExist:
+            employeeM = None
+
+        loggers = get_user_logger(employee_id)
+
+        # User-specific Log file
+        loggers.info(
+            "Employee Updated",
+            extra={
+                'action': f"Employee Updated by {employeeM.name}",
+                'details': f"Employee '{employee.name}' with ID {employee.id} was updated."
+            }
+        )
         #For log file
         log_audit_event(request.user, 'UPDATE_EMPLOYEE',
                         f"Employee '{employee.name}' update with ID {employee.id}.")
@@ -1713,6 +1751,23 @@ def register_user(request):
         )
         employee.save()
 
+        employee_id = request.session['employee_id']
+        try:
+            employeeM = EmployeeBISP.objects.get(id=employee_id)
+        except EmployeeBISP.DoesNotExist:
+            employeeM = None
+
+        loggers = get_user_logger(employee_id)
+
+        # User-specific Log file
+        loggers.info(
+            "Employee Registered",
+            extra={
+                'action': f"Employee Register by {employeeM.name}",
+                'details': f"Employee '{employee.name}' with ID {employee.id} was Added."
+            }
+        )
+
         log_audit_event(request.user, 'CREATE_EMPLOYEE',
                         f"Employee '{employee.name}' created with ID {employee.id}.")
 
@@ -1745,50 +1800,97 @@ def Login_user(request):
 
     errors = {}
     if not email:
+        logger.error("Email is required.")
         errors["email_error"] = "Email is required."
     if not password:
+        logger.error("Password is required.")
         errors["password_error"] = "Password is required."
     if errors:
+        logger.error("Status 400")
         return JsonResponse(errors, status=400)
 
-    user = EmployeeBISP.objects.filter(email=email,status='active').first()
+    user = EmployeeBISP.objects.filter(email=email, status='active').first()
     if not user:
+        logger.error("No account found with this email.")
         return JsonResponse({"email_error": "No account found with this email."}, status=401)
 
+    # Check if account is locked
+    if user.is_locked:
+        # Every login time it will check current time with last_failed_login time
+        if user.last_failed_login and now() < user.last_failed_login + timedelta(hours=2):
+            lock_end_time = user.last_failed_login + timedelta(hours=2)
+            remaining_time = lock_end_time - now()
+            # Convert remaining_time to minutes and seconds (or any format you want)
+            minutes, seconds = divmod(remaining_time.total_seconds(), 60)
+            return JsonResponse({
+                "error": f"Account locked due to multiple failed login attempts. Try again After {int(minutes)} minutes and {int(seconds)} seconds",
+            }, status=403)
+        else:
+            # Unlock the account after 2 hours
+            user.is_locked = False
+            user.failed_login_attempts = 0
+            user.save()
+
     if not check_password(password, user.password):
+        user.failed_login_attempts += 1
+        user.last_failed_login = now()
+
+        if user.failed_login_attempts >= 3:
+            user.is_locked = True
+            logger.warning(f"User {user.email} locked due to too many failed attempts.")
+
+        user.save()
+        logger.error("Incorrect password.")
         return JsonResponse({"password_error": "Incorrect password."}, status=401)
 
-    #Fake Django User Login
-    # Create a dummy Django user (or link with one if you already do)
+    # Reset failed attempts on successful login
+    user.failed_login_attempts = 0
+    user.is_locked = False
+    user.save()
+
+    # Django user login logic continues here...
     django_user, created = User.objects.get_or_create(username=user.email, email=user.email)
     login(request, django_user)
 
-    # Extend session expiry (set persistent session)
     request.session.set_expiry(60 * 60 * 24 * 30)  # 30 days
-
-    # Set common session data
     request.session['employee_id'] = user.id
     request.session['employee_name'] = user.name
-    request.session['email']=user.email
-    request.session['role']=user.role
+    request.session['email'] = user.email
+    request.session['role'] = user.role
     request.session['designation'] = user.designation.title
-
-    request.session['Currenttime'] =datetime.today().date().isoformat()
-
+    request.session['Currenttime'] = datetime.today().date().isoformat()
     try:
         request.session['ProfileImage'] = user.profile_picture.url
     except Exception:
-        request.session['ProfileImage'] = ""  # Fallback if no profile image is available
+        request.session['ProfileImage'] = ""
+
+
+    employee_id = request.session['employee_id']
+    try:
+        employeeM = EmployeeBISP.objects.get(id=employee_id)
+    except EmployeeBISP.DoesNotExist:
+        employeeM = None
+
+    loggers = get_user_logger(employee_id)
+
+    # User-specific Log file
+    loggers.info(
+        "Employee Inactive",
+        extra={
+            'action': f"Employee {employeeM.name} lOGIN",
+            'details': f"Employee '{user.name}' with ID {user.id} was LOGIN."
+        }
+    )
 
     log_audit_event(request.user, 'Employee Login',
-                    f"Employee '{user.name}' logged in with at time {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.")
+                    f"Employee '{user.name}' logged in at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.")
 
-    # Determine redirect URL based on the user's designation
+    # Redirect by role
     if user.role == "Administrator":
         redirect_url = "/Hrpanel"
-    elif user.role == "Employee" :
+    elif user.role == "Employee":
         redirect_url = "/Emppanel"
-    elif user.role== "Manager":
+    elif user.role == "Manager":
         redirect_url = "/Adminpanel"
     else:
         return JsonResponse({"error": "Unauthorized role"}, status=403)
@@ -2064,6 +2166,17 @@ def Apply_leave(request):
 
         )
 
+        loggers = get_user_logger(employee.id)
+
+        # User-specific Log file
+        loggers.info(
+            "Employee Inactive",
+            extra={
+                'action': f"Employee {employee.name} Apply for Leave",
+                'details': f"Employee '{employee.name}' with ID {employee.id} Apply for {leave_days} days leave."
+            }
+        )
+
         log_audit_event(request.user, 'LEAVE_APPLY',
                         f"Employee '{employee.name}' apply for leave of {leave_days} day")
 
@@ -2131,6 +2244,23 @@ def Withdraw_leave(request, leave_id):
         messages.error(request, "Cannot withdraw leave after its start date.")
     else:
         messages.error(request, "Leave withdrawal failed.")
+
+    employee_id = request.session['employee_id']
+    try:
+        employeeM = EmployeeBISP.objects.get(id=employee_id)
+    except EmployeeBISP.DoesNotExist:
+        employeeM = None
+
+    loggers = get_user_logger(employee_id)
+
+    # User-specific Log file
+    loggers.info(
+        "Employee withdraw leave",
+        extra={
+            'action': f"Employee {employeeM.name} withdraw leave",
+            'details': f"Employee '{employeeM.name}' with ID {employeeM.id} withdraw {leave_days} day leave."
+        }
+    )
 
     return redirect('Leavelist')
 
@@ -3662,6 +3792,23 @@ def finish_process(request,id):
     except EmployeeBISP.DoesNotExist:
         employee = None
 
+    employee_id = request.session['employee_id']
+    try:
+        employeeM = EmployeeBISP.objects.get(id=employee_id)
+    except EmployeeBISP.DoesNotExist:
+        employeeM = None
+
+    loggers = get_user_logger(employee_id)
+
+    # User-specific Log file
+    loggers.info(
+        "Employee Finish Process",
+        extra={
+            'action': f"Employee {employeeM.name} Finish Process",
+            'details': f"Employee Finish Process of {employee.name}"
+        }
+    )
+
     return redirect('Hrpanel')
 # def resignation_activity_log(request, resignation_id):
 #         resignation = get_object_or_404(ResignationApplication, id=resignation_id)
@@ -3736,7 +3883,7 @@ def finish_process(request,id):
 #
 #         return render(request, 'exit_management_templates/Exit_Management_details.html', context)
     # For Log File
-logger = logging.getLogger('django')
+
 
 def test_log_view(request):
     log_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logs', 'audit.log')
@@ -3749,11 +3896,14 @@ def test_log_view(request):
 def test_error_view(request):
     log_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logs', 'error.log')
     if os.path.exists(log_path):
-        with open(log_path, 'r') as file:
-            content = file.read()
+        try:
+            with open(log_path, 'r', encoding='utf-8') as file:
+                content = file.read()
+        except UnicodeDecodeError:
+            with open(log_path, 'r', encoding='latin-1') as file:
+                content = file.read()
         return HttpResponse(f"<pre>{content}</pre>")
     return HttpResponse("Log file not found.")
-
 
 # For Holiday
 def holiday(request):
@@ -3768,7 +3918,26 @@ def holiday(request):
             day = date_obj.strftime('%A')
             Holiday.objects.create(title=title, day=day, date=date_obj)
 
+        employee_id = request.session['employee_id']
+        try:
+            employeeM = EmployeeBISP.objects.get(id=employee_id)
+        except EmployeeBISP.DoesNotExist:
+            employeeM = None
+
+        loggers = get_user_logger(employee_id)
+
+        # User-specific Log file
+        loggers.info(
+            "Employee Added holiday",
+            extra={
+                'action': f"Employee {employeeM.name} Added Holiday",
+                'details': f"Employee Added Holiday"
+            }
+        )
+
         return redirect('holiday')
+
+
 
     holidays = Holiday.objects.all().order_by('date')
     return render(request, 'holiday_templates/holiday.html', {'holidays': holidays})
@@ -3869,6 +4038,22 @@ def add_asset(request):
             asset_cost=asset_cost,
             asset_detail=asset_detail
         )
+        employee_id = request.session['employee_id']
+        try:
+            employeeM = EmployeeBISP.objects.get(id=employee_id)
+        except EmployeeBISP.DoesNotExist:
+            employeeM = None
+
+        loggers = get_user_logger(employee_id)
+
+        # User-specific Log file
+        loggers.info(
+            "Employee Assest Added",
+            extra={
+                'action': f"Employee {employeeM.name}  Added Assets",
+                'details': f"Employee assest was Added"
+            }
+        )
 
         return JsonResponse({'status': 'success', 'message': 'Asset created successfully'})
 
@@ -3956,6 +4141,23 @@ def assets_edit(request):
             asset.asset_detail = request.POST.get('asset_detail')
 
             asset.save()
+
+            employee_id = request.session['employee_id']
+            try:
+                employeeM = EmployeeBISP.objects.get(id=employee_id)
+            except EmployeeBISP.DoesNotExist:
+                employeeM = None
+
+            loggers = get_user_logger(employee_id)
+
+            # User-specific Log file
+            loggers.info(
+                "Employee Assest Updated",
+                extra={
+                    'action': f"Employee {employeeM.name} Updated assets",
+                    'details': f"Employee '{asset.allocated_to.name}' with ID {asset.allocated_to.id} assest updated"
+                }
+            )
             return JsonResponse({'success': True, 'message': 'Asset updated successfully'})
         except Exception as e:
             return JsonResponse({'success': False, 'errors': {'non_field_errors': str(e)}})
@@ -3980,5 +4182,23 @@ def assets_delete(request, id):
         asset.save()
     except Exception as e:
         logger.error(f"Error occurred while deleting asset: {str(e)}")
+
+    employee_id = request.session['employee_id']
+    try:
+        employeeM = EmployeeBISP.objects.get(id=employee_id)
+    except EmployeeBISP.DoesNotExist:
+        employeeM = None
+
+    loggers = get_user_logger(employee_id)
+
+    # User-specific Log file
+    loggers.info(
+        "Employee Assest delete",
+        extra={
+            'action': f"Employee {employeeM.name} delete assets",
+            'details': f"Employee '{asset.allocated_to.name}' with ID {asset.allocated_to.id} assest deleted"
+        }
+    )
+
 
     return redirect('assets_list')

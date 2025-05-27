@@ -58,6 +58,10 @@ class EmployeeBISP(models.Model):
     timestamp = models.DateTimeField(auto_now=True)  # Automatically updates on save
     created_at = models.DateTimeField(null=True,auto_now=True)
 
+    # For Login Lock
+    failed_login_attempts = models.IntegerField(default=0)
+    last_failed_login = models.DateTimeField(null=True, blank=True)
+    is_locked = models.BooleanField(default=False)
 
 
 

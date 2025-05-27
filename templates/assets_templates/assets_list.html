@@ -102,10 +102,10 @@
             <td>{{ asset.purchase_date|date:"M d, Y"|default:"—" }}</td>
             <td>{{ asset.given_date|date:"M d, Y" }}</td>
             <td class="text-center">
-              <a href="{% url 'assets_edit_page' assets.0.id %}" class="btn btn-sm btn-outline-primary me-1" title="Edit">
+              <a href="{% url 'assets_edit_page' asset.id %}" class="btn btn-sm btn-outline-primary me-1" title="Edit">
                 <i class="fas fa-pen"></i>
               </a>
-              <a href="{% url 'assets_delete' assets.0.id%}" class="btn btn-sm btn-outline-danger" title="Delete">
+              <a href="{% url 'assets_delete' asset.id%}" class="btn btn-sm btn-outline-danger" title="Delete">
                 <i class="fas fa-trash"></i>
               </a>
             </td>
