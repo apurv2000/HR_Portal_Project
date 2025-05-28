@@ -1,18 +1,9 @@
-2025-05-27 15:56:44,108 | Action: Employee Inactive | Details: Employee 'Devrag' with ID 64 was soft-deleted.
-2025-05-27 15:58:02,889 | Action: Employee Inactive by 1 | Details: Employee 'Devrag' with ID 64 was soft-deleted.
-2025-05-27 15:59:38,179 | Action: Employee Inactive by Apurv Malviya | Details: Employee 'Apurv Malviya' with ID 1 was soft-deleted.
-2025-05-27 16:00:34,740 | Action: Employee Inactive by Apurv Malviya | Details: Employee 'Devrag' with ID 64 was soft-deleted.
-2025-05-27 16:02:02,955 | Action: Employee Updated by Apurv Malviya | Details: Employee 'Chandresh Srivas' with ID 62 was updated.
-2025-05-27 16:04:27,211 | Action: Employee Apurv Malviya lOGIN | Details: Employee 'Apurv Malviya' with ID 1 was LOGIN.
-2025-05-27 16:06:35,803 | Action: Employee Apurv Malviya Apply for Leave | Details: Employee 'Apurv Malviya' with ID 1 Apply for 1 days leave.
-2025-05-27 16:29:17,669 | Action: Employee Apurv Malviya lOGIN | Details: Employee 'Apurv Malviya' with ID 1 was LOGIN.
-2025-05-27 16:29:47,135 | Action: Employee Apurv Malviya Apply for Leave | Details: Employee 'Apurv Malviya' with ID 1 Apply for 1 days leave.
-2025-05-27 16:30:05,174 | Action: Employee Apurv Malviya withdraw leave | Details: Employee 'Apurv Malviya' with ID 1 withdraw 1.0 day leave.
-2025-05-27 17:19:07,872 | Action: Employee Apurv Malviya delete assets | Details: Employee 'Yash Anant Malviya' with ID 2 assest deleted
-2025-05-27 17:23:14,912 | Action: Employee Apurv Malviya  Added Assets | Details: Employee assest was Added
-2025-05-27 17:25:21,107 | Action: Employee Apurv Malviya Added Holiday | Details: Employee Added Holiday
-2025-05-27 17:27:34,508 | Action: Employee Apurv Malviya lOGIN | Details: Employee 'Apurv Malviya' with ID 1 was LOGIN.
-2025-05-27 17:27:44,635 | Action: Employee Apurv Malviya Finish Process | Details: Employee Finish Process
-2025-05-27 17:36:02,689 | Action: Employee  Apurv Malviya Create New Task | Details: Employee 'Gaurav Singh Bhandari' with ID 5 have this task Add Leave.
-2025-05-27 17:51:38,705 | Action: Employee  Apurv Malviya Create New Project | Details: Employee 'Nischal Katara' with ID 3 have this Project BISP as leader.
-2025-05-27 18:24:46,336 | Action: Employee Apurv Malviya lOGIN | Details: Employee 'Apurv Malviya' with ID 1 was LOGIN.
+2025-05-28 13:19:39,229 | Action: Employee Updated by Apurv Malviya | Details: Employee 'Chandresh Srivas' with ID 62 was updated.
+2025-05-28 15:10:43,590 | Action: Employee Apurv Malviya lOGIN | Details: Employee 'Apurv Malviya' with ID 1 was LOGIN.
+2025-05-28 15:11:30,778 | Action: Employee Apurv Malviya lOGIN | Details: Employee 'Apurv Malviya' with ID 1 was LOGIN.
+2025-05-28 15:15:03,321 | Action: Employee Apurv Malviya lOGIN | Details: Employee 'Apurv Malviya' with ID 1 was LOGIN.
+2025-05-28 15:26:30,847 | Action: Employee Apurv Malviya lOGIN | Details: Employee 'Apurv Malviya' with ID 1 was LOGIN.
+2025-05-28 15:33:32,964 | Action: Employee Apurv Malviya lOGIN | Details: Employee 'Apurv Malviya' with ID 1 was LOGIN.
+2025-05-28 15:34:10,957 | Action: Employee Apurv Malviya lOGIN | Details: Employee 'Apurv Malviya' with ID 1 was LOGIN.
+2025-05-28 18:07:13,314 | Action: Employee Apurv Malviya Finish Process | Details: Employee Finish Process of Chandresh Srivas
+2025-05-28 18:07:46,069 | Action: Employee Inactive by Apurv Malviya | Details: Employee 'nikhil' with ID 11 was soft-deleted.

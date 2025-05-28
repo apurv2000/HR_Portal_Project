@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+  <style>
+    .check { color: green; font-size: 1.2rem; }
+    .cross { color: red; font-size: 1.2rem; }
+    .profile { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
+    .sticky-col { position: sticky; left: 0; background: white; z-index: 1; }
+    .row-header th { position: sticky; top: 0; background: #f8f9fa; }
+  </style>
+  {% include 'Side_Navbar.html' %}
+  <div class="content-wrapper">
+
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="h4 text-primary">Attendance</h1>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container-fluid py-4">
+      <h4 class="mb-3">Attendance</h4>
+
+      <!-- Filter Dropdowns -->
+      <form method="get" class="row mb-4 g-2 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label">Department</label>
+          <select class="form-select" name="department">
+            <option value="All" {% if selected_department == 'All' %}selected{% endif %}>All</option>
+            {% for dept in departments %}
+              <option value="{{ dept.id }}" {% if dept.id|stringformat:"s" == selected_department|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label">Month</label>
+          <select class="form-select" name="month">
+            {% for m in months %}
+              <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>{{ m }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label">Year</label>
+          <select class="form-select" name="year">
+            {% for y in years %}
+              <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <button type="submit" class="btn btn-primary w-100">Filter</button>
+        </div>
+      </form>
+
+      <!-- Attendance Table -->
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead class="row-header">
+            <tr>
+              <th class="sticky-col">Employee</th>
+              {% for day in month_days %}
+                <th>{{ day.day }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for emp, status_list in attendance_data %}
+              <tr>
+                <td class="sticky-col">{{ emp.name }}</td>
+                {% for status in status_list %}
+                  <td class="text-white text-center {% if status == 'L' %}bg-danger{% else %}bg-success{% endif %}">
+                    {{ status }}
+                  </td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

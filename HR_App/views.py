@@ -5,6 +5,7 @@ import os
 import random
 import re
 import string
+import calendar
 from collections import defaultdict
 from itertools import chain
 from operator import attrgetter
@@ -4202,3 +4203,73 @@ def assets_delete(request, id):
 
 
     return redirect('assets_list')
+
+# For Attendence Rendering
+def attendance_report(request):
+    today = date.today()
+    selected_month = int(request.GET.get('month', today.month))
+    selected_year = int(request.GET.get('year', today.year))
+    selected_department = request.GET.get('department', 'All')
+
+    # Get days in month
+    _, days_in_month = calendar.monthrange(selected_year, selected_month)
+    month_days = [date(selected_year, selected_month, day) for day in range(1, days_in_month + 1)]
+
+    # Prepare filters
+    # Define first and last day of selected month
+    start_date = date(selected_year, selected_month, 1)
+    _, last_day = calendar.monthrange(selected_year, selected_month)
+    end_date = date(selected_year, selected_month, last_day)
+
+    # Filter employees who joined on or before the end_date
+    employees = EmployeeBISP.objects.filter(
+        status='active',
+        date_of_join__lte=end_date  # Only employees who joined on/before month end
+    )
+
+    if selected_department != 'All':
+        employees = employees.filter(department_id=selected_department)
+
+    start_date = month_days[0]
+    end_date = month_days[-1]
+
+    # Get all approved leaves for employees within the month range
+    leaves = Leave.objects.filter(
+        status='Approved',
+        employee__in=employees,
+        start_date__lte=end_date,
+        end_date__gte=start_date
+    ).select_related('employee')
+
+    # Group leaves by employee id for faster lookup
+    leaves_by_emp = {}
+    for leave in leaves:
+        leaves_by_emp.setdefault(leave.employee_id, []).append(leave)
+
+    # Build attendance matrix: 'L' if on leave, else 'P'
+    # In your view, after building attendance dict:
+
+    attendance_data = []
+    for emp in employees:
+        emp_leaves = leaves_by_emp.get(emp.id, [])
+        emp_attendance = [
+            'L' if any(leave.start_date <= day <= leave.end_date for leave in emp_leaves) else 'P'
+            for day in month_days
+        ]
+
+        attendance_data.append((emp, emp_attendance))
+
+
+
+    # Pass attendance_data instead of attendance dict
+    return render(request, 'report_templates/Attendence.html', {
+        'departments': Department.objects.all(),
+        'employees': employees,
+        'attendance_data': attendance_data,
+        'month_days': month_days,
+        'months': range(1, 13),
+        'years': [today.year - 1, today.year],
+        'selected_month': selected_month,
+        'selected_year': selected_year,
+        'selected_department': selected_department,
+    })

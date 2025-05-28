@@ -44,8 +44,8 @@ INSTALLED_APPS = [
     'Timesheet',
     'Chatbox',
     'corsheaders',
-]
 
+]
 
 
 

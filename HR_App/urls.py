@@ -76,5 +76,6 @@ urlpatterns = [
       path('assets/edit/', views.assets_edit, name='assets_edit'),
       path('assets/edit/page/<int:id>', views.assets_edit_page, name='assets_edit_page'),
       path('assets/delete/<int:id>', views.assets_delete, name='assets_delete'),
+      path('attendence/report', views.attendance_report, name='attendence'),
 
 ]
