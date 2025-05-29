@@ -4206,42 +4206,49 @@ def assets_delete(request, id):
 
 # For Attendence Rendering
 def attendance_report(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
     today = date.today()
-    # Sample: Get filter values from GET or use defaults
+
     selected_department = request.GET.get('department', 'All')
     selected_month = int(request.GET.get('month', datetime.now().month))
     selected_year = int(request.GET.get('year', datetime.now().year))
 
     # Define first and last day of selected month
     start_date = date(selected_year, selected_month, 1)
-    _, last_day = calendar.monthrange(selected_year, selected_month)
-    end_date = date(selected_year, selected_month, last_day)
+    _, last_day_num = calendar.monthrange(selected_year, selected_month)
+    end_date = date(selected_year, selected_month, last_day_num)
 
     # Get employees filtered by department or all
     if selected_department == 'All':
-        employees = EmployeeBISP.objects.filter(status='active',date_of_join__lte=end_date)
+        employees = EmployeeBISP.objects.filter(status='active', date_of_join__lte=end_date)
     else:
-        employees = EmployeeBISP.objects.filter(department__id=selected_department,status='active',date_of_join__lte=end_date)
+        employees = EmployeeBISP.objects.filter(department__id=selected_department, status='active', date_of_join__lte=end_date)
 
-    # Prepare days of the month
+    # Prepare days of the month (datetime objects)
     first_day = datetime(selected_year, selected_month, 1)
-    next_month = first_day.replace(day=28) + timedelta(days=4)  # this will get next month safely
+    next_month = first_day.replace(day=28) + timedelta(days=4)  # safe next month
     last_day = next_month - timedelta(days=next_month.day)
-    month_days = [first_day + timedelta(days=i) for i in range((last_day - first_day).days + 1)]
+    all_days = [first_day + timedelta(days=i) for i in range((last_day - first_day).days + 1)]
+
+    # If selected month/year is current month/year, limit days to today
+    if selected_year == today.year and selected_month == today.month:
+        month_days = [day for day in all_days if day.date() <= today]
+    else:
+        month_days = all_days
 
     attendance_data = []
     for emp in employees:
         status_list = []
         reasons_list = []
         for day in month_days:
-            leave = Leave.objects.filter(employee=emp, start_date__lte=day, end_date__gte=day).first()
+            leave = Leave.objects.filter(employee=emp, start_date__lte=day.date(), end_date__gte=day.date()).first()
             if leave:
                 status_list.append('L')
                 reasons_list.append(leave.reason or "No reason provided.")
             else:
                 status_list.append('P')
                 reasons_list.append("")
-        # Combine both lists into one list of tuples: [(status, reason), ...]
         combined = list(zip(status_list, reasons_list))
         attendance_data.append((emp, combined))
 
@@ -4252,8 +4259,11 @@ def attendance_report(request):
         'selected_month': selected_month,
         'month_days': month_days,
         'attendance_data': attendance_data,
-        'years':  [today.year - 1, today.year],
+        'years': [today.year - 1, today.year],
         'months': range(1, 13),
         'selected_department_name': (employees.first().department.name if employees.exists() else 'All') if selected_department != 'All' else 'All',
+        'future_month_selected': (selected_year > today.year) or (
+                    selected_year == today.year and selected_month > today.month),
     }
+
     return render(request, 'report_templates/Attendence.html', context)

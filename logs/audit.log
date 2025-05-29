@@ -106,3 +106,9 @@
 2025-05-29 12:04:47,244 | Action: Employee Logout | By: Anonymous | Details: Employee 'None' logged out with at time 2025-05-29 12:04:47.
 2025-05-29 12:04:48,516 | Action: Employee Logout | By: Anonymous | Details: Employee 'None' logged out with at time 2025-05-29 12:04:48.
 2025-05-29 12:05:26,237 | Action: Employee Login | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged in at 2025-05-29 12:05:26.
+2025-05-29 14:28:20,855 | Action: Employee Logout | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged out with at time 2025-05-29 14:28:20.
+2025-05-29 14:29:08,864 | Action: Employee Login | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged in at 2025-05-29 14:29:08.
+2025-05-29 14:29:31,214 | Action: Employee Logout | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged out with at time 2025-05-29 14:29:31.
+2025-05-29 14:30:46,145 | Action: Employee Login | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged in at 2025-05-29 14:30:46.
+2025-05-29 15:10:49,240 | Action: LEAVE_APPLY | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' apply for leave of 1 day
+2025-05-29 15:41:06,546 | Action: Employee Logout | By: apurvmalviya@gmail.com | Details: Employee 'Apurv Malviya' logged out with at time 2025-05-29 15:41:06.

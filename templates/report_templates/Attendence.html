@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
+{% now "Y" as current_year %}
+{% now "n" as current_month %}
+{% now "j" as current_day %}
+
 {% block content %}
   <style>
     .sticky-col {
@@ -120,6 +124,11 @@
           </div>
 
           <!-- Attendance Table -->
+          {% if future_month_selected %}
+            <div class="alert alert-warning">
+              Attendance data for future months is not available.
+            </div>
+          {% else %}
           <div class="table-responsive">
             <table class="table table-bordered table-hover mb-0">
               <thead class="row-header">
@@ -174,6 +183,7 @@
               </tbody>
             </table>
           </div>
+          {% endif %}
 
         </div>
       </div>
