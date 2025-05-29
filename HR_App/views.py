@@ -16,7 +16,7 @@ from .mark import mark_resigned_employees_inactive
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.core.files.storage import FileSystemStorage
 from django.core.mail import send_mail, EmailMessage
 from django.core.paginator import Paginator
@@ -4237,18 +4237,39 @@ def attendance_report(request):
     else:
         month_days = all_days
 
+    # Get all holidays in the selected month
+    holidays = Holiday.objects.filter(date__range=(start_date, end_date)).values_list('date', flat=True)
+
     attendance_data = []
     for emp in employees:
         status_list = []
         reasons_list = []
+        # Track Saturdays to identify 3rd one
+        saturday_count = 0
+
         for day in month_days:
-            leave = Leave.objects.filter(employee=emp, start_date__lte=day.date(), end_date__gte=day.date()).first()
-            if leave:
-                status_list.append('L')
-                reasons_list.append(leave.reason or "No reason provided.")
+            is_sunday = day.weekday() == 6
+            is_saturday = day.weekday() == 5
+
+            if is_saturday:
+                saturday_count += 1
+            is_third_saturday = is_saturday and saturday_count == 3
+
+            if is_sunday or is_third_saturday:
+                status_list.append('W')
+                reasons_list.append('Weekoff')
+            elif day.date() in holidays:
+                status_list.append('H')
+                reasons_list.append('Holiday')
             else:
-                status_list.append('P')
-                reasons_list.append("")
+                leave = Leave.objects.filter(employee=emp, start_date__lte=day.date(), end_date__gte=day.date()).first()
+                if leave:
+                    status_list.append('L')
+                    reasons_list.append(leave.reason or "No reason provided.")
+                else:
+                    status_list.append('P')
+                    reasons_list.append("")
+
         combined = list(zip(status_list, reasons_list))
         attendance_data.append((emp, combined))
 
@@ -4260,10 +4281,35 @@ def attendance_report(request):
         'month_days': month_days,
         'attendance_data': attendance_data,
         'years': [today.year - 1, today.year],
-        'months': range(1, 13),
+        'months': [(i, calendar.month_name[i]) for i in range(1, 13)],
         'selected_department_name': (employees.first().department.name if employees.exists() else 'All') if selected_department != 'All' else 'All',
         'future_month_selected': (selected_year > today.year) or (
                     selected_year == today.year and selected_month > today.month),
     }
 
     return render(request, 'report_templates/Attendence.html', context)
+
+# Change password
+@login_required
+def change_password(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+    if request.method == "POST":
+        new_password = request.POST.get('New_Pwd')
+        user = request.user
+
+        if not new_password:
+            return JsonResponse({"status": "error", "message": "Password cannot be empty."})
+
+        # Validate password strength
+        password_error = validate_password(new_password )
+        if password_error:
+            return JsonResponse({"status": "error", "message": password_error })
+
+        user.set_password(new_password)
+        user.save()
+        update_session_auth_hash(request, user)
+
+        return JsonResponse({"status": "success", "message": "Password updated successfully."})
+
+    return JsonResponse({"status": "error", "message": "Invalid request."})

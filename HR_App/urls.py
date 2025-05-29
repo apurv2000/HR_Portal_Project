@@ -77,5 +77,6 @@ urlpatterns = [
       path('assets/edit/page/<int:id>', views.assets_edit_page, name='assets_edit_page'),
       path('assets/delete/<int:id>', views.assets_delete, name='assets_delete'),
       path('attendence/report', views.attendance_report, name='attendence'),
+      path('change-password/', views.change_password, name='change_password'),
 
 ]

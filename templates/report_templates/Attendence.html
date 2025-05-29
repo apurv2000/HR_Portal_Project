@@ -58,6 +58,7 @@
       white-space: nowrap;
       text-overflow: ellipsis;
     }
+
   </style>
 
   {% include 'Side_Navbar.html' %}
@@ -93,8 +94,8 @@
               <div class="col-auto">
                 <label class="filter-label">Month</label>
                 <select class="form-select form-select-sm" name="month">
-                  {% for m in months %}
-                    <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>{{ m }}</option>
+                  {% for value, name in months %}
+                    <option value="{{ value }}" {% if value == selected_month %}selected{% endif %}>{{ name }}</option>
                   {% endfor %}
                 </select>
               </div>
@@ -156,7 +157,11 @@
                   {% for status, reason in status_reasons %}
                     <td>
                       {% if status == 'L' %}
-                        <span class="badge badge-leave text-white px-2" data-bs-toggle="modal" data-bs-target="#reasonModal{{ emp.id }}{{ forloop.counter0 }}">L</span>
+                       <i class="fas fa-times-circle text-danger fs-5"
+                       style="cursor:pointer;"
+                       data-bs-toggle="modal"
+                       data-bs-target="#reasonModal{{ emp.id }}{{ forloop.counter0 }}"
+                       title="On Leave"></i>
 
                         <!-- Modal -->
                         <div class="modal fade" id="reasonModal{{ emp.id }}{{ forloop.counter0 }}" tabindex="-1" aria-labelledby="reasonLabel{{ emp.id }}{{ forloop.counter0 }}" aria-hidden="true">
@@ -172,8 +177,13 @@
                             </div>
                           </div>
                         </div>
+                      {% elif status == 'H' %}
+                       <span class="badge bg-warning text-dark px-2">H</span>
+                      {% elif status == 'W' %}
+                      <span class="badge bg-secondary text-white px-2">W</span>
                       {% else %}
-                        <span class="badge badge-present text-white px-2">P</span>
+
+                           <i class="fas fa-check-circle text-success fs-5" title="Present"></i>
                       {% endif %}
                     </td>
                   {% endfor %}
