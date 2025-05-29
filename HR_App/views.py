@@ -4207,69 +4207,53 @@ def assets_delete(request, id):
 # For Attendence Rendering
 def attendance_report(request):
     today = date.today()
-    selected_month = int(request.GET.get('month', today.month))
-    selected_year = int(request.GET.get('year', today.year))
+    # Sample: Get filter values from GET or use defaults
     selected_department = request.GET.get('department', 'All')
+    selected_month = int(request.GET.get('month', datetime.now().month))
+    selected_year = int(request.GET.get('year', datetime.now().year))
 
-    # Get days in month
-    _, days_in_month = calendar.monthrange(selected_year, selected_month)
-    month_days = [date(selected_year, selected_month, day) for day in range(1, days_in_month + 1)]
-
-    # Prepare filters
     # Define first and last day of selected month
     start_date = date(selected_year, selected_month, 1)
     _, last_day = calendar.monthrange(selected_year, selected_month)
     end_date = date(selected_year, selected_month, last_day)
 
-    # Filter employees who joined on or before the end_date
-    employees = EmployeeBISP.objects.filter(
-        status='active',
-        date_of_join__lte=end_date  # Only employees who joined on/before month end
-    )
+    # Get employees filtered by department or all
+    if selected_department == 'All':
+        employees = EmployeeBISP.objects.filter(status='active',date_of_join__lte=end_date)
+    else:
+        employees = EmployeeBISP.objects.filter(department__id=selected_department,status='active',date_of_join__lte=end_date)
 
-    if selected_department != 'All':
-        employees = employees.filter(department_id=selected_department)
-
-    start_date = month_days[0]
-    end_date = month_days[-1]
-
-    # Get all approved leaves for employees within the month range
-    leaves = Leave.objects.filter(
-        status='Approved',
-        employee__in=employees,
-        start_date__lte=end_date,
-        end_date__gte=start_date
-    ).select_related('employee')
-
-    # Group leaves by employee id for faster lookup
-    leaves_by_emp = {}
-    for leave in leaves:
-        leaves_by_emp.setdefault(leave.employee_id, []).append(leave)
-
-    # Build attendance matrix: 'L' if on leave, else 'P'
-    # In your view, after building attendance dict:
+    # Prepare days of the month
+    first_day = datetime(selected_year, selected_month, 1)
+    next_month = first_day.replace(day=28) + timedelta(days=4)  # this will get next month safely
+    last_day = next_month - timedelta(days=next_month.day)
+    month_days = [first_day + timedelta(days=i) for i in range((last_day - first_day).days + 1)]
 
     attendance_data = []
     for emp in employees:
-        emp_leaves = leaves_by_emp.get(emp.id, [])
-        emp_attendance = [
-            'L' if any(leave.start_date <= day <= leave.end_date for leave in emp_leaves) else 'P'
-            for day in month_days
-        ]
+        status_list = []
+        reasons_list = []
+        for day in month_days:
+            leave = Leave.objects.filter(employee=emp, start_date__lte=day, end_date__gte=day).first()
+            if leave:
+                status_list.append('L')
+                reasons_list.append(leave.reason or "No reason provided.")
+            else:
+                status_list.append('P')
+                reasons_list.append("")
+        # Combine both lists into one list of tuples: [(status, reason), ...]
+        combined = list(zip(status_list, reasons_list))
+        attendance_data.append((emp, combined))
 
-        attendance_data.append((emp, emp_attendance))
-
-
-
-    # Pass attendance_data instead of attendance dict
-    return render(request, 'report_templates/Attendence.html', {
+    context = {
         'departments': Department.objects.all(),
-        'employees': employees,
-        'attendance_data': attendance_data,
-        'month_days': month_days,
-        'months': range(1, 13),
-        'years': [today.year - 1, today.year],
-        'selected_month': selected_month,
-        'selected_year': selected_year,
         'selected_department': selected_department,
-    })
+        'selected_year': selected_year,
+        'selected_month': selected_month,
+        'month_days': month_days,
+        'attendance_data': attendance_data,
+        'years':  [today.year - 1, today.year],
+        'months': range(1, 13),
+        'selected_department_name': (employees.first().department.name if employees.exists() else 'All') if selected_department != 'All' else 'All',
+    }
+    return render(request, 'report_templates/Attendence.html', context)

@@ -797,3 +797,349 @@ Traceback (most recent call last):
     )
 django.core.exceptions.FieldError: Cannot resolve keyword 'date_of_joining' into field. Choices are: aadhar_card, admin_projects, approved_leaves, assets, assigned_tasks, bank_details, created_at, current_address, date_of_join, department, department_id, designation, designation_id, dob, documents, educations, email, emergency_contacts, empleavetype, employee_IDs, employee_task, employeechecklist, exit_emails, exitdocument, experiences, failed_login_attempts, gender, handbookacknowledgement, history, history_reported_to, id, is_locked, last_failed_login, leading_projects, leave, message, name, nationality, password, permanent_address, personal_details, phone_number, profile_picture, project_team, reported_to, reported_to_id, resignations, role, status, subordinates, taskhistory, team, timestamp, version, work_location
 2025-05-28 18:44:14,010 | Level: ERROR | Module: basehttp | Line: 213 | Message: "GET /attendence/report?department=All&month=4&year=2025 HTTP/1.1" 500 122273
+2025-05-29 11:31:44,723 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /attendence/report
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 4265, in attendance_report
+    return render(request, 'report_templates/Attendence.html', {
+        'departments': Department.objects.all(),
+    ...<7 lines>...
+        'selected_department': selected_department,
+    })
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 976, in do_if
+    nodelist = parser.parse(("endif",))
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 489, in parse
+    raise self.error(token, e)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 487, in parse
+    filter_expression = self.compile_filter(token.contents)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 609, in compile_filter
+    return FilterExpression(token, self)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 705, in __init__
+    filter_func = parser.find_filter(filter_name)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 615, in find_filter
+    raise TemplateSyntaxError("Invalid filter: '%s'" % filter_name)
+django.template.exceptions.TemplateSyntaxError: Invalid filter: 'get_department_name'
+2025-05-29 11:31:44,745 | Level: ERROR | Module: basehttp | Line: 213 | Message: "GET /attendence/report?department=All&month=5&year=2025 HTTP/1.1" 500 259655
+2025-05-29 11:40:24,708 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /attendence/report
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 4265, in attendance_report
+    return render(request, 'report_templates/Attendence.html', {
+        'departments': Department.objects.all(),
+    ...<7 lines>...
+        'selected_department': selected_department,
+    })
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 231, in render
+    raise ValueError(
+    ...<3 lines>...
+    )
+ValueError: Need 3 values to unpack in for loop; got 2. 
+2025-05-29 11:40:24,711 | Level: ERROR | Module: basehttp | Line: 213 | Message: "GET /attendence/report?department=All&month=5&year=2025 HTTP/1.1" 500 232221
+2025-05-29 11:40:55,811 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /attendence/report
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 4216, in attendance_report
+    employees = Employee.objects.all()
+                ^^^^^^^^^^^^^^^^
+AttributeError: 'function' object has no attribute 'objects'
+2025-05-29 11:40:55,814 | Level: ERROR | Module: basehttp | Line: 213 | Message: "GET /attendence/report?department=All&month=5&year=2025 HTTP/1.1" 500 68714
+2025-05-29 11:41:30,802 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /attendence/report
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 4251, in attendance_report
+    return render(request, 'attendance_report.html', context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: attendance_report.html
+2025-05-29 11:41:30,805 | Level: ERROR | Module: basehttp | Line: 213 | Message: "GET /attendence/report?department=All&month=5&year=2025 HTTP/1.1" 500 112721
+2025-05-29 12:07:16,246 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /attendence/report
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 4257, in attendance_report
+    return render(request, 'report_templates/Attendence.html', context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 862, in do_for
+    nodelist_loop = parser.parse(
+        (
+    ...<2 lines>...
+        )
+    )
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 862, in do_for
+    nodelist_loop = parser.parse(
+        (
+    ...<2 lines>...
+        )
+    )
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 1540, in do_with
+    nodelist = parser.parse(("endwith",))
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 962, in do_if
+    nodelist = parser.parse(("elif", "else", "endif"))
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 489, in parse
+    raise self.error(token, e)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 487, in parse
+    filter_expression = self.compile_filter(token.contents)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 609, in compile_filter
+    return FilterExpression(token, self)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 705, in __init__
+    filter_func = parser.find_filter(filter_name)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 615, in find_filter
+    raise TemplateSyntaxError("Invalid filter: '%s'" % filter_name)
+django.template.exceptions.TemplateSyntaxError: Invalid filter: 'index'
+2025-05-29 12:07:16,257 | Level: ERROR | Module: basehttp | Line: 213 | Message: "GET /attendence/report HTTP/1.1" 500 300432
+2025-05-29 14:07:38,214 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /attendence/report
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\smartif.py", line 180, in translate_token
+    op = OPERATORS[token]
+         ~~~~~~~~~^^^^^^^
+KeyError: 'current_day|add:""|int'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 4259, in attendance_report
+    return render(request, 'report_templates/Attendence.html', context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 862, in do_for
+    nodelist_loop = parser.parse(
+        (
+    ...<2 lines>...
+        )
+    )
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 962, in do_if
+    nodelist = parser.parse(("elif", "else", "endif"))
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 961, in do_if
+    condition = TemplateIfParser(parser, bits).parse()
+                ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 894, in __init__
+    super().__init__(*args, **kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\smartif.py", line 171, in __init__
+    mapped_tokens.append(self.translate_token(token))
+                         ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\smartif.py", line 182, in translate_token
+    return self.create_var(token)
+           ~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 897, in create_var
+    return TemplateLiteral(self.template_parser.compile_filter(value), value)
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 609, in compile_filter
+    return FilterExpression(token, self)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 705, in __init__
+    filter_func = parser.find_filter(filter_name)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 615, in find_filter
+    raise TemplateSyntaxError("Invalid filter: '%s'" % filter_name)
+django.template.exceptions.TemplateSyntaxError: Invalid filter: 'int'
+2025-05-29 14:07:38,238 | Level: ERROR | Module: basehttp | Line: 213 | Message: "GET /attendence/report?department=All&month=5&year=2025 HTTP/1.1" 500 339691

@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-a+%41ypfq7#n^(09q^ju(=s$#u03s@l_q53yc$4*v($th*sz5d
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['hrportal-fnekgvamc5d8dhf3.canadacentral-01.azurewebsites.net']
 
 
 # Application definition
