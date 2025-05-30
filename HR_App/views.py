@@ -1788,7 +1788,7 @@ def show_login_page(request):
         return redirect('/Adminpanel')
 
     # If no session, show login page
-    return render(request, 'admin_templates/login.html')
+    return render(request, 'login.html')
 
 #For Login
 @csrf_protect
