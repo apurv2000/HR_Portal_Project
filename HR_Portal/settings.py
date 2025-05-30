@@ -91,7 +91,7 @@ WSGI_APPLICATION = 'HR_Portal.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'hr_portal',  # Replace with your database name
+        'NAME': 'hrportal-database',  # Replace with your database name
         'USER': 'eiiornrnrv',  # Replace with your MySQL username
         'PASSWORD': 'Harekrsna',  # Replace with your MySQL password
         'HOST': 'hrportal-server.mysql.database.azure.com',  # Use '127.0.0.1' if needed
