@@ -92,9 +92,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'hr_portal',  # Replace with your database name
-        'USER': 'root',  # Replace with your MySQL username
+        'USER': 'mysqladmin@azure',  # Replace with your MySQL username
         'PASSWORD': 'Harekrsna',  # Replace with your MySQL password
-        'HOST': 'localhost',  # Use '127.0.0.1' if needed
+        'HOST': 'azure.mysql.database.azure.com',  # Use '127.0.0.1' if needed
         'PORT': '3306'
     }
 }
