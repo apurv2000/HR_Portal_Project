@@ -875,7 +875,7 @@ def Register(request):
         })
 
 def Login_page(request):
-    return render(request,'admin_templates/login.html')
+    return render(request,'login.html')
 
 def Logout(request):
     log_audit_event(request.user, 'Employee Logout',
@@ -883,7 +883,7 @@ def Logout(request):
     logout(request)
     request.session.flush()
 
-    return render(request,'admin_templates/login.html')
+    return render(request,'login.html')
 
 #Show All inactive Employee
 def Emplist_Inactive(request):
@@ -1795,7 +1795,7 @@ def show_login_page(request):
 @csrf_exempt  # Remove in production, use CSRF token properly
 def Login_user(request):
     if request.method != "POST":
-        return render(request, 'templates/login.html')  # Show login page for GET
+        return render(request, 'login.html')  # Show login page for GET
 
     email = request.POST.get("Email", "").strip()
     password = request.POST.get("PWD", "").strip()
@@ -1804,7 +1804,7 @@ def Login_user(request):
     user = EmployeeBISP.objects.filter(email=email, status='active').first()
 
     if not user or not check_password(password, user.password):
-        return render(request, 'templates/login.html')
+        return render(request, 'login.html')
 
     # Set session or Django login logic if needed
     request.session['employee_id'] = user.id
@@ -1821,7 +1821,7 @@ def Login_user(request):
     elif user.role == "Manager":
         return redirect("Adminpanel")
     else:
-        return render(request, 'templates/login.html')
+        return render(request, 'login.html')
 
    
     
