@@ -1791,7 +1791,6 @@ def show_login_page(request):
     return render(request, 'login.html')
 
 #For Login
-@csrf_protect
 def Login_user(request):
     if request.method != "POST":
         return JsonResponse({"error": "Invalid request"}, status=400)
