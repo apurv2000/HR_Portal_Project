@@ -1181,7 +1181,7 @@ def handbook_Indivi_report(request, pdf_id):
 def handbook_employee(request):
     if not request.session.get('employee_id'):
         return redirect('Login_user_page')
-    employee = get_object_or_404(EmployeeBISP, email=request.user.email)
+    employee = get_object_or_404(EmployeeBISP, email=request.session.email)
     latest_pdf = HandbookPDF.objects.filter(is_active=True).order_by('-uploaded_at').first()
 
     acknowledgement = None
