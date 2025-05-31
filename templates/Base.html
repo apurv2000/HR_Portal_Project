@@ -1110,38 +1110,36 @@ $(document).ready(function() {
 <!--Pop message for Login page-->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    let loginForm = document.getElementById("loginForm");
-    let emailInput = document.getElementById("email");
-    let passwordInput = document.getElementById("password");
-    let emailError = document.getElementById("email-error");
-    let passwordError = document.getElementById("password-error");
-    let generalError = document.getElementById("general-error");
+    const loginForm = document.getElementById("loginForm");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const emailError = document.getElementById("email-error");
+    const passwordError = document.getElementById("password-error");
+    const generalError = document.getElementById("general-error");
 
     if (!loginForm || !emailInput || !passwordInput) {
-        console.error("One or more required elements are missing.");
+        console.error("Missing form elements.");
         return;
     }
 
-    // Remove error messages as soon as the user starts typing
     function clearErrors() {
         emailError.style.display = "none";
         passwordError.style.display = "none";
         generalError.style.display = "none";
     }
+
     emailInput.addEventListener("input", clearErrors);
     passwordInput.addEventListener("input", clearErrors);
 
     loginForm.addEventListener("submit", function (e) {
-        e.preventDefault(); // Prevent form submission
+        e.preventDefault();
 
-        // Clear previous errors
-        emailError.style.display = "none";
-        passwordError.style.display = "none";
-        generalError.style.display = "none";
+        clearErrors();
 
-        let formData = new FormData(loginForm);
+        const formData = new FormData(loginForm);
 
-        fetch("{% url 'Login_user' %}", {
+        // Use form's action attribute instead of hardcoded URL
+        fetch(loginForm.action, {
             method: "POST",
             headers: {
                 "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
@@ -1151,9 +1149,8 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(response => response.json())
         .then(data => {
             if (data.redirect_url) {
-                window.location.href = data.redirect_url; // Redirect if login is successful
+                window.location.href = data.redirect_url;
             } else {
-                // Show specific field errors if provided
                 if (data.email_error) {
                     emailError.innerText = data.email_error;
                     emailError.style.display = "block";
@@ -1176,6 +1173,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 </script>
+
 
 </body>
 </html>
