@@ -1280,7 +1280,7 @@ def EmpList(request):
     if not request.session.get('employee_id'):
         return redirect('Login_user_page')
     employees = EmployeeBISP.objects.filter(status='active').all
-    return render(request,'admin_templates/Employee_List.html',{'employees': employees})
+    return render(request,'admin_templates/Employee_list.html',{'employees': employees})
 
 #For Delete Employee with ID
 def delete_employee(request, id):
