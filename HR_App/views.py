@@ -1799,94 +1799,32 @@ def Login_user(request):
     email = request.POST.get("Email", "").strip()
     password = request.POST.get("PWD", "").strip()
 
-    errors = {}
     if not email:
-        logger.error("Email is required.")
-        errors["email_error"] = "Email is required."
+        return JsonResponse({"email_error": "Email is required."}, status=400)
     if not password:
-        logger.error("Password is required.")
-        errors["password_error"] = "Password is required."
-    if errors:
-        logger.error("Status 400")
-        return JsonResponse(errors, status=400)
+        return JsonResponse({"password_error": "Password is required."}, status=400)
 
     user = EmployeeBISP.objects.filter(email=email, status='active').first()
     if not user:
-        logger.error("No account found with this email.")
         return JsonResponse({"email_error": "No account found with this email."}, status=401)
 
-    # Check if account is locked
-    if user.is_locked:
-        # Every login time it will check current time with last_failed_login time
-        if user.last_failed_login and now() < user.last_failed_login + timedelta(hours=2):
-            lock_end_time = user.last_failed_login + timedelta(hours=2)
-            remaining_time = lock_end_time - now()
-            # Convert remaining_time to minutes and seconds (or any format you want)
-            minutes, seconds = divmod(remaining_time.total_seconds(), 60)
-            return JsonResponse({
-                "error": f"Account locked due to multiple failed login attempts. Try again After {int(minutes)} minutes and {int(seconds)} seconds",
-            }, status=403)
-        else:
-            # Unlock the account after 2 hours
-            user.is_locked = False
-            user.failed_login_attempts = 0
-            user.save()
-
     if not check_password(password, user.password):
-        user.failed_login_attempts += 1
-        user.last_failed_login = now()
-
-        if user.failed_login_attempts >= 3:
-            user.is_locked = True
-            logger.warning(f"User {user.email} locked due to too many failed attempts.")
-
-        user.save()
-        logger.error("Incorrect password.")
         return JsonResponse({"password_error": "Incorrect password."}, status=401)
 
-    # Reset failed attempts on successful login
-    user.failed_login_attempts = 0
-    user.is_locked = False
-    user.save()
-
-    # Django user login logic continues here...
+    # Successful login: log in user (assuming a corresponding Django User exists or create one)
+    from django.contrib.auth.models import User
     django_user, created = User.objects.get_or_create(username=user.email, email=user.email)
     login(request, django_user)
 
-    request.session.set_expiry(60 * 60 * 24 * 30)  # 30 days
+    # Simple session data
     request.session['employee_id'] = user.id
     request.session['employee_name'] = user.name
     request.session['email'] = user.email
     request.session['role'] = user.role
     request.session['designation'] = user.designation.title
     request.session['Currenttime'] = datetime.today().date().isoformat()
-    try:
-        request.session['ProfileImage'] = user.profile_picture.url
-    except Exception:
-        request.session['ProfileImage'] = ""
 
-
-    employee_id = request.session['employee_id']
-    try:
-        employeeM = EmployeeBISP.objects.get(id=employee_id)
-    except EmployeeBISP.DoesNotExist:
-        employeeM = None
-
-    loggers = get_user_logger(employee_id)
-
-    # User-specific Log file
-    loggers.info(
-        "Employee Inactive",
-        extra={
-            'action': f"Employee {employeeM.name} lOGIN",
-            'details': f"Employee '{user.name}' with ID {user.id} was LOGIN."
-        }
-    )
-
-    log_audit_event(request.user, 'Employee Login',
-                    f"Employee '{user.name}' logged in at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.")
-
-    # Redirect by role
+    # Redirect based on role (basic)
     if user.role == "Administrator":
         redirect_url = "/Hrpanel"
     elif user.role == "Employee":
@@ -1896,7 +1834,7 @@ def Login_user(request):
     else:
         return JsonResponse({"error": "Unauthorized role"}, status=403)
 
-    return JsonResponse({"redirect_url": redirect_url}, status=200)
+    return JsonResponse({"redirect_url": redirect_url})
 
 def generate_random_password(length=8):
     """Generate a random password of given length"""
