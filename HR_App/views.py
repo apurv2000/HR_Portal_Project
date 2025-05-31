@@ -1792,31 +1792,21 @@ def show_login_page(request):
     return render(request, 'login.html')
 
 #For Login
+@csrf_exempt  # Remove in production, use CSRF token properly
 def Login_user(request):
     if request.method != "POST":
-        return JsonResponse({"error": "Invalid request"}, status=400)
+        return render(request, 'templates/login.html')  # Show login page for GET
 
     email = request.POST.get("Email", "").strip()
     password = request.POST.get("PWD", "").strip()
 
-    if not email:
-        return JsonResponse({"email_error": "Email is required."}, status=400)
-    if not password:
-        return JsonResponse({"password_error": "Password is required."}, status=400)
 
     user = EmployeeBISP.objects.filter(email=email, status='active').first()
-    if not user:
-        return JsonResponse({"email_error": "No account found with this email."}, status=401)
 
-    if not check_password(password, user.password):
-        return JsonResponse({"password_error": "Incorrect password."}, status=401)
+    if not user or not check_password(password, user.password):
+        return render(request, 'templates/login.html')
 
-    # Successful login: log in user (assuming a corresponding Django User exists or create one)
-    from django.contrib.auth.models import User
-    django_user, created = User.objects.get_or_create(username=user.email, email=user.email)
-    login(request, django_user)
-
-    # Simple session data
+    # Set session or Django login logic if needed
     request.session['employee_id'] = user.id
     request.session['employee_name'] = user.name
     request.session['email'] = user.email
@@ -1824,17 +1814,57 @@ def Login_user(request):
     request.session['designation'] = user.designation.title
     request.session['Currenttime'] = datetime.today().date().isoformat()
 
-    # Redirect based on role (basic)
     if user.role == "Administrator":
-        redirect_url = "/Hrpanel"
+        return redirect("Hrpanel")
     elif user.role == "Employee":
-        redirect_url = "/Emppanel"
+        return redirect("Emppanel")
     elif user.role == "Manager":
-        redirect_url = "/Adminpanel"
+        return redirect("Adminpanel")
     else:
-        return JsonResponse({"error": "Unauthorized role"}, status=403)
+        return render(request, 'templates/login.html')
 
-    return JsonResponse({"redirect_url": redirect_url})
+   
+    
+    
+
+
+
+    # if not email:
+    #     return JsonResponse({"email_error": "Email is required."}, status=400)
+    # if not password:
+    #     return JsonResponse({"password_error": "Password is required."}, status=400)
+
+    # user = EmployeeBISP.objects.filter(email=email, status='active').first()
+    # if not user:
+    #     return JsonResponse({"email_error": "No account found with this email."}, status=401)
+
+    # if not check_password(password, user.password):
+    #     return JsonResponse({"password_error": "Incorrect password."}, status=401)
+
+    # # Successful login: log in user (assuming a corresponding Django User exists or create one)
+    # from django.contrib.auth.models import User
+    # django_user, created = User.objects.get_or_create(username=user.email, email=user.email)
+    # login(request, django_user)
+
+    # # Simple session data
+    # request.session['employee_id'] = user.id
+    # request.session['employee_name'] = user.name
+    # request.session['email'] = user.email
+    # request.session['role'] = user.role
+    # request.session['designation'] = user.designation.title
+    # request.session['Currenttime'] = datetime.today().date().isoformat()
+
+    # # Redirect based on role (basic)
+    # if user.role == "Administrator":
+    #     redirect_url = "/Hrpanel"
+    # elif user.role == "Employee":
+    #     redirect_url = "/Emppanel"
+    # elif user.role == "Manager":
+    #     redirect_url = "/Adminpanel"
+    # else:
+    #     return JsonResponse({"error": "Unauthorized role"}, status=403)
+
+    # return JsonResponse({"redirect_url": redirect_url})
 
 def generate_random_password(length=8):
     """Generate a random password of given length"""
