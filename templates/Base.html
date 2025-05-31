@@ -1153,6 +1153,8 @@ $(document).ready(function () {
             },
             error: function (xhr, status, error) {
                 generalError.text("An error occurred. Please try again.").show();
+                console.error("Status:", status);
+                console.error("XHR response:", xhr.responseText);
                 console.error("AJAX Login Error:", error);
             }
         });
