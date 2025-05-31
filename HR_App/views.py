@@ -1180,7 +1180,8 @@ def handbook_Indivi_report(request, pdf_id):
 def handbook_employee(request):
     if not request.session.get('employee_id'):
         return redirect('Login_user_page')
-    employee = get_object_or_404(EmployeeBISP, email=request.session.email)
+    employee_id = request.session.get('employee_id')
+    employee = get_object_or_404(EmployeeBISP, id=employee_id)
     latest_pdf = HandbookPDF.objects.filter(is_active=True).order_by('-uploaded_at').first()
 
     acknowledgement = None
@@ -1812,6 +1813,10 @@ def Login_user(request):
     request.session['role'] = user.role
     request.session['designation'] = user.designation.title
     request.session['Currenttime'] = datetime.today().date().isoformat()
+    try:
+        request.session['ProfileImage'] = user.profile_picture.url
+    except Exception:
+        request.session['ProfileImage'] = ""
 
     if user.role == "Administrator":
         return redirect("Hrpanel")
@@ -1852,6 +1857,7 @@ def Login_user(request):
     # request.session['role'] = user.role
     # request.session['designation'] = user.designation.title
     # request.session['Currenttime'] = datetime.today().date().isoformat()
+    
 
     # # Redirect based on role (basic)
     # if user.role == "Administrator":
