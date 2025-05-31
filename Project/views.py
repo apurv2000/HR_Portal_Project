@@ -308,7 +308,7 @@ def Project_list(request):
         projects = Project.objects.filter(team_members =employee,status='active').order_by('-created_at')
 
 
-    return render(request, 'project_templates/project_list.html', {'projects': projects.distinct()})
+    return render(request, 'project_templates/Project_list.html', {'projects': projects.distinct()})
 
 #For Task List Display
 def Task_list(request):
@@ -650,7 +650,7 @@ def project_detail(request, pk):
         'project': project,
         'task':task
     }
-    return render(request, 'project_templates/project_detail.html', context)
+    return render(request, 'project_templates/Project_detail.html', context)
 
 def project_history_detail(request, pk):
     if not request.session.get('employee_id'):
@@ -661,7 +661,7 @@ def project_history_detail(request, pk):
         'project': project,
 
     }
-    return render(request, 'project_templates/project_detail.html', context)
+    return render(request, 'project_templates/Project_detail.html', context)
 
 
 #For showing project as completed
