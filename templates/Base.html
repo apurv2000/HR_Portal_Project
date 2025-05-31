@@ -1109,66 +1109,52 @@ $(document).ready(function() {
 
 <!--Pop message for Login page-->
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const loginForm = document.getElementById("loginForm");
-    const emailInput = document.getElementById("email");
-    const passwordInput = document.getElementById("password");
-    const emailError = document.getElementById("email-error");
-    const passwordError = document.getElementById("password-error");
-    const generalError = document.getElementById("general-error");
-
-    if (!loginForm || !emailInput || !passwordInput) {
-        console.error("Missing form elements.");
-        return;
-    }
+$(document).ready(function () {
+    const loginForm = $("#loginForm");
+    const emailInput = $("#email");
+    const passwordInput = $("#password");
+    const emailError = $("#email-error");
+    const passwordError = $("#password-error");
+    const generalError = $("#general-error");
 
     function clearErrors() {
-        emailError.style.display = "none";
-        passwordError.style.display = "none";
-        generalError.style.display = "none";
+        emailError.hide();
+        passwordError.hide();
+        generalError.hide();
     }
 
-    emailInput.addEventListener("input", clearErrors);
-    passwordInput.addEventListener("input", clearErrors);
+    emailInput.on("input", clearErrors);
+    passwordInput.on("input", clearErrors);
 
-    loginForm.addEventListener("submit", function (e) {
+    loginForm.on("submit", function (e) {
         e.preventDefault();
-
         clearErrors();
 
-        const formData = new FormData(loginForm);
+        const formData = loginForm.serialize();  // Serialize form data (includes CSRF token)
 
-        // Use form's action attribute instead of hardcoded URL
-        fetch(loginForm.action, {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
+        $.ajax({
+            url: loginForm.attr("action"),  // Use action attribute from the form
+            type: "POST",
+            data: formData,
+            success: function (data) {
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    if (data.email_error) {
+                        emailError.text(data.email_error).show();
+                    }
+                    if (data.password_error) {
+                        passwordError.text(data.password_error).show();
+                    }
+                    if (data.error) {
+                        generalError.text(data.error).show();
+                    }
+                }
             },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.redirect_url) {
-                window.location.href = data.redirect_url;
-            } else {
-                if (data.email_error) {
-                    emailError.innerText = data.email_error;
-                    emailError.style.display = "block";
-                }
-                if (data.password_error) {
-                    passwordError.innerText = data.password_error;
-                    passwordError.style.display = "block";
-                }
-                if (data.error) {
-                    generalError.innerText = data.error;
-                    generalError.style.display = "block";
-                }
+            error: function (xhr, status, error) {
+                generalError.text("An error occurred. Please try again.").show();
+                console.error("AJAX Login Error:", error);
             }
-        })
-        .catch(error => {
-            generalError.innerText = "An error occurred. Please try again.";
-            generalError.style.display = "block";
-            console.error("Login Error:", error);
         });
     });
 });
