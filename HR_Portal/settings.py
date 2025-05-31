@@ -97,7 +97,7 @@ DATABASES = {
         'HOST': 'hrportal-server.mysql.database.azure.com',  # Use '127.0.0.1' if needed
         'PORT': '3306',
         'OPTIONS': {
-            'ssl': {'ssl-mode': 'REQUIRED'}
+            'ssl': {'ca': 'https://github.com/apurv2000/HR_Portal_Project/blob/main/BaltimoreCyberTrustRoot.crt.pem'}
         }
     }
 }
