@@ -11,7 +11,6 @@ from itertools import chain
 from operator import attrgetter
 from django.utils.timezone import localtime, make_aware, now
 
-
 from .mark import mark_resigned_employees_inactive
 
 from django.conf import settings
