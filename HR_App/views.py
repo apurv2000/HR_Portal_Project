@@ -2633,7 +2633,11 @@ def uploadPDF(request):
 def acknowledge_handbook(request, pdf_id):
     if not request.session.get('employee_id'):
         return redirect('Login_user_page')
-    employee = get_object_or_404(EmployeeBISP, email=request.user.email)
+
+    employee_id = request.session.get('employee_id')
+   
+        
+    employee = get_object_or_404(EmployeeBISP, id=employee_id)
     pdf = get_object_or_404(HandbookPDF, id=pdf_id)
 
     # Update or create acknowledgement for this employee and PDF
