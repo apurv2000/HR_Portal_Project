@@ -764,7 +764,7 @@ document.getElementById('uploadform').addEventListener('submit', function (e) {
     fetch("{% url 'upload_exit_doc' %}", {
         method: 'POST',
         headers: {
-            'X-CSRFToken': '{{ csrf_token }}'
+             'X-CSRFToken': getCookie('csrftoken')
         },
         body: formData,
     })
