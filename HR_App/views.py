@@ -209,7 +209,8 @@ def Manager(request):
         key=lambda x: x.activity_datetime,
         reverse=True
     )[:10]
-    resignation = ResignationApplication.objects.filter(employee=employee).count()
+    resignation = ResignationApplication.objects.filter(employee=employee).exclude(
+        status__in=['delete', 'Finish Process']).count()
     context = {
         'total_projects': project_qs.count(),
         'total_tasks': task_qs.count(),
@@ -386,7 +387,8 @@ def Hr(request):
         reverse=True
     )[:10]
 
-    resignation = ResignationApplication.objects.filter(employee=employee).count()
+    resignation = ResignationApplication.objects.filter(employee=employee).exclude(
+        status__in=['delete', 'Finish Process']).count()
     context = {
         'total_projects': project_qs.count(),
         'total_tasks': task_qs.count(),
@@ -2634,9 +2636,7 @@ def acknowledge_handbook(request, pdf_id):
     if not request.session.get('employee_id'):
         return redirect('Login_user_page')
 
-    employee_id = request.session.get('employee_id')
-   
-        
+    employee_id = request.session.get('employee_id')     
     employee = get_object_or_404(EmployeeBISP, id=employee_id)
     pdf = get_object_or_404(HandbookPDF, id=pdf_id)
 
