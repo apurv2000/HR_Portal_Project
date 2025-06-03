@@ -62,7 +62,17 @@ MIDDLEWARE = [
 
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True  # correct setting name
+
+CORS_ALLOWED_ORIGINS = [
+    "https://hrportal-fnekgvamc5d8dhf3.canadacentral-01.azurewebsites.net",
+    
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://hrportal-fnekgvamc5d8dhf3.canadacentral-01.azurewebsites.net",
+]
+
+
 
 ROOT_URLCONF = 'HR_Portal.urls'
 
@@ -199,7 +209,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
 BASE_DIR / 'static'
 ]
-STATIC_ROOT = os.path. join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
