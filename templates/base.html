@@ -1109,54 +1109,69 @@ $(document).ready(function() {
 
 <!--Pop message for Login page-->
 <script>
-$(document).ready(function () {
-    const loginForm = $("#loginForm");
-    const emailInput = $("#email");
-    const passwordInput = $("#password");
-    const emailError = $("#email-error");
-    const passwordError = $("#password-error");
-    const generalError = $("#general-error");
+document.addEventListener("DOMContentLoaded", function () {
+    let loginForm = document.getElementById("loginForm");
+    let emailInput = document.getElementById("email");
+    let passwordInput = document.getElementById("password");
+    let emailError = document.getElementById("email-error");
+    let passwordError = document.getElementById("password-error");
+    let generalError = document.getElementById("general-error");
 
-    function clearErrors() {
-        emailError.hide();
-        passwordError.hide();
-        generalError.hide();
+    if (!loginForm || !emailInput || !passwordInput) {
+        console.error("One or more required elements are missing.");
+        return;
     }
 
-    emailInput.on("input", clearErrors);
-    passwordInput.on("input", clearErrors);
+    // Remove error messages as soon as the user starts typing
+    function clearErrors() {
+        emailError.style.display = "none";
+        passwordError.style.display = "none";
+        generalError.style.display = "none";
+    }
+    emailInput.addEventListener("input", clearErrors);
+    passwordInput.addEventListener("input", clearErrors);
 
-    loginForm.on("submit", function (e) {
-        e.preventDefault();
-        clearErrors();
+    loginForm.addEventListener("submit", function (e) {
+        e.preventDefault(); // Prevent form submission
 
-        const formData = loginForm.serialize();  // Serialize form data (includes CSRF token)
+        // Clear previous errors
+        emailError.style.display = "none";
+        passwordError.style.display = "none";
+        generalError.style.display = "none";
 
-        $.ajax({
-            url: loginForm.attr("action"),  // Use action attribute from the form
-            type: "POST",
-            data: formData,
-            success: function (data) {
-                if (data.redirect_url) {
-                    window.location.href = data.redirect_url;
-                } else {
-                    if (data.email_error) {
-                        emailError.text(data.email_error).show();
-                    }
-                    if (data.password_error) {
-                        passwordError.text(data.password_error).show();
-                    }
-                    if (data.error) {
-                        generalError.text(data.error).show();
-                    }
-                }
+        let formData = new FormData(loginForm);
+
+        fetch("{% url 'Login_user' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
             },
-            error: function (xhr, status, error) {
-                generalError.text("An error occurred. Please try again.").show();
-                console.error("Status:", status);
-                console.error("XHR response:", xhr.responseText);
-                console.error("AJAX Login Error:", error);
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.redirect_url) {
+                window.location.href = data.redirect_url; // Redirect if login is successful
+            } else {
+                // Show specific field errors if provided
+                if (data.email_error) {
+                    emailError.innerText = data.email_error;
+                    emailError.style.display = "block";
+                }
+                if (data.password_error) {
+                    passwordError.innerText = data.password_error;
+                    passwordError.style.display = "block";
+                }
+                if (data.error) {
+                    generalError.innerText = data.error;
+                    generalError.style.display = "block";
+                }
             }
+        })
+        .catch(error => {
+            generalError.innerText = "An error occurred. Please try again.";
+            generalError.style.display = "block";
+            console.error("Login Error:", error);
         });
     });
 });
