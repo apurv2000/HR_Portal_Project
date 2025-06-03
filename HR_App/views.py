@@ -1794,40 +1794,154 @@ def show_login_page(request):
     return render(request, 'login.html')
 
 #For Login
-@csrf_exempt  # Remove in production, use CSRF token properly
+@csrf_protect
 def Login_user(request):
     if request.method != "POST":
-        return render(request, 'login.html')  # Show login page for GET
+        return JsonResponse({"error": "Invalid request"}, status=400)
 
     email = request.POST.get("Email", "").strip()
     password = request.POST.get("PWD", "").strip()
 
+    errors = {}
+    if not email:
+        logger.error("Email is required.")
+        errors["email_error"] = "Email is required."
+    if not password:
+        logger.error("Password is required.")
+        errors["password_error"] = "Password is required."
+    if errors:
+        return JsonResponse(errors, status=400)
 
     user = EmployeeBISP.objects.filter(email=email, status='active').first()
+    if not user:
+        logger.error("No account found with this email.")
+        return JsonResponse({"email_error": "No account found with this email."}, status=401)
 
-    if not user or not check_password(password, user.password):
-        return render(request, 'login.html')
+    # Exempted email
+    is_exempt = user.email == 'support@gmail.com'
 
-    # Set session or Django login logic if needed
+    if not is_exempt:
+        if user.is_locked:
+            if user.last_failed_login and now() < user.last_failed_login + timedelta(hours=2):
+                lock_end_time = user.last_failed_login + timedelta(hours=2)
+                remaining_time = lock_end_time - now()
+                minutes, seconds = divmod(remaining_time.total_seconds(), 60)
+                return JsonResponse({
+                    "error": f"Account locked due to multiple failed login attempts. Try again after {int(minutes)} minutes and {int(seconds)} seconds."
+                }, status=403)
+            else:
+                user.is_locked = False
+                user.failed_login_attempts = 0
+                user.save()
+
+    # Incorrect password check
+    if not check_password(password, user.password):
+        if not is_exempt:
+            user.failed_login_attempts += 1
+            user.last_failed_login = now()
+            if user.failed_login_attempts >= 3:
+                user.is_locked = True
+                logger.warning(f"User {user.email} locked due to too many failed attempts.")
+            user.save()
+
+        logger.error("Incorrect password.")
+        return JsonResponse({"password_error": "Incorrect password."}, status=401)
+
+    # On successful login
+    user.failed_login_attempts = 0
+    user.is_locked = False
+    user.save()
+
+    # Authenticate or create corresponding Django user
+    django_user, created = User.objects.get_or_create(username=user.email, email=user.email)
+    login(request, django_user)
+
+    # Load or create user preferences
+    # preference, _ = UserPreference.objects.get_or_create(user=user)
+
+    # Session Setup
+    request.session.set_expiry(60 * 60 * 24 * 30)  # 30 days
     request.session['employee_id'] = user.id
     request.session['employee_name'] = user.name
     request.session['email'] = user.email
     request.session['role'] = user.role
     request.session['designation'] = user.designation.title
     request.session['Currenttime'] = datetime.today().date().isoformat()
+    # request.session['user_preference'] = {
+    #     'id': preference.id,
+    #     'default_screen': preference.default_screen,
+    #     'project_id': preference.project.id if preference.project else None,
+    #     'task_id': preference.task.id if preference.task else None,
+    #     'work_start': str(preference.work_start),
+    #     'work_end': str(preference.work_end),
+    #     'default_timesheet': preference.default_timesheet,
+    # }
+
     try:
         request.session['ProfileImage'] = user.profile_picture.url
     except Exception:
         request.session['ProfileImage'] = ""
 
+    # Logging
+    loggers = get_user_logger(user.id)
+    loggers.info(
+        "Employee Login",
+        extra={
+            'action': f"Employee {user.name} LOGIN",
+            'details': f"Employee '{user.name}' with ID {user.id} logged in."
+        }
+    )
+
+    log_audit_event(request.user, 'Employee Login',
+                    f"Employee '{user.name}' logged in at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.")
+
+
+    # # Redirection map based on role and screen
+    # screen_map = {
+    #     'Administrator': {
+    #         'Dashboard': '/Hrpanel/',
+    #         'Weekly Timesheet': '/timesheet/timesheet_add/',
+    #         'Daily Timesheet': '/timesheet/timesheet_daily/',
+    #         'Image Timesheet': '/timesheet/timesheet_image/',
+    #         'Apply Leave': '/leave/apply/page',
+    #     },
+    #     'Employee': {
+    #         'Dashboard': '/Emppanel/',
+    #         'Weekly Timesheet': '/timesheet/timesheet_add/',
+    #         'Daily Timesheet': '/timesheet/timesheet_daily/',
+    #         'Image Timesheet': '/timesheet/timesheet_image/',
+    #         'Apply Leave': '/leave/apply/page',
+    #     },
+    #     'Manager': {
+    #         'Dashboard': '/Adminpanel/',
+    #         'Weekly Timesheet': '/timesheet/timesheet_add/',
+    #         'Daily Timesheet': '/timesheet/timesheet_daily/',
+    #         'Image Timesheet': '/timesheet/timesheet_image/',
+    #         'Apply Leave': '/leave/apply/page',
+    #     }
+    # }
+
+
+
+    # # Fallback URLs if preference doesn't exist
+    # default_redirects = {
+    #     'Administrator': '/Hrpanel',
+    #     'Employee': '/Emppanel',
+    #     'Manager': '/Adminpanel',
+    # }
+
+    # redirect_url = screen_map.get(user.role, {}).get(preference.default_screen) or default_redirects.get(user.role)
+    # Role-based redirection
     if user.role == "Administrator":
-        return redirect("Hrpanel")
+        redirect_url = "/Hrpanel"
     elif user.role == "Employee":
-        return redirect("Emppanel")
+        redirect_url = "/Emppanel"
     elif user.role == "Manager":
-        return redirect("Adminpanel")
+        redirect_url = "/Adminpanel"
     else:
-        return render(request, 'login.html')
+        return JsonResponse({"error": "Unauthorized role"}, status=403)
+
+    return JsonResponse({"redirect_url": redirect_url}, status=200)
 
    
     
