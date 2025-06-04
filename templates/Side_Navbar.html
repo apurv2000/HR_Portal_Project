@@ -428,12 +428,18 @@
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div class="modal-body">
+             <div class="modal-body">
               <div class="form-group">
                 <label for="new_password1">New Password</label>
-                <input type="password" name="New_Pwd" class="form-control" required>
+                <input type="password" name="New_Pwd" class="form-control">
                 <small id="passwordError" class="text-danger d-block mt-2"></small>
                 <small id="passwordSuccess" class="text-success d-block mt-2"></small>
+              </div>
+                <div class="form-group">
+                <label for="con_password1">Confirm Password</label>
+                <input type="password" name="Con_Pwd" class="form-control">
+                <small id="ConError" class="text-danger d-block mt-2"></small>
+                <small id="ConSuccess" class="text-success d-block mt-2"></small>
               </div>
             </div>
             <div class="modal-footer">
