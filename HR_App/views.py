@@ -4387,19 +4387,27 @@ def change_password(request):
         return redirect('Login_user_page')
     if request.method == "POST":
         new_password = request.POST.get('New_Pwd')
-        user = request.user
+        con_password = request.POST.get('Con_Pwd')
+        employee_id = request.session['employee_id']
+        try:
+            employee = EmployeeBISP.objects.get(id=employee_id)
+        except EmployeeBISP.DoesNotExist:
+            employee = None
 
         if not new_password:
             return JsonResponse({"status": "error", "message": "Password cannot be empty."})
+        elif new_password != con_password:
+            return JsonResponse({"status": "error", "message": "Password must be same."})
+
 
         # Validate password strength
         password_error = validate_password(new_password )
         if password_error:
             return JsonResponse({"status": "error", "message": password_error })
 
-        user.set_password(new_password)
-        user.save()
-        update_session_auth_hash(request, user)
+        employee.password = make_password(new_password)
+        employee.save()
+        update_session_auth_hash(request,  employee)
 
         return JsonResponse({"status": "success", "message": "Password updated successfully."})
 
