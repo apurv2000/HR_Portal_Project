@@ -850,8 +850,6 @@ def Team_profile(request,id):
 
 
 def Forget_pwd(request):
-    if not request.session.get('employee_id'):
-        return redirect('Login_user_page')
     return render(request,'admin_templates/forgot-password.html')
 
 def Contact(request):
