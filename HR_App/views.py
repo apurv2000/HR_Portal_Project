@@ -3745,8 +3745,8 @@ def save_checklist(request):
 
 #Upload Exit Document
 def upload_exit_document(request):
-    if not request.session.get('employee_id'):
-        return JsonResponse({'error': 'Unauthorized'}, status=401)
+   if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
 
     employee_id = request.POST.get('employee_id')
     employee = get_object_or_404(EmployeeBISP, id=employee_id)
