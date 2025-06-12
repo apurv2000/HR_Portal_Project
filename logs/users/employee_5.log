@@ -1,0 +1,5 @@
+2025-06-05 12:28:44,241 | Action: Employee Gaurav Singh Bhandari LOGIN | Details: Employee 'Gaurav Singh Bhandari' with ID 5 logged in.
+2025-06-06 13:14:31,402 | Action: Employee Gaurav Singh Bhandari LOGIN | Details: Employee 'Gaurav Singh Bhandari' with ID 5 logged in.
+2025-06-06 14:30:08,763 | Action: Employee  Gaurav Singh Bhandari Update Task Status | Details: Task 'Add Leave' status was change to Inprogress.
+2025-06-06 14:30:35,237 | Action: Employee  Gaurav Singh Bhandari Update Task Status | Details: Task 'Add Leave' status was change to Pending.
+2025-06-06 14:30:39,228 | Action: Employee  Gaurav Singh Bhandari Update Task Status | Details: Task 'Add Leave' status was change to On Hold.

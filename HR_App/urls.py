@@ -78,5 +78,16 @@ urlpatterns = [
       path('assets/delete/<int:id>', views.assets_delete, name='assets_delete'),
       path('attendence/report', views.attendance_report, name='attendence'),
       path('change-password/', views.change_password, name='change_password'),
+      path('user/preference', views.user_preference, name='user_preference'),
+      path('locked/employee/', views.locked_employee, name='locked'),
+      path('employee/unlock/<int:employee_id>/', views.unlock_employee, name='unlock_employee'),
+      path('monthly/payroll/',views.monthly_payroll,name='monthly_payroll'),
+      path('csv/payroll/', views.payroll_csv, name='CSV'),
+      path('salary/', views.salary, name='salary'),
+      path('send-monthly-csv/', views.send_monthly_csv_to_head, name='send_monthly_csv'),
+      path('email-payslips/', views.email_individual_pdfs, name='email_individual_pdfs'),
+      path('employee/based/payslips/<str:email>/', views.employee_based_payslip, name='employee_based_payslips'),
+      path('send-selected-payslips/', views.send_selected_payslips, name='send_selected_payslips'),
+
 
 ]

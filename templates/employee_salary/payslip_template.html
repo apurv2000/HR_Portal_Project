@@ -1,0 +1,255 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* Fonts & base */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 40px;
+            color: #2c3e50;
+            background-color: #f9fafb;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #34495e;
+            padding-bottom: 12px;
+            margin-bottom: 30px;
+        }
+        .logo {
+            height: 70px;
+            filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.1));
+        }
+        .company-info {
+            text-align: right;
+            font-size: 14px;
+            color: #34495e;
+            line-height: 1.5;
+            font-weight: 600;
+        }
+        .company-info strong {
+            color: #2c3e50;
+            font-size: 16px;
+        }
+
+        /* Title */
+        h2 {
+            text-align: center;
+            margin: 40px 0 25px;
+            font-size: 26px;
+            color: #2c3e50;
+            background: linear-gradient(90deg, #2980b9, #3498db);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+        }
+
+        /* Info sections */
+        .info-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+        .info-box {
+            width: 48%;
+            font-size: 15px;
+            line-height: 1.6;
+            background-color: #ecf0f1;
+            padding: 18px 22px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            color: #34495e;
+        }
+        .info-box p strong {
+            color: #2c3e50;
+        }
+
+        /* Tables container */
+        .table-section {
+            display: flex;
+            justify-content: space-between;
+            gap: 4%;
+            margin-bottom: 40px;
+        }
+        .table-section table {
+            width: 48%;
+            border-collapse: separate;
+            border-spacing: 0 6px;
+            box-shadow: 0 3px 10px rgba(52, 73, 94, 0.1);
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Table headers */
+        th {
+            background-color: #2980b9;
+            color: white;
+            font-weight: 700;
+            padding: 14px 12px;
+            text-align: left;
+            letter-spacing: 0.8px;
+        }
+
+        /* Table cells */
+        td {
+            background-color: #f7f9fc;
+            padding: 12px 12px;
+            color: #34495e;
+            font-weight: 600;
+        }
+        /* Alternate row colors */
+        tbody tr:nth-child(odd) td {
+            background-color: #eaf2f8;
+        }
+
+        /* Table borders */
+        th:first-child, td:first-child {
+            width: 10%;
+        }
+        th:nth-child(2), td:nth-child(2) {
+            width: 60%;
+        }
+        th:last-child, td:last-child {
+            width: 30%;
+        }
+
+        /* Totals row */
+        tbody tr:last-child td {
+            font-weight: 700;
+            background-color: #d6eaf8;
+            color: #2471a3;
+        }
+
+        /* Summary box */
+        .summary {
+            width: 50%;
+            margin: 0 auto 60px;
+            background-color: #ecf0f1;
+            padding: 18px 25px;
+            border-radius: 10px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+            font-weight: 600;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+        .summary table {
+            width: 100%;
+            border-spacing: 0 8px;
+        }
+        .summary td:first-child {
+            padding-left: 0;
+        }
+        .summary td:last-child {
+            text-align: right;
+            font-weight: 700;
+            color: #2980b9;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            font-style: italic;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+          .table-section {
+    display: flex;
+    justify-content: space-between;
+    gap: 4%;
+    margin-bottom: 40px;
+
+    /* Add this */
+    page-break-after: always;
+  }
+
+  table, .info-section, .summary {
+    page-break-inside: avoid;
+  }
+
+  @page {
+    margin: 30mm 20mm 20mm 20mm;
+  }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="data:image/png;base64,{{ logo_base64 }}" alt="Company Logo" class="logo">
+        <div class="company-info">
+            <strong>BISP Infonet Private Limited</strong><br/>
+            M 101, Kotra Sultanabad, Bhopal, MP<br/>
+            <strong>Website:</strong> www.bispsolutions.com<br/>
+            <strong>Support:</strong> support@bispsolutions.com<br/>
+            <strong>Call:</strong> +91-997-799-7254
+        </div>
+    </div>
+
+    <h2>Payslip Of {{ month }}</h2>
+
+    <div class="info-section">
+        <div class="info-box">
+            <p><strong>{{ employee_name }}</strong></p>
+            <p><strong>Designation:</strong> {{ designation }}</p>
+            <p><strong>Employee Code:</strong> {{ employee_email }}</p>
+        </div>
+        <div class="info-box">
+            <p><strong>Payslip Code:</strong> {{ payslip_code }}</p>
+            <p><strong>Department:</strong> {{ department }}</p>
+            <p><strong>Date of Joining:</strong> {{ date_of_joining }}</p>
+        </div>
+    </div>
+
+    <div class="table-section">
+        <table>
+            <thead>
+                <tr><th colspan="3">Earnings</th></tr>
+                <tr><th>S.No</th><th>Particulars</th><th>Amount</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td>Basic Salary</td><td>Rs. {{ salary_basic }}</td></tr>
+                <tr><td>2</td><td>Dearness Allowance</td><td>Rs. {{ salary_da }}</td></tr>
+                <tr><td>3</td><td>HRA</td><td>Rs. {{ salary_hra }}</td></tr>
+                <tr><td>4</td><td>Conveyance Allowance</td><td>Rs. {{ convence_allowance }}</td></tr>
+                <tr><td>5</td><td>Special Allowance</td><td>Rs. {{ special_allowances }}</td></tr>
+                <tr><td>6</td><td>Project Incentive</td><td>Rs. {{ project_incentive }}</td></tr>
+                <tr><td>7</td><td>Variable Pay</td><td>Rs. {{ variable_pay }}</td></tr>
+                <tr><td colspan="2"><strong>Total Earning</strong></td><td><strong>Rs. {{ gross_total }}</strong></td></tr>
+            </tbody>
+        </table>
+
+        <table>
+            <thead>
+                <tr><th colspan="3">Deductions</th></tr>
+                <tr><th>S.No</th><th>Particulars</th><th>Amount</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td>PF</td><td>Rs. {{ pf }}</td></tr>
+                <tr><td>2</td><td>ESI</td><td>Rs. {{ esi }}</td></tr>
+                <tr><td>3</td><td>Salary Advance</td><td>Rs. {{ salary_advance }}</td></tr>
+                <tr><td>4</td><td>Negative Leave</td><td>Rs. {{ negative_leave }}</td></tr>
+                <tr><td>5</td><td>TDS</td><td>Rs. {{ tds }}</td></tr>
+                <tr><td colspan="2"><strong>Total Deduction</strong></td><td><strong>Rs. {{ total_deductions }}</strong></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="summary">
+        <table>
+            <tr><td>Total Earning</td><td>Rs. {{ gross_total }}</td></tr>
+            <tr><td>Total Deductions</td><td>Rs. {{ total_deductions }}</td></tr>
+            <tr><td><strong>Total Salary</strong></td><td><strong>Rs. {{ net_salary }}</strong></td></tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        This is a system-generated payslip and does not require a signature.
+    </div>
+</body>
+</html>

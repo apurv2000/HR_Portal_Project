@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Upload Payroll CSV{% endblock %}
+
+{% block content %}
+{% include 'Side_Navbar.html' %}
+
+<div class="content-wrapper bg-light min-vh-100 py-4">
+  <!-- Breadcrumb -->
+  <div class="container-fluid mb-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb bg-white shadow-sm px-3 py-2 rounded">
+        <li class="breadcrumb-item"><a href="#" class="text-primary">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Upload CSV</li>
+      </ol>
+    </nav>
+  </div>
+
+  <!-- Upload Section -->
+  <form method="POST" enctype="multipart/form-data" id="payrollForm">
+    {% csrf_token %}
+  <div class="container">
+    <div class="card shadow rounded-3 border-0">
+      <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
+        <span class="fs-5 fw-semibold">Upload Payroll CSV</span>
+        <div class="d-flex align-items-center ms-auto">
+          <label for="month" class="me-2 mb-0 fw-semibold text-white">Month</label>
+          <input type="month" name="month" id="month" class="form-control form-control-sm" required>
+        </div>
+      </div>
+      <!--Message -->
+           <div id="messageBox" class="alert d-none mt-3" style="display:none;"></div>
+      <div class="card-body">
+
+          <!-- File Upload -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Upload File
+              <small class="text-danger ms-2">(Only .csv. Max size: 100KB)</small>
+            </label>
+            <div class="input-group">
+              <input type="file" name="payroll_csv" accept=".csv" class="form-control" >
+              <a href="{% static 'sample/sample_file.csv' %}" class="btn btn-outline-primary" download>
+                Download Sample CSV
+              </a>
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <div class="text-end mt-4">
+            <button type="submit" class="btn btn-success px-5 py-2">Save</button>
+          </div>
+
+      </div>
+    </div>
+  </div>
+  </form>
+</div>
+
+<!-- JavaScript -->
+<script>
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + "=")) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+document.querySelector("#payrollForm").addEventListener("submit", function(e) {
+  e.preventDefault(); // prevent default form submission
+
+  const form = e.target;
+  const formData = new FormData(form);
+  const msgBox = document.getElementById("messageBox");
+
+  fetch("{% url 'CSV' %}", {
+    method: "POST",
+    body: formData,
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken")
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    msgBox.className = data.status === "success" ? "alert alert-success" : "alert alert-danger";
+    msgBox.innerText = data.message;
+    msgBox.style.display = "block";
+    if (data.status === "success") form.reset(); // Optional: reset the form on success
+
+    setTimeout(() => {
+      msgBox.style.display = 'none';
+    }, 2000);
+  })
+  .catch(() => {
+    msgBox.className = "alert alert-danger";
+    msgBox.innerText = "Upload failed.";
+    msgBox.style.display = "block";
+
+    setTimeout(() => {
+      msgBox.style.display = 'none';
+    }, 2000);
+  });
+});
+
+</script>
+
+{% endblock %}

@@ -1,3 +1,4 @@
+import base64
 import csv
 import io
 import logging
@@ -6,13 +7,25 @@ import random
 import re
 import string
 import calendar
+import traceback
 from collections import defaultdict
+from decimal import Decimal
 from itertools import chain
 from operator import attrgetter
+from django.template.loader import render_to_string
+from weasyprint import HTML
+from django.template.loader import render_to_string
 from django.utils.timezone import localtime, make_aware, now
-
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from reportlab.platypus import (
+    SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+)
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import inch
 from .mark import mark_resigned_employees_inactive
-
+from django.template.defaultfilters import date as _date
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -21,7 +34,7 @@ from django.core.files.storage import FileSystemStorage
 from django.core.mail import send_mail, EmailMessage
 from django.core.paginator import Paginator
 from django.db import transaction, models
-from django.db.models import Prefetch, Sum, Value, CharField, F, Q
+from django.db.models import Prefetch, Sum, Value, CharField, F, Q, Max
 from django.shortcuts import render, redirect, get_object_or_404
 import json
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
@@ -40,13 +53,14 @@ from .models import EmployeeBISP, Leave, LeaveType, Designation, Department, Han
     HandbookAcknowledgement, EmpLeaveType, EmployeeBISPHistory, LeaveTypeHistory, \
     LearningVideo, EmployeePersonalDetails, EmployeeEmergencyContact, EmployeeBankDetails, \
     EmployeeEducation, EmployeeExperience, EmployeeDocument, ResignationApplication, \
-    Holiday, ExitEmail, EmployeeChecklist, ExitDocument, Asset  # Import your Employee model
+    Holiday, ExitEmail, EmployeeChecklist, ExitDocument, Asset, UserPreference, Payroll  # Import your Employee model
 from openpyxl import Workbook
 from datetime import date, timedelta
 
 from HR_App.utils.audit_log import log_audit_event
 
 from HR_Portal.utils.logging_utils import get_user_logger
+
 logger = logging.getLogger('django')
 
 # Create your views here.
@@ -209,7 +223,8 @@ def Manager(request):
         key=lambda x: x.activity_datetime,
         reverse=True
     )[:10]
-    resignation = ResignationApplication.objects.filter(employee=employee).count()
+    resignation = ResignationApplication.objects.filter(employee=employee).exclude(
+        status__in=['delete', 'Finish Process']).count()
     context = {
         'total_projects': project_qs.count(),
         'total_tasks': task_qs.count(),
@@ -386,7 +401,9 @@ def Hr(request):
         reverse=True
     )[:10]
 
-    resignation = ResignationApplication.objects.filter(employee=employee).count()
+    resignation = ResignationApplication.objects.filter(employee=employee).exclude(
+        status__in=['delete', 'Finish Process']).count()
+
     context = {
         'total_projects': project_qs.count(),
         'total_tasks': task_qs.count(),
@@ -1428,14 +1445,28 @@ def update_employee(request, id):
         if not role:
             errors["role"]=f"Role is required"
 
+
         # Validate Email
         if not email:
-                errors.setdefault("Email", []).append("Email is required.")
+            logger.error("Email is required.")
+            errors.setdefault("Email", []).append("Email is required.")
         else:
             try:
                 email = email.lower()
                 validate_email(email)
+
+                # Check email domain
+                allowed_domains = ['gmail.com', 'yahoo.com']
+                domain = email.split('@')[-1]
+                if domain not in allowed_domains:
+                    errors.setdefault("Email", []).append("Only Gmail and Yahoo email addresses are allowed.")
+
+                # Check if email is already in use
+                if User.objects.filter(email=email).exists():  # Assuming User is the model you're using
+                    errors.setdefault("Email", []).append("This email address is already in use.")
+
             except ValidationError:
+                logger.error("Invalid email format.")
                 errors.setdefault("Email", []).append("Invalid email format.")
 
         # Validate password confirmation if provided
@@ -1807,7 +1838,6 @@ def Login_user(request):
         logger.error("Password is required.")
         errors["password_error"] = "Password is required."
     if errors:
-        logger.error("Status 400")
         return JsonResponse(errors, status=400)
 
     user = EmployeeBISP.objects.filter(email=email, status='active').first()
@@ -1815,44 +1845,49 @@ def Login_user(request):
         logger.error("No account found with this email.")
         return JsonResponse({"email_error": "No account found with this email."}, status=401)
 
-    # Check if account is locked
-    if user.is_locked:
-        # Every login time it will check current time with last_failed_login time
-        if user.last_failed_login and now() < user.last_failed_login + timedelta(hours=2):
-            lock_end_time = user.last_failed_login + timedelta(hours=2)
-            remaining_time = lock_end_time - now()
-            # Convert remaining_time to minutes and seconds (or any format you want)
-            minutes, seconds = divmod(remaining_time.total_seconds(), 60)
-            return JsonResponse({
-                "error": f"Account locked due to multiple failed login attempts. Try again After {int(minutes)} minutes and {int(seconds)} seconds",
-            }, status=403)
-        else:
-            # Unlock the account after 2 hours
-            user.is_locked = False
-            user.failed_login_attempts = 0
+    # Exempted email
+    is_exempt = user.email == 'support@gmail.com'
+
+    if not is_exempt:
+        if user.is_locked:
+            if user.last_failed_login and now() < user.last_failed_login + timedelta(hours=2):
+                lock_end_time = user.last_failed_login + timedelta(hours=2)
+                remaining_time = lock_end_time - now()
+                minutes, seconds = divmod(remaining_time.total_seconds(), 60)
+                return JsonResponse({
+                    "error": f"Account locked due to multiple failed login attempts. Try again after {int(minutes)} minutes and {int(seconds)} seconds."
+                }, status=403)
+            else:
+                user.is_locked = False
+                user.failed_login_attempts = 0
+                user.save()
+
+    # Incorrect password check
+    if not check_password(password, user.password):
+        if not is_exempt:
+            user.failed_login_attempts += 1
+            user.last_failed_login = now()
+            if user.failed_login_attempts >= 3:
+                user.is_locked = True
+                logger.warning(f"User {user.email} locked due to too many failed attempts.")
             user.save()
 
-    if not check_password(password, user.password):
-        user.failed_login_attempts += 1
-        user.last_failed_login = now()
-
-        if user.failed_login_attempts >= 3:
-            user.is_locked = True
-            logger.warning(f"User {user.email} locked due to too many failed attempts.")
-
-        user.save()
         logger.error("Incorrect password.")
         return JsonResponse({"password_error": "Incorrect password."}, status=401)
 
-    # Reset failed attempts on successful login
+    # On successful login
     user.failed_login_attempts = 0
     user.is_locked = False
     user.save()
 
-    # Django user login logic continues here...
+    # Authenticate or create corresponding Django user
     django_user, created = User.objects.get_or_create(username=user.email, email=user.email)
     login(request, django_user)
 
+    # Load or create user preferences
+    preference, _ = UserPreference.objects.get_or_create(user=user)
+
+    # Session Setup
     request.session.set_expiry(60 * 60 * 24 * 30)  # 30 days
     request.session['employee_id'] = user.id
     request.session['employee_name'] = user.name
@@ -1860,41 +1895,79 @@ def Login_user(request):
     request.session['role'] = user.role
     request.session['designation'] = user.designation.title
     request.session['Currenttime'] = datetime.today().date().isoformat()
+    request.session['user_preference'] = {
+        'id': preference.id,
+        'default_screen': preference.default_screen,
+        'project_id': preference.project.id if preference.project else None,
+        'task_id': preference.task.id if preference.task else None,
+        'work_start': str(preference.work_start),
+        'work_end': str(preference.work_end),
+        'default_timesheet': preference.default_timesheet,
+    }
+
     try:
         request.session['ProfileImage'] = user.profile_picture.url
     except Exception:
         request.session['ProfileImage'] = ""
 
-
-    employee_id = request.session['employee_id']
-    try:
-        employeeM = EmployeeBISP.objects.get(id=employee_id)
-    except EmployeeBISP.DoesNotExist:
-        employeeM = None
-
-    loggers = get_user_logger(employee_id)
-
-    # User-specific Log file
+    # Logging
+    loggers = get_user_logger(user.id)
     loggers.info(
-        "Employee Inactive",
+        "Employee Login",
         extra={
-            'action': f"Employee {employeeM.name} lOGIN",
-            'details': f"Employee '{user.name}' with ID {user.id} was LOGIN."
+            'action': f"Employee {user.name} LOGIN",
+            'details': f"Employee '{user.name}' with ID {user.id} logged in."
         }
     )
 
     log_audit_event(request.user, 'Employee Login',
                     f"Employee '{user.name}' logged in at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.")
 
-    # Redirect by role
-    if user.role == "Administrator":
-        redirect_url = "/Hrpanel"
-    elif user.role == "Employee":
-        redirect_url = "/Emppanel"
-    elif user.role == "Manager":
-        redirect_url = "/Adminpanel"
-    else:
-        return JsonResponse({"error": "Unauthorized role"}, status=403)
+
+    # Redirection map based on role and screen
+    screen_map = {
+        'Administrator': {
+            'Dashboard': '/Hrpanel/',
+            'Weekly Timesheet': '/timesheet/timesheet_add/',
+            'Daily Timesheet': '/timesheet/timesheet_daily/',
+            'Image Timesheet': '/timesheet/timesheet_image/',
+            'Apply Leave': '/leave/apply/page',
+        },
+        'Employee': {
+            'Dashboard': '/Emppanel/',
+            'Weekly Timesheet': '/timesheet/timesheet_add/',
+            'Daily Timesheet': '/timesheet/timesheet_daily/',
+            'Image Timesheet': '/timesheet/timesheet_image/',
+            'Apply Leave': '/leave/apply/page',
+        },
+        'Manager': {
+            'Dashboard': '/Adminpanel/',
+            'Weekly Timesheet': '/timesheet/timesheet_add/',
+            'Daily Timesheet': '/timesheet/timesheet_daily/',
+            'Image Timesheet': '/timesheet/timesheet_image/',
+            'Apply Leave': '/leave/apply/page',
+        }
+    }
+
+
+
+    # Fallback URLs if preference doesn't exist
+    default_redirects = {
+        'Administrator': '/Hrpanel',
+        'Employee': '/Emppanel',
+        'Manager': '/Adminpanel',
+    }
+
+    redirect_url = screen_map.get(user.role, {}).get(preference.default_screen) or default_redirects.get(user.role)
+    # Role-based redirection
+    # if user.role == "Administrator":
+    #     redirect_url = "/Hrpanel"
+    # elif user.role == "Employee":
+    #     redirect_url = "/Emppanel"
+    # elif user.role == "Manager":
+    #     redirect_url = "/Adminpanel"
+    # else:
+    #     return JsonResponse({"error": "Unauthorized role"}, status=403)
 
     return JsonResponse({"redirect_url": redirect_url}, status=200)
 
@@ -3970,6 +4043,8 @@ def withdraw_resign(request, id):
 
     return redirect('Emppanel')
 
+
+
 # Assets Add
 def add_asset(request):
     if not request.session.get('employee_id'):
@@ -4296,20 +4371,447 @@ def change_password(request):
         return redirect('Login_user_page')
     if request.method == "POST":
         new_password = request.POST.get('New_Pwd')
-        user = request.user
+        con_password = request.POST.get('Con_Pwd')
+        employee_id = request.session['employee_id']
+        try:
+            employee = EmployeeBISP.objects.get(id=employee_id)
+        except EmployeeBISP.DoesNotExist:
+            employee = None
 
         if not new_password:
             return JsonResponse({"status": "error", "message": "Password cannot be empty."})
+        elif new_password != con_password:
+            return JsonResponse({"status": "error", "message": "Password must be same."})
+
 
         # Validate password strength
         password_error = validate_password(new_password )
         if password_error:
             return JsonResponse({"status": "error", "message": password_error })
 
-        user.set_password(new_password)
-        user.save()
-        update_session_auth_hash(request, user)
+        employee.password = make_password(new_password)
+        employee.save()
+        update_session_auth_hash(request,  employee)
 
         return JsonResponse({"status": "success", "message": "Password updated successfully."})
 
     return JsonResponse({"status": "error", "message": "Invalid request."})
+
+# Locked employee list
+def locked_employee(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+    employee=EmployeeBISP.objects.filter(status='active')
+
+    return render(request,'report_templates/Locked_Employee.html',{'employee':employee})
+
+# Unlock EMployee
+def unlock_employee(request, employee_id):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+
+    employee = get_object_or_404(EmployeeBISP, id=employee_id)
+
+    if employee.is_locked:
+        employee.is_locked = False
+        employee.failed_login_attempts = 0
+        employee.save()
+
+    return redirect('locked')
+
+# Render User Preference Page
+def user_preference(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+
+    employee_id = request.session['employee_id']
+    try:
+        employee = EmployeeBISP.objects.get(id=employee_id)
+    except EmployeeBISP.DoesNotExist:
+        employee = None
+
+    if employee:
+        preference, _ = UserPreference.objects.get_or_create(user=employee)
+        projects_team = Project.objects.filter(team_members=employee,status='active')
+        projects_admin = Project.objects.filter(admin=employee,status='active')
+        projects_leader = Project.objects.filter(leader=employee,status='active')
+
+        projects = (projects_team | projects_admin | projects_leader).distinct()
+        tasks = Task.objects.filter(
+            assigned_to=employee,
+            project__status='active'
+        ).exclude(status='Completed')
+    else:
+        preference = None
+        projects = Project.objects.none()
+        tasks = Task.objects.none()
+
+    if request.method == 'POST':
+        preference.default_screen = request.POST.get('default_screen')
+        preference.default_timesheet = request.POST.get('default_timesheet')
+        preference.work_start = request.POST.get('work_start')
+        preference.work_end = request.POST.get('work_end')
+
+        project_id = request.POST.get('project')
+        task_id = request.POST.get('task')
+
+        try:
+            project = Project.objects.get(id=project_id,status='active') if project_id else None
+        except Project.DoesNotExist:
+            project = None
+
+        try:
+            task = Task.objects.get(id=task_id,status_field='active') if task_id else None
+        except Task.DoesNotExist:
+            task = None
+
+        preference.project = project
+        preference.task = task
+
+        preference.save()
+
+        request.session['user_preference'] = {
+            'id': preference.id,
+            'default_screen': preference.default_screen,
+            'project_id': preference.project.id if preference.project else None,
+            'task_id': preference.task.id if preference.task else None,
+            'work_start': str(preference.work_start),
+            'work_end': str(preference.work_end),
+            'default_timesheet': preference.default_timesheet,
+        }
+
+        return JsonResponse({'success': True, 'message': 'Preferences saved successfully'})
+
+    return render(request, 'admin_templates/user_preference.html', {
+        'preference': preference,
+        'projects': list(projects[:3]),
+        'tasks': list(tasks[:3])
+    })
+
+def monthly_payroll(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+    try:
+        payroll_list=Payroll.objects.all()
+    except Exception as e:
+        payroll_list=None
+
+    return render(request,'employee_salary/monthly_payroll.html',{'payroll_list':payroll_list})
+
+
+
+def salary(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+
+    try:
+        # Get emails present in Payroll table
+        payroll_emails = Payroll.objects.values_list('employee_email', flat=True).distinct()
+
+        # Filter only active employees whose email is in payroll
+        employee = EmployeeBISP.objects.filter(status='active', email__in=payroll_emails)
+
+        # Filter payrolls only for those employees
+        payrolls = Payroll.objects.filter(employee_email__in=payroll_emails)
+    except EmployeeBISP.DoesNotExist:
+        employee = None
+        payrolls=None
+
+    return render(request,'employee_salary/salary.html',{'employees':employee,'payrolls':payrolls})
+
+
+# Generate random Payslip code
+def generate_payslip_code():
+    last_id = Payroll.objects.aggregate(max_id=Max('id'))['max_id'] or 0
+    next_number = last_id + 1
+    return f"Pay#0{str(next_number).zfill(2)}"
+
+# Generate PDF
+def generate_payslip_html_pdf(payroll_obj):
+    logo_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'logo.png')
+    with open(logo_path, "rb") as image_file:
+        logo_base64 = base64.b64encode(image_file.read()).decode('utf-8')
+    html_string = render_to_string("employee_salary/payslip_template.html", {
+        "month": payroll_obj.payroll_month.strftime('%B %Y') if payroll_obj.payroll_month else "N/A",
+        "employee_name": payroll_obj.employee_name,
+        "payslip_code": payroll_obj.payslip_code,
+        "designation": getattr(payroll_obj, 'designation', 'N/A'),
+        "department": getattr(payroll_obj, 'department', 'N/A'),
+        "employee_email": payroll_obj.employee_email,
+        "date_of_joining": getattr(payroll_obj, 'date_of_joining', '2021-02-01'),
+        "salary_basic": payroll_obj.salary_basic,
+        "salary_da": payroll_obj.salary_da,
+        "salary_hra": payroll_obj.salary_hra,
+        "convence_allowance": payroll_obj.convence_allowance,
+        "special_allowances": payroll_obj.special_allowances,
+        "project_incentive": payroll_obj.project_incentive,
+        "variable_pay": payroll_obj.variable_pay,
+        "gross_total": payroll_obj.gross_total,
+        "pf": payroll_obj.pf,
+        "esi": payroll_obj.esi,
+        "salary_advance": payroll_obj.salary_advance,
+        "negative_leave": payroll_obj.negative_leave,
+        "tds": payroll_obj.tds,
+        "total_deductions": payroll_obj.total_deductions,
+        "net_salary": payroll_obj.net_salary,
+        "logo_base64": logo_base64,
+
+    })
+
+    pdf_path = os.path.join(settings.MEDIA_ROOT, "pdf", f"{payroll_obj.employee_email}{payroll_obj.payroll_month}.pdf")
+    os.makedirs(os.path.dirname(pdf_path), exist_ok=True)
+    HTML(string=html_string).write_pdf(pdf_path)
+    return pdf_path
+
+@csrf_exempt  # Use only if CSRF token is not sent; remove if it's already in your AJAX headers
+def payroll_csv(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+    if request.method == "POST":
+        try:
+            csv_file = request.FILES.get('payroll_csv')
+            selected_month = request.POST.get('month')  # Format: "2025-05"
+
+            if selected_month:
+                dt = datetime.strptime(selected_month, "%Y-%m")
+                payroll_month_date = date(dt.year, dt.month, 1)
+                print("Selected Month1:", selected_month)
+            else:
+                print("Selected Month2:", selected_month)
+                # handle error or default
+                payroll_month_date = None
+
+            if not csv_file:
+                return JsonResponse({"status": "error", "message": "No file uploaded."}, status=400)
+
+            if not csv_file.name.endswith('.csv'):
+                return JsonResponse({"status": "error", "message": "Only CSV files are allowed."}, status=400)
+
+            # Limit file size to 100 KB (100 * 1024 bytes)
+            if csv_file.size > 100 * 1024:
+                return JsonResponse({"status": "error", "message": "File size must be less than 100KB."}, status=400)
+
+            decoded_file = csv_file.read().decode('utf-8').splitlines()
+            reader = csv.DictReader(decoded_file)
+
+            records_created = 0
+
+            for row in reader:
+                # Normalize keys: remove spaces and convert to lowercase
+                clean_row = {k.strip().lower(): v.strip() for k, v in row.items()}
+                payslip_code = generate_payslip_code()
+                payroll_obj = Payroll.objects.create(
+                    employee_name=clean_row.get('employee name', ''),
+                    employee_email=clean_row.get('employee email', ''),
+                    payslip_code=generate_payslip_code(),
+                    payroll_month=payroll_month_date,
+
+                    salary_basic=Decimal(clean_row.get('salary basic', '0') or '0'),
+                    salary_hra=Decimal(clean_row.get('salary hra', '0') or '0'),
+                    salary_da=Decimal(clean_row.get('salary da', '0') or '0'),
+                    total_salary=Decimal(clean_row.get('total salary', '0') or '0'),
+
+                    present_days=int(clean_row.get('present days', '0') or '0'),
+                    paid_leaves=int(clean_row.get('paid leaves', '0') or '0'),
+                    weekly_off=int(clean_row.get('weekly off', '0') or '0'),
+                    unpaid_leaves=int(clean_row.get('unpaid leaves', '0') or '0'),
+                    festivals=int(clean_row.get('festivals', '0') or '0'),
+                    total_paid_days=int(clean_row.get('total paid days', '0') or '0'),
+
+                    gross_basic=Decimal(clean_row.get('gross basic', '0') or '0'),
+                    gross_hra=Decimal(clean_row.get('gross hra', '0') or '0'),
+                    gross_da=Decimal(clean_row.get('gross da', '0') or '0'),
+                    convence_allowance=Decimal(clean_row.get('convence allownce', '0') or '0'),
+                    special_allowances=Decimal(clean_row.get('special allownces', '0') or '0'),
+                    project_incentive=Decimal(clean_row.get('project incentive', '0') or '0'),
+                    variable_pay=Decimal(clean_row.get('variable pay', '0') or '0'),
+                    gross_total=Decimal(clean_row.get('gross total', '0') or '0'),
+
+                    esi=Decimal(clean_row.get('esi', '0') or '0'),
+                    pf=Decimal(clean_row.get('pf', '0') or '0'),
+                    salary_advance=Decimal(clean_row.get('salary advance', '0') or '0'),
+                    negative_leave=Decimal(clean_row.get('negative leave', '0') or '0'),
+                    tds=Decimal(clean_row.get('tds', '0') or '0'),
+                    total_deductions=Decimal(clean_row.get('total deductions', '0') or '0'),
+                    net_salary=Decimal(clean_row.get('net salary', '0') or '0'),
+                )
+
+                generate_payslip_html_pdf(payroll_obj)
+                records_created += 1
+
+            return JsonResponse({
+                "status": "success",
+                "message": f"{records_created} payroll records imported successfully."
+            })
+
+
+        except Exception as row_error:
+
+            traceback.print_exc()
+
+            return JsonResponse({
+
+                "status": "error",
+
+                "message": f"Error while processing employee: {row.get('Employee Name', 'N/A')} - {row.get('Employee Email', 'N/A')} - {str(row_error)}"
+
+            }, status=400)
+
+    return render(request,'employee_salary/upload_csv.html')
+
+
+def send_monthly_csv_to_head(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+    if request.method == "POST":
+        selected_month = request.POST.get("month")  # e.g. "2025-05"
+        if not selected_month:
+            return JsonResponse({"status": "error", "message": "No month selected."}, status=400)
+
+        payrolls = Payroll.objects.filter(payroll_month__startswith=selected_month)
+
+        if not payrolls.exists():
+            return JsonResponse({"status": "error", "message": "No payroll data found for the selected month."}, status=404)
+
+        buffer = io.StringIO()
+        writer = csv.writer(buffer)
+
+        writer.writerow([
+            "Employee", "Email", "Payslip", "Month", "Basic Salary", "HRA", "DA",
+            "Total Salary", "Present Days", "Paid Leaves", "Weekly Off", "Unpaid Leaves",
+            "Festivals", "Total Paid Days", "Gross Basic", "Gross HRA", "Gross DA",
+            "Conveyance Allowance", "Special Allowances", "Project Incentive", "Variable Pay",
+            "Gross Total", "ESI", "PF", "Salary Advance", "Negative Leave", "TDS",
+            "Total Deductions", "Net Salary"
+        ])
+
+        for payroll in payrolls:
+            writer.writerow([
+                payroll.employee_name,
+                payroll.employee_email,
+                payroll.payslip_code,
+                _date(payroll.payroll_month, 'F Y'),
+                payroll.salary_basic,
+                payroll.salary_hra,
+                payroll.salary_da,
+                payroll.total_salary,
+                payroll.present_days,
+                payroll.paid_leaves,
+                payroll.weekly_off,
+                payroll.unpaid_leaves,
+                payroll.festivals,
+                payroll.total_paid_days,
+                payroll.gross_basic,
+                payroll.gross_hra,
+                payroll.gross_da,
+                payroll.convence_allowance,
+                payroll.special_allowances,
+                payroll.project_incentive,
+                payroll.variable_pay,
+                payroll.gross_total,
+                payroll.esi,
+                payroll.pf,
+                payroll.salary_advance,
+                payroll.negative_leave,
+                payroll.tds,
+                payroll.total_deductions,
+                payroll.net_salary,
+            ])
+
+        buffer.seek(0)
+        subject = f"Payroll Report – {_date(payrolls.first().payroll_month, 'F Y')}"
+        email = EmailMessage(
+            subject=subject,
+            body="Attached is the monthly payroll report (CSV).",
+            to=["apurvmalviya27@gmail.com"]
+        )
+        email.attach("Payroll_Report.csv", buffer.read(), "text/csv")
+
+        try:
+            email.send()
+            return JsonResponse({"status": "success", "message": "Payroll report sent to head successfully."})
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": f"Error sending email: {str(e)}"}, status=500)
+
+    return JsonResponse({"status": "error", "message": "Invalid request method."}, status=405)
+
+# Send Individual PDF to individual employee via email
+@csrf_exempt
+def email_individual_pdfs(request):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+    if request.method == "POST":
+        print("Hare Krsna")
+        selected_month = request.POST.get("month")
+        if not selected_month:
+            return JsonResponse({"status": "error", "message": "No month provided."})
+
+        payrolls = Payroll.objects.filter(payroll_month__startswith=selected_month)
+        if not payrolls.exists():
+            return JsonResponse({"status": "error", "message": "No payroll records found."})
+
+        errors = []
+        for payroll in payrolls:
+            try:
+                pdf_path = generate_payslip_html_pdf(payroll)
+
+                email = EmailMessage(
+                    subject=f"Payslip - {payroll.payroll_month.strftime('%B %Y')}",
+                    body=f"Dear {payroll.employee_name},\n\nPlease find attached your payslip for {payroll.payroll_month.strftime('%B %Y')}.\n\nRegards,\nHR Team",
+                    to=[payroll.employee_email]
+                )
+                email.attach_file(pdf_path)
+                email.send()
+            except Exception as e:
+                errors.append(f"{payroll.employee_email}: {str(e)}")
+
+        if errors:
+            return JsonResponse({
+                "status": "error",
+                "message": f"Some emails failed: {'; '.join(errors)}"
+            })
+
+        return JsonResponse({"status": "success", "message": "Payslips emailed to all employees."})
+
+    return JsonResponse({"status": "error", "message": "Invalid request method."})
+
+# Individual Payslip
+def employee_based_payslip(request,email):
+    if not request.session.get('employee_id'):
+        return redirect('Login_user_page')
+
+    try:
+
+        # Filter payrolls only for those employees
+        payrolls = Payroll.objects.filter(employee_email=email)
+    except EmployeeBISP.DoesNotExist:
+        payrolls = None
+
+    return render(request,'employee_salary/payslip.html',{'payrolls':payrolls})
+
+# Send selected Payslip pdf to employee
+@csrf_exempt
+def send_selected_payslips(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            selected = data.get("selected", [])
+
+            for item in selected:
+                email, month = item.split("||")
+                payroll = Payroll.objects.filter(employee_email=email, payroll_month=month).first()
+                if payroll:
+                    pdf_path = generate_payslip_html_pdf(payroll)
+                    email_msg = EmailMessage(
+                        subject=f"Payslip - {payroll.payroll_month.strftime('%B %Y')}",
+                        body=f"Dear {payroll.employee_name},\n\nAttached is your payslip for {payroll.payroll_month.strftime('%B %Y')}.",
+                        to=[payroll.employee_email]
+                    )
+                    email_msg.attach_file(pdf_path)
+                    email_msg.send()
+
+            return JsonResponse({"status": "success", "message": "Selected payslips emailed."})
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)})
+    return JsonResponse({"status": "error", "message": "Invalid request."})
+

@@ -453,3 +453,59 @@ class Asset(models.Model):
 
     def __str__(self):
         return f"{self.asset_name} ({self.asset_id})"
+
+class UserPreference(models.Model):
+    user = models.OneToOneField(EmployeeBISP, on_delete=models.CASCADE)
+    default_screen = models.CharField(max_length=100, default='Dashboard')
+    project = models.ForeignKey('Project.Project', on_delete=models.SET_NULL, null=True, blank=True)
+    task = models.ForeignKey('Project.Task', on_delete=models.SET_NULL, null=True, blank=True)
+    work_start = models.TimeField(default='11:00')
+    work_end = models.TimeField(default='20:00')
+    default_timesheet = models.CharField(max_length=100, default='Daily Timesheet')
+
+    def __str__(self):
+        return f"{self.user.username}'s Preferences"
+
+
+from django.db import models
+
+
+class Payroll(models.Model):
+    employee_name = models.CharField(max_length=100)
+    employee_email = models.EmailField()
+    payslip_code = models.CharField(max_length=50)  # NEW FIELD
+    payroll_month = models.DateField(null=True)
+
+    salary_basic = models.DecimalField(max_digits=10, decimal_places=2)
+    salary_hra = models.DecimalField(max_digits=10, decimal_places=2)
+    salary_da = models.DecimalField(max_digits=10, decimal_places=2)
+    total_salary = models.DecimalField(max_digits=12, decimal_places=2)
+
+    present_days = models.PositiveIntegerField()
+    paid_leaves = models.PositiveIntegerField()
+    weekly_off = models.PositiveIntegerField()
+    unpaid_leaves = models.PositiveIntegerField()
+    festivals = models.PositiveIntegerField()
+    total_paid_days = models.PositiveIntegerField()
+
+    gross_basic = models.DecimalField(max_digits=10, decimal_places=2)
+    gross_hra = models.DecimalField(max_digits=10, decimal_places=2)
+    gross_da = models.DecimalField(max_digits=10, decimal_places=2)
+    convence_allowance = models.DecimalField(max_digits=10, decimal_places=2)
+    special_allowances = models.DecimalField(max_digits=10, decimal_places=2)
+    project_incentive = models.DecimalField(max_digits=10, decimal_places=2)
+    variable_pay = models.DecimalField(max_digits=10, decimal_places=2)
+    gross_total = models.DecimalField(max_digits=12, decimal_places=2)
+
+    esi = models.DecimalField(max_digits=10, decimal_places=2)
+    pf = models.DecimalField(max_digits=10, decimal_places=2)
+    salary_advance = models.DecimalField(max_digits=10, decimal_places=2)
+    negative_leave = models.DecimalField(max_digits=10, decimal_places=2)
+    tds = models.DecimalField(max_digits=10, decimal_places=2)
+    total_deductions = models.DecimalField(max_digits=12, decimal_places=2)
+    net_salary = models.DecimalField(max_digits=12, decimal_places=2)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.employee_name} - {self.payslip_code}"

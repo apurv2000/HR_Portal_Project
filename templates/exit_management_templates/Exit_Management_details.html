@@ -342,10 +342,11 @@
             <h5 class="text-success">Finish Process</h5>
           </div>
         {% else %}
+        {% endif %}
         <a class="btn btn-danger me-2" href="{% url 'withdraw_Resign' Email.resignation.id %}">
               <i class="bi bi-x-circle"></i> Withdraw
             </a>
-        {% endif %}
+
         {% endif %}
 
         <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#checklistModal">
@@ -557,11 +558,13 @@
             </div>
 
             <!-- Save Button -->
+            {% if request.session.role == 'Administrator' or request.session.role == 'Manager' %}
             <div class="text-end mt-4">
               <button type="submit" id="submit" class="btn btn-primary">
                 <i class="bi bi-save me-1"></i>Save Checklist
               </button>
             </div>
+            {% endif %}
           </div>
         </div>
       </form>
@@ -764,7 +767,7 @@ document.getElementById('uploadform').addEventListener('submit', function (e) {
     fetch("{% url 'upload_exit_doc' %}", {
         method: 'POST',
         headers: {
-            'X-CSRFToken': '{{ csrf_token }}'
+
         },
         body: formData,
     })

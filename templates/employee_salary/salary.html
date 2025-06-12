@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Employee Salary{% endblock %}
+
+{% block content %}
+{% include 'Side_Navbar.html' %}
+
+<div class="content-wrapper bg-light min-vh-100 py-4">
+
+  <!-- Breadcrumb -->
+  <div class="container-fluid mb-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb bg-white shadow-sm px-3 py-2 rounded">
+        <li class="breadcrumb-item"><a href="#" class="text-primary">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Employee Salary</li>
+      </ol>
+    </nav>
+  </div>
+
+  <!-- Salary Table Card -->
+  <div class="container">
+    <div class="card shadow-sm rounded">
+      <div class="card-header bg-white fw-bold fs-5">Employee Salary</div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table id="example1" class="table table-bordered table-striped">
+            <thead class="table-light">
+              <tr>
+                <th>Employee</th>
+                <th>Email</th>
+                <th>Department</th>
+                <th>Joining Date</th>
+                <th>Role</th>
+                <th>Payslip</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for emp in employees %}
+              <tr>
+                <td class="text-start">
+                    <div class="d-flex align-items-center">
+               {% if emp.profile_picture %}
+                    <img src="{{ emp.profile_picture.url }}" class="rounded-circle me-2" width="35" height="35" alt="Profile">
+                {% else %}
+                    <img src="/static/img/Damy.webp " class="rounded-circle me-2" width="35" height="35" alt="Profile">
+                {% endif %}
+
+                    <div>
+                      <a href="{% url 'employee_based_payslips' emp.email %}"><div class="fw-semibold text-primary">{{ emp.name }}</div></a>
+                      <small class="text-muted">{{ emp.designation.title }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ emp.email }}</td>
+                <td>{{ emp.department.name }}</td>
+                <td>{{ emp.date_of_join }}</td>
+                <td>{{ emp.role }}</td>
+
+              {% for payroll in payrolls %}
+                {% if payroll.employee_email == emp.email %}
+              <td>
+                <a href="/media/pdf/{{ payroll.employee_email }}{{ payroll.payroll_month|date:'Y-m-d' }}.pdf" target="_blank" class="text-primary">Payslip</a>
+              </td>
+
+                {% endif %}
+            {% endfor %}
+
+
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

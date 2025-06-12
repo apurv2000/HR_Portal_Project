@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Payroll - Monthly Summary{% endblock %}
+
+{% block content %}
+{% include 'Side_Navbar.html' %}
+
+<div class="content-wrapper bg-white shadow-sm">
+  <section class="content-header py-3 border-bottom">
+    <div class="container-fluid">
+      <div class="row mb-2 align-items-center">
+        <div class="col-sm-6">
+          <h3 class="fw-semibold mb-0">Payroll Summary</h3>
+        </div>
+        <div class="col-sm-6 text-end">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-end bg-transparent mb-0">
+              <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Payroll</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h5 class="fw-bold text-primary">Monthly Payroll – <span class="text-dark">May 2025</span></h5>
+      <div class="btn-group">
+        <button class="btn btn-outline-secondary shadow-sm">Disappearing Data</button>
+        <form method="POST" action="{% url 'send_monthly_csv' %}" id="sendPayrollForm">
+          {% csrf_token %}
+          {% if payroll_list %}
+            <input type="hidden" name="month" value="{{ payroll_list.0.payroll_month|date:"Y-m" }}">
+          {% endif %}
+          <button type="submit" id="sendPayrollBtn" class="btn btn-outline-info shadow-sm">Send Monthly Report to Head</button>
+        </form>
+        <form id="emailAllForm" method="POST">
+      {% csrf_token %}
+      {% if payroll_list %}
+        <input type="hidden" name="month" value="{{ payroll_list.0.payroll_month|date:'Y-m' }}">
+      {% endif %}
+      <button type="submit" class="btn btn-outline-success shadow-sm">Email May PDF</button>
+    </form>
+
+
+      </div>
+    </div>
+   <p id="responseMessage" class="mt-2 fw-bold"></p>
+    <p id="responseMessage2" class="mt-2 fw-bold"></p>
+    <div class="card shadow-sm">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover table-bordered align-middle mb-0 text-center">
+            <thead class="table-primary">
+              <tr>
+                <th>Employee</th>
+                <th>Email</th>
+                <th>Payslip</th>
+                <th>Month</th>
+                <th>Basic Salary</th>
+                <th>HRA</th>
+                <th>DA</th>
+                <th>Total Salary</th>
+                <th>Present Days</th>
+                <th>Paid Leaves</th>
+                <th>Weekly Off</th>
+                <th>Unpaid Leaves</th>
+                <th>Festivals</th>
+                <th>Total Paid Days</th>
+                <th>Gross Basic</th>
+                <th>Gross HRA</th>
+                <th>Gross DA</th>
+                <th>Conveyance Allowance</th>
+                <th>Special Allowances</th>
+                <th>Project Incentive</th>
+                <th>Variable Pay</th>
+                <th>Gross Total</th>
+                <th>ESI</th>
+                <th>PF</th>
+                <th>Salary Advance</th>
+                <th>Negative Leave</th>
+                <th>TDS</th>
+                <th>Total Deductions</th>
+                <th>Net Salary</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for payroll in payroll_list %}
+              <tr>
+                <td>{{ payroll.employee_name }}</td>
+                <td>{{ payroll.employee_email }}</td>
+                <td>{{ payroll.payslip_code  }}</td>
+                <td>{{ payroll.payroll_month}}</td>
+                <td>Rs.{{ payroll.salary_basic }}</td>
+                <td>Rs.{{ payroll.salary_hra }}</td>
+                <td>Rs.{{ payroll.salary_da }}</td>
+                <td class="fw-bold text-success">Rs.{{ payroll.total_salary }}</td>
+                <td>{{ payroll.present_days }}</td>
+                <td>{{ payroll.paid_leaves }}</td>
+                <td>{{ payroll.weekly_off }}</td>
+                <td>{{ payroll.unpaid_leaves }}</td>
+                <td>{{ payroll.festivals }}</td>
+                <td>{{ payroll.total_paid_days }}</td>
+                <td>Rs.{{ payroll.gross_basic }}</td>
+                <td>Rs.{{ payroll.gross_hra }}</td>
+                <td>Rs.{{ payroll.gross_da }}</td>
+                <td>Rs.{{ payroll.convence_allowance }}</td>
+                <td>Rs.{{ payroll.special_allowances }}</td>
+                <td>Rs.{{ payroll.project_incentive }}</td>
+                <td>Rs.{{ payroll.variable_pay }}</td>
+                <td class="fw-semibold">Rs.{{ payroll.gross_total }}</td>
+                <td>Rs.{{ payroll.esi }}</td>
+                <td>Rs.{{ payroll.pf }}</td>
+                <td>Rs.{{ payroll.salary_advance }}</td>
+                <td>Rs.{{ payroll.negative_leave }}</td>
+                <td>Rs.{{ payroll.tds }}</td>
+                <td class="text-danger">Rs.{{ payroll.total_deductions }}</td>
+                <td class="fw-bold text-primary">Rs.{{ payroll.net_salary }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="27" class="text-muted">No payroll records available for this month.</td>
+              </tr>
+              {% endfor %}
+              <!-- Optional Total Row -->
+              <tr class="table-light fw-semibold">
+                <td>Total:</td>
+                <td colspan="4"></td>
+                <td class="text-success">Rs.{{ total_salary }}</td>
+                <td colspan="21"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!--Sned via Email to head-->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("sendPayrollBtn").addEventListener("click", function (e) {
+        e.preventDefault();
+
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const month = document.querySelector('[name=month]').value;
+
+        fetch("{% url 'send_monthly_csv' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": csrfToken,
+            },
+            body: `month=${month}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            const msgBox = document.getElementById("responseMessage");
+            msgBox.innerText = data.message;
+            msgBox.className = data.status === "success" ? "text-success fw-bold mt-2" : "text-danger fw-bold mt-2";
+
+            // Auto-clear the message after 2 seconds (2000ms)
+            setTimeout(() => {
+                msgBox.innerText = "";
+                msgBox.className = "";  // Optional: also clear styles
+            }, 2000);
+        })
+        .catch(error => {
+            const msgBox = document.getElementById("responseMessage");
+            msgBox.innerText = "Something went wrong.";
+            msgBox.className = "text-danger fw-bold mt-2";
+
+            setTimeout(() => {
+                msgBox.innerText = "";
+                msgBox.className = "";
+            }, 2000);
+        });
+    });
+});
+</script>
+<!--For PDF send via Email-->
+<script>
+document.getElementById("emailAllForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+    const month = form.querySelector('[name=month]').value;
+
+    fetch("{% url 'email_individual_pdfs' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": csrfToken,
+        },
+        body: `month=${month}`
+    })
+    .then(res => res.json())
+    .then(data => {
+        const msgBox = document.getElementById("responseMessage2");
+        msgBox.innerText = data.message;
+        msgBox.className = data.status === "success" ? "text-success" : "text-danger";
+        setTimeout(() => msgBox.innerText = "", 2000);
+    })
+    .catch(err => {
+        const msgBox = document.getElementById("responseMessage");
+        msgBox.innerText = "Something went wrong.";
+        msgBox.className = "text-danger";
+        setTimeout(() => msgBox.innerText = "", 2000);
+    });
+});
+</script>
+
+{% endblock %}

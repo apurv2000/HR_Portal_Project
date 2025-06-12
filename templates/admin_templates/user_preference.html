@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} User Preference {% endblock %}
+{% block content %}
+{% include 'Side_Navbar.html' %}
+<div class="content-wrapper">
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6"></div>
+        <div class="col-sm-6 text-right"></div>
+      </div>
+    </div>
+  </section>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Holiday</li>
+    </ol>
+  </nav>
+  <div class="max-w-5xl mx-auto mt-10 bg-white p-8 rounded-2xl shadow-xl">
+    <h2 class="text-2xl font-semibold mb-6 border-b pb-2 text-gray-800">User Preference</h2>
+    <form id="preferenceForm" method="POST" class="space-y-6" action="{% url 'user_preference' %}">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <label class="block text-sm font-medium mb-1">Default Screen</label>
+          <select name="default_screen" class="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500">
+            <option value="Dashboard" {% if preference.default_screen == "Dashboard" %}selected{% endif %}>Dashboard</option>
+            <option value="Daily Timesheet" {% if preference.default_screen == "Daily Timesheet" %}selected{% endif %}>Daily Timesheet</option>
+            <option value="Weekly Timesheet" {% if preference.default_screen == "Weekly Timesheet" %}selected{% endif %}>Weekly Timesheet</option>
+            <option value="Image Timesheet" {% if preference.default_screen == "Image Timesheet" %}selected{% endif %}>Image Timesheet</option>
+            <option value="Apply Leave" {% if preference.default_screen == "Apply Leave" %}selected{% endif %}>Apply Leave</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Project</label>
+            <select name="project" class="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500">
+            <option value="" {% if not preference.project %}selected{% endif %}>No Project</option>
+            {% for project in projects %}
+              <option value="{{ project.id }}" {% if preference.project.id == project.id %}selected{% endif %}>
+                {{ project.project_name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Task</label>
+        <select name="task" class="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500">
+          <option value="" {% if not preference.task %}selected{% endif %}>No Task</option>
+          {% for task in tasks %}
+            <option value="{{ task.id }}" {% if preference.task.id == task.id %}selected{% endif %}>
+              {{ task.task_title }}
+            </option>
+          {% endfor %}
+        </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+      <label class="block text-sm font-medium mb-1">Working Time</label>
+      <div class="flex space-x-2">
+       <input type="time" name="work_start" value="{{ preference.work_start|time:'H:i' }}" placeholder="Start time" class="border border-gray-300 rounded px-2 py-1">
+      <input type="time" name="work_end" value="{{ preference.work_end|time:'H:i' }}" placeholder="End time" class="border border-gray-300 rounded px-2 py-1">
+
+      </div>
+    </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1">Default Timesheet</label>
+          <select name="default_timesheet" class="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500">
+            <option value="Daily Timesheet" {% if preference.default_timesheet == "Daily Timesheet" %}selected{% endif %}>Daily Timesheet</option>
+            <option value="Weekly Timesheet" {% if preference.default_timesheet == "Weekly Timesheet" %}selected{% endif %}>Weekly Timesheet</option>
+            <option value="Image Timesheet" {% if preference.default_timesheet == "Image Timesheet" %}selected{% endif %}>Image Timesheet</option>
+          </select>
+        </div>
+      </div>
+      <div class="pt-4">
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-md">
+          Save
+        </button>
+      </div>
+        <!-- Message container -->
+        <div id="message" class="mt-2 text-sm font-semibold"></div>
+    </form>
+  </div>
+</div>
+
+
+<!--For handle submition-->
+<script>
+document.getElementById('preferenceForm').addEventListener('submit', function(e) {
+  e.preventDefault(); // prevent normal form submission
+
+  const form = e.target;
+  const formData = new FormData(form);
+
+  fetch(form.action, {
+    method: 'POST',
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+      'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+    },
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    const messageDiv = document.getElementById('message');
+    if (data.success) {
+      messageDiv.textContent = data.message;
+      messageDiv.style.color = 'green';
+
+    } else {
+      messageDiv.textContent = data.message || 'Something went wrong';
+      messageDiv.style.color = 'red';
+    }
+    setTimeout(() => {
+      messageDiv.textContent = '';
+       location.reload();
+    }, 2000);
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    const messageDiv = document.getElementById('message');
+    messageDiv.textContent = 'Error saving preferences';
+    messageDiv.style.color = 'red';
+    setTimeout(() => {
+      messageDiv.textContent = '';
+
+    }, 2000);
+  });
+});
+</script>
+
+
+{% endblock %}

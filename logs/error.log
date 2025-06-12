@@ -1884,3 +1884,915 @@ Traceback (most recent call last):
     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
 TypeError: validate_password() takes 1 positional argument but 2 were given
 2025-05-29 18:29:10,829 | Level: ERROR | Module: basehttp | Line: 213 | Message: "POST /change-password/ HTTP/1.1" 500 73148
+2025-05-30 11:11:16,860 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 11:11:28,973 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 11:11:36,659 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 11:17:20,874 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 11:20:33,076 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /change-password/
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 4313, in change_password
+    employee.set_password(new_password)
+    ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'EmployeeBISP' object has no attribute 'set_password'
+2025-05-30 11:20:33,086 | Level: ERROR | Module: basehttp | Line: 213 | Message: "POST /change-password/ HTTP/1.1" 500 73912
+2025-05-30 11:53:07,961 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 11:57:26,844 | Level: ERROR | Module: views | Line: 1807 | Message: Password is required.
+2025-05-30 11:57:26,846 | Level: ERROR | Module: views | Line: 1810 | Message: Status 400
+2025-05-30 12:14:30,190 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /locked/employee/
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 4331, in locked_employee
+    return render(request,'report_templates/Locked_Employee.html',{'employee':employee})
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'unlock_employee' with arguments '('',)' not found. 1 pattern(s) tried: ['employee/unlock/(?P<employee_id>[0-9]+)/\\Z']
+2025-05-30 12:14:30,220 | Level: ERROR | Module: basehttp | Line: 213 | Message: "GET /locked/employee/ HTTP/1.1" 500 163877
+2025-05-30 12:14:50,259 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /locked/employee/
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 4331, in locked_employee
+    return render(request,'report_templates/Locked_Employee.html',{'employee':employee})
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'unlock_employee' with arguments '('',)' not found. 1 pattern(s) tried: ['employee/unlock/(?P<employee_id>[0-9]+)/\\Z']
+2025-05-30 12:14:50,270 | Level: ERROR | Module: basehttp | Line: 213 | Message: "GET /locked/employee/ HTTP/1.1" 500 163912
+2025-05-30 12:14:51,643 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /locked/employee/
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 4331, in locked_employee
+    return render(request,'report_templates/Locked_Employee.html',{'employee':employee})
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'unlock_employee' with arguments '('',)' not found. 1 pattern(s) tried: ['employee/unlock/(?P<employee_id>[0-9]+)/\\Z']
+2025-05-30 12:14:51,650 | Level: ERROR | Module: basehttp | Line: 213 | Message: "GET /locked/employee/ HTTP/1.1" 500 163912
+2025-05-30 12:15:00,509 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /locked/employee/
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 4331, in locked_employee
+    return render(request,'report_templates/Locked_Employee.html',{'employee':employee})
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'unlock_employee' with arguments '('',)' not found. 1 pattern(s) tried: ['employee/unlock/(?P<employee_id>[0-9]+)/\\Z']
+2025-05-30 12:15:00,518 | Level: ERROR | Module: basehttp | Line: 213 | Message: "GET /locked/employee/ HTTP/1.1" 500 163873
+2025-05-30 12:18:37,769 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 12:18:38,385 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 12:18:40,937 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 12:18:43,448 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 12:18:50,638 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 14:10:13,963 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 14:10:17,801 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 14:10:19,462 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 14:10:21,133 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 14:11:05,426 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 14:11:08,043 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 14:11:09,479 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 14:11:16,791 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 14:44:43,821 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 15:19:54,096 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /user/preference
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 4368, in user_preference
+    preference.save()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\db\models\base.py", line 1008, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\db\models\base.py", line 1138, in _save_table
+    updated = self._do_update(
+        base_qs, using, pk_val, values, update_fields, forced_update
+    )
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\db\models\base.py", line 1203, in _do_update
+    return filtered._update(values) > 0
+           ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\db\models\query.py", line 1283, in _update
+    return query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\db\models\sql\compiler.py", line 2059, in execute_sql
+    row_count = super().execute_sql(result_type)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\db\models\sql\compiler.py", line 1609, in execute_sql
+    sql, params = self.as_sql()
+                  ~~~~~~~~~~~^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\db\backends\mysql\compiler.py", line 49, in as_sql
+    update_query, update_params = super().as_sql()
+                                  ~~~~~~~~~~~~~~^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\db\models\sql\compiler.py", line 2022, in as_sql
+    val = field.get_db_prep_save(val, connection=self.connection)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\db\models\fields\__init__.py", line 1012, in get_db_prep_save
+    return self.get_db_prep_value(value, connection=connection, prepared=False)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\db\models\fields\__init__.py", line 2624, in get_db_prep_value
+    value = self.get_prep_value(value)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\db\models\fields\__init__.py", line 2619, in get_prep_value
+    return self.to_python(value)
+           ~~~~~~~~~~~~~~^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\db\models\fields\__init__.py", line 2603, in to_python
+    raise exceptions.ValidationError(
+    ...<3 lines>...
+    )
+django.core.exceptions.ValidationError: ['“” value has an invalid format. It must be in HH:MM[:ss[.uuuuuu]] format.']
+2025-05-30 15:19:54,118 | Level: ERROR | Module: basehttp | Line: 213 | Message: "POST /user/preference HTTP/1.1" 500 135187
+2025-05-30 15:47:44,652 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /user/preference
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 4375, in user_preference
+    preference.project = project if project else None
+    ^^^^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 288, in __set__
+    raise ValueError(
+    ...<7 lines>...
+    )
+ValueError: Cannot assign "<QuerySet [<Project: BISP Infonent>]>": "UserPreference.project" must be a "Project" instance.
+2025-05-30 15:47:44,660 | Level: ERROR | Module: basehttp | Line: 213 | Message: "POST /user/preference HTTP/1.1" 500 75888
+2025-05-30 16:00:00,018 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 16:00:02,353 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 16:00:04,480 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 16:00:06,413 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 16:00:08,336 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 16:00:15,939 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 16:07:04,369 | Level: ERROR | Module: views | Line: 1844 | Message: Incorrect password.
+2025-05-30 16:40:40,127 | Level: ERROR | Module: views | Line: 1858 | Message: Incorrect password.
+2025-05-30 17:52:51,213 | Level: ERROR | Module: views | Line: 1858 | Message: Incorrect password.
+2025-05-30 17:56:44,847 | Level: ERROR | Module: views | Line: 1858 | Message: Incorrect password.
+2025-05-30 17:56:50,334 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /Login/user/
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 1879, in Login_user
+    'id': preference.id,
+          ^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'preference' where it is not associated with a value
+2025-05-30 17:56:50,338 | Level: ERROR | Module: basehttp | Line: 213 | Message: "POST /Login/user/ HTTP/1.1" 500 80450
+2025-06-04 17:14:02,543 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /Hrpanel/
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 413, in Hr
+    return render(request, 'admin_templates/hr_dashboard.html',context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 199, in render
+    template = context.template.engine.select_template(template_name)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\engine.py", line 208, in select_template
+    return self.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 961, in do_if
+    condition = TemplateIfParser(parser, bits).parse()
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\smartif.py", line 198, in parse
+    raise self.error_class(
+        "Unused '%s' at end of if expression." % self.current_token.display()
+    )
+django.template.exceptions.TemplateSyntaxError: Unused 'request.session.role' at end of if expression.
+2025-06-04 17:14:02,587 | Level: ERROR | Module: basehttp | Line: 213 | Message: "GET /Hrpanel/ HTTP/1.1" 500 280733
+2025-06-04 17:14:35,955 | Level: ERROR | Module: views | Line: 1861 | Message: Incorrect password.
+2025-06-06 13:12:26,831 | Level: ERROR | Module: views | Line: 1831 | Message: No account found with this email.
+2025-06-06 13:13:09,419 | Level: ERROR | Module: views | Line: 1831 | Message: No account found with this email.
+2025-06-06 15:25:25,536 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /csv/payroll/
+2025-06-06 15:25:25,538 | Level: ERROR | Module: basehttp | Line: 213 | Message: "POST /csv/payroll/ HTTP/1.1" 500 50
+2025-06-06 15:25:53,732 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /csv/payroll/
+2025-06-06 15:25:53,734 | Level: ERROR | Module: basehttp | Line: 213 | Message: "POST /csv/payroll/ HTTP/1.1" 500 50
+2025-06-06 15:28:31,088 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /csv/payroll/
+2025-06-06 15:28:31,091 | Level: ERROR | Module: basehttp | Line: 213 | Message: "POST /csv/payroll/ HTTP/1.1" 500 50
+2025-06-06 15:29:52,301 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /csv/payroll/
+2025-06-06 15:29:52,302 | Level: ERROR | Module: basehttp | Line: 213 | Message: "POST /csv/payroll/ HTTP/1.1" 500 50
+2025-06-06 15:31:12,117 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /csv/payroll/
+2025-06-06 15:31:12,118 | Level: ERROR | Module: basehttp | Line: 213 | Message: "POST /csv/payroll/ HTTP/1.1" 500 50
+2025-06-06 15:31:22,489 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /csv/payroll/
+2025-06-06 15:31:22,489 | Level: ERROR | Module: basehttp | Line: 213 | Message: "POST /csv/payroll/ HTTP/1.1" 500 50
+2025-06-06 15:32:33,369 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /csv/payroll/
+2025-06-06 15:32:33,371 | Level: ERROR | Module: basehttp | Line: 213 | Message: "POST /csv/payroll/ HTTP/1.1" 500 50
+2025-06-11 14:04:50,836 | Level: ERROR | Module: views | Line: 1845 | Message: No account found with this email.
+2025-06-11 14:04:56,891 | Level: ERROR | Module: views | Line: 1845 | Message: No account found with this email.
+2025-06-11 14:05:01,899 | Level: ERROR | Module: views | Line: 1875 | Message: Incorrect password.
+2025-06-11 14:05:07,067 | Level: ERROR | Module: views | Line: 1845 | Message: No account found with this email.
+2025-06-11 14:15:04,130 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /monthly/payroll/
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 4499, in monthly_payroll
+    return render(request,'employee_salary/monthly_payroll.html',{'payroll_list':payroll_list})
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'send_monthly_csv_to_head' not found. 'send_monthly_csv_to_head' is not a valid view function or pattern name.
+2025-06-11 14:15:04,158 | Level: ERROR | Module: basehttp | Line: 213 | Message: "GET /monthly/payroll/ HTTP/1.1" 500 170374
+2025-06-11 14:18:22,290 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /monthly/payroll/
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 4499, in monthly_payroll
+    return render(request,'employee_salary/monthly_payroll.html',{'payroll_list':payroll_list})
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'send_monthly_csv_to_head' not found. 'send_monthly_csv_to_head' is not a valid view function or pattern name.
+2025-06-11 14:18:22,295 | Level: ERROR | Module: basehttp | Line: 213 | Message: "GET /monthly/payroll/ HTTP/1.1" 500 170253
+2025-06-11 14:36:01,786 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /monthly/payroll/
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 4499, in monthly_payroll
+    return render(request,'employee_salary/monthly_payroll.html',{'payroll_list':payroll_list})
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'email_individual_pdfs' not found. 'email_individual_pdfs' is not a valid view function or pattern name.
+2025-06-11 14:36:01,801 | Level: ERROR | Module: basehttp | Line: 213 | Message: "GET /monthly/payroll/ HTTP/1.1" 500 171438
+2025-06-11 15:05:46,425 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /send-monthly-csv/
+2025-06-11 15:05:46,427 | Level: ERROR | Module: basehttp | Line: 213 | Message: "POST /send-monthly-csv/ HTTP/1.1" 500 85
+2025-06-11 15:50:15,767 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /salary/
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 4520, in salary
+    return render(request,'employee_salary/salary.html',{'employees':employee,'payrolls':payrolls})
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 243, in render
+    nodelist.append(node.render_annotated(context))
+                    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'employee_based_payslips' with arguments '('apurvmalviya@gmail.com',)' not found. 1 pattern(s) tried: ['employee/based/payslips/(?P<email>[0-9]+)/\\Z']
+2025-06-11 15:50:15,773 | Level: ERROR | Module: basehttp | Line: 213 | Message: "GET /salary/ HTTP/1.1" 500 176044
+2025-06-11 15:53:21,310 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /salary/
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 4520, in salary
+    return render(request,'employee_salary/salary.html',{'employees':employee,'payrolls':payrolls})
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 243, in render
+    nodelist.append(node.render_annotated(context))
+                    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'employee_based_payslips' with arguments '('apurvmalviya@gmail.com',)' not found. 1 pattern(s) tried: ['employee/based/payslips/(?P<email>[0-9]+)/\\Z']
+2025-06-11 15:53:21,320 | Level: ERROR | Module: basehttp | Line: 213 | Message: "GET /salary/ HTTP/1.1" 500 175916
+2025-06-11 16:11:30,908 | Level: ERROR | Module: views | Line: 1845 | Message: No account found with this email.
+2025-06-11 16:16:38,665 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /salary/
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 890, in _resolve_lookup
+    raise TypeError
+TypeError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 4520, in salary
+    return render(request,'employee_salary/salary.html',{'employees':employee,'payrolls':payrolls})
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 243, in render
+    nodelist.append(node.render_annotated(context))
+                    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1075, in render
+    output = self.filter_expression.resolve(context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 722, in resolve
+    obj = self.var.resolve(context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 854, in resolve
+    value = self._resolve_lookup(context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 901, in _resolve_lookup
+    current = getattr(current, bit)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\db\models\fields\files.py", line 69, in url
+    self._require_file()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\db\models\fields\files.py", line 44, in _require_file
+    raise ValueError(
+        "The '%s' attribute has no file associated with it." % self.field.name
+    )
+ValueError: The 'profile_picture' attribute has no file associated with it.
+2025-06-11 16:16:38,688 | Level: ERROR | Module: basehttp | Line: 213 | Message: "GET /salary/ HTTP/1.1" 500 202542
+2025-06-11 16:17:56,098 | Level: ERROR | Module: log | Line: 248 | Message: Internal Server Error: /salary/
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 890, in _resolve_lookup
+    raise TypeError
+TypeError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\HR_Project\HR_Portal\HR_Portal\HR_App\views.py", line 4520, in salary
+    return render(request,'employee_salary/salary.html',{'employees':employee,'payrolls':payrolls})
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\defaulttags.py", line 243, in render
+    nodelist.append(node.render_annotated(context))
+                    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 1075, in render
+    output = self.filter_expression.resolve(context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 722, in resolve
+    obj = self.var.resolve(context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 854, in resolve
+    value = self._resolve_lookup(context)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\template\base.py", line 901, in _resolve_lookup
+    current = getattr(current, bit)
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\db\models\fields\files.py", line 69, in url
+    self._require_file()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\HR_Project\HR_Portal\HR_Portal\Lib\site-packages\django\db\models\fields\files.py", line 44, in _require_file
+    raise ValueError(
+        "The '%s' attribute has no file associated with it." % self.field.name
+    )
+ValueError: The 'profile_picture' attribute has no file associated with it.
+2025-06-11 16:17:56,109 | Level: ERROR | Module: basehttp | Line: 213 | Message: "GET /salary/ HTTP/1.1" 500 202792
